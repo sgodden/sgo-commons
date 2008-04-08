@@ -1,0 +1,50 @@
+<body>
+<p>A lightweight object-oriented query framework.</p>
+<p/>The query package provides a simple object-centric query API, independent of 
+any particular persistence back end.
+<p/>
+The only back end currently implemented is Hibernate, but there's nothing to 
+stop e.g. a plain JDBC or JDO back end being written.
+<p/>
+The purpose of this project is <em>not</em> to provide a fully-functional query 
+API capable of all the function of, say, the Hibernate Criteria API. It is only 
+to allow simple queries to be performed very simply.
+<p/>
+<h2>Status</h2>
+This is currently at beta status.
+
+<h2>Features</h2>
+<ul>
+    <li>Very simple object-centric API, allowing plain or nested properties to 
+    be retrieved and aggregate functions applied to them;</li>
+    <li>Ability to have the created result sets automatically page, calling 
+    back the query service that created them to retrieve further pages as 
+    necessary, totally transparent to the client.</li>
+</ul>
+
+<h2>Limitations</h2>
+<ul>
+    <li>The filtering API is very simplistic (simply a set of AND conditions) 
+    and not yet suitable for complex filtering scenarios;</li>
+    <li>No built-in capability for detached scenarios, such as web services client.</li>
+</ul>
+
+<h2>Usage examples</h2>
+Simple usage retrieving all rows at once:
+<pre>
+QueryService queryService; // presumably dependency-injected
+
+...
+
+Query query = new Query()
+    .setObjectClass(Order.class)
+    .addColumn("orderNumber")
+    .addColumn("orderDate")
+    .addColumn("customer.name")
+    .addColumn("orderLines.grossWeight", AggregateFunction.SUM)
+    .addFilterCriterion("customer.name", Operator.LIKE, "ABC%");
+
+ResultSet rs = queryService.execute(query)
+</pre>
+
+</body>

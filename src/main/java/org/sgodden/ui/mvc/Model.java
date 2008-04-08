@@ -17,7 +17,7 @@
 package org.sgodden.ui.mvc;
 
 /**
- * Generic interface for a model.
+ * Generic base interface for a model.
  * 
  * @author sgodden
  *

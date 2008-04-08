@@ -27,6 +27,13 @@
             <version>3.8.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate</artifactId>
+            <version>3.2.5.ga</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
         
     <build>

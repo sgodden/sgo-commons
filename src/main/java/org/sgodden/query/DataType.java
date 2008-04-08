@@ -14,36 +14,14 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 # ================================================================= */
-package org.sgodden.ui.mvc.swing.testapp;
+package org.sgodden.query;
 
-import org.sgodden.ui.mvc.impl.FlowImpl;
-
-/**
- * A test flow configuration.
- * @author sgodden
- */
-public class TestFlowImpl 
-		extends FlowImpl {
+public enum DataType {
 	
-	public TestFlowImpl(){
-		super();
-		
-		addViewConfiguration("listView");
-		addViewConfiguration("editView");
-		
-		addControllerConfiguration("saveController", "maintenanceController");
-		
-		addResolutionMapping("listView", "EDIT", null, "editView");
-		
-		addResolutionMapping("editView", "CANCEL", null, "listView");
-		addResolutionMapping("editView", "SAVE", null, "saveController");
-		
-		addResolutionMapping("saveController", "SUCCESS", null, "listView");
-	}
-
-	@Override
-	protected String getInitialViewName() {
-		return "listView";
-	}
+	STRING,
+	INTEGER,
+	TIMESTAMP,
+	LONG,
+	BOOLEAN
 
 }
