@@ -28,10 +28,10 @@ public class TestFlowImpl
 	public TestFlowImpl(){
 		super();
 		
-		addViewConfiguration("listView");
-		addViewConfiguration("editView");
+		addViewStep("listView");
+		addViewStep("editView");
 		
-		addControllerConfiguration("saveController", "maintenanceController");
+		addControllerStep("saveController", "maintenanceController");
 		
 		addResolutionMapping("listView", "EDIT", null, "editView");
 		
