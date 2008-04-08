@@ -14,23 +14,24 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 # ================================================================= */
-package org.sgodden.ui.swing.util;
-
-import java.awt.Component;
-import java.awt.Cursor;
+package org.sgodden.ui.mvc.messages;
 
 /**
- * Swing cursor utilities.
+ * Provides an enumeration of message severities.
  * @author sgodden
  */
-public class CursorUtils {
+public enum MessageSeverity {
 
-	public static void setBusyCursor(Component c){
-		c.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-	}
-	
-	public static void setDefaultCursor(Component c){
-		c.setCursor(Cursor.getDefaultCursor());
-	}
-	
+    /**
+     * An information message.
+     */
+    INFO,
+    /**
+     * A warning message.
+     */
+    WARNING,
+    /**
+     * An error message.
+     */
+    ERROR
 }

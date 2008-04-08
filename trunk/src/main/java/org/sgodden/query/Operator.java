@@ -14,36 +14,24 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 # ================================================================= */
-package org.sgodden.ui.mvc.swing.testapp;
-
-import org.sgodden.ui.mvc.impl.FlowImpl;
+package org.sgodden.query;
 
 /**
- * A test flow configuration.
+ * Operators which can be applied to filter criteria.  
+ * 
  * @author sgodden
+ *
  */
-public class TestFlowImpl 
-		extends FlowImpl {
-	
-	public TestFlowImpl(){
-		super();
-		
-		addViewConfiguration("listView");
-		addViewConfiguration("editView");
-		
-		addControllerConfiguration("saveController", "maintenanceController");
-		
-		addResolutionMapping("listView", "EDIT", null, "editView");
-		
-		addResolutionMapping("editView", "CANCEL", null, "listView");
-		addResolutionMapping("editView", "SAVE", null, "saveController");
-		
-		addResolutionMapping("saveController", "SUCCESS", null, "listView");
-	}
-
-	@Override
-	protected String getInitialViewName() {
-		return "listView";
-	}
-
+public enum Operator {
+	EQUALS,
+	NOT_EQUALS,
+	LESS_THAN,
+	LESS_THAN_OR_EQUALS,
+	GREATER_THAN,
+	GREATER_THAN_OR_EQUALS,
+	BETWEEN,
+	NOT_BETWEEN,
+	IN,
+	NOT_IN,
+	LIKE
 }

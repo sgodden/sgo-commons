@@ -14,36 +14,23 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 # ================================================================= */
-package org.sgodden.ui.mvc.swing.testapp;
+package org.sgodden.query.service;
 
-import org.sgodden.ui.mvc.impl.FlowImpl;
+import org.sgodden.query.Query;
+import org.sgodden.query.ResultSet;
 
 /**
- * A test flow configuration.
- * @author sgodden
+ * A service which runs queries and returns results.
+ * @author goddens
+ *
  */
-public class TestFlowImpl 
-		extends FlowImpl {
+public interface QueryService {
 	
-	public TestFlowImpl(){
-		super();
-		
-		addViewConfiguration("listView");
-		addViewConfiguration("editView");
-		
-		addControllerConfiguration("saveController", "maintenanceController");
-		
-		addResolutionMapping("listView", "EDIT", null, "editView");
-		
-		addResolutionMapping("editView", "CANCEL", null, "listView");
-		addResolutionMapping("editView", "SAVE", null, "saveController");
-		
-		addResolutionMapping("saveController", "SUCCESS", null, "listView");
-	}
-
-	@Override
-	protected String getInitialViewName() {
-		return "listView";
-	}
+	/**
+	 * Executes the passed query, and returns a result set.
+	 * @param query the query to execute.
+	 * @return the results of the query.
+	 */
+	public ResultSet executeQuery(Query query);
 
 }

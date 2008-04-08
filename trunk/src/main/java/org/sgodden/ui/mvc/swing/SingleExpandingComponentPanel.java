@@ -21,6 +21,11 @@ import java.awt.BorderLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+/**
+ * A panel with a border layout that puts its single child into the center
+ * region so that it takes up all available space.
+ * @author sgodden
+ */
 public class SingleExpandingComponentPanel extends JPanel {
 	
 	public SingleExpandingComponentPanel(){
