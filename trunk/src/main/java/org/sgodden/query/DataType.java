@@ -16,6 +16,10 @@
 # ================================================================= */
 package org.sgodden.query;
 
+/**
+ * An enumeration of data types.
+ * @author sgodden
+ */
 public enum DataType {
 	
 	STRING,
