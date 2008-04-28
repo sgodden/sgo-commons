@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<project name="sgo-commons" default="install" basedir=".">
+	
+	<target name="install"
+			depends="os-detect"
+			description="Builds and installs into the local maven repository">
+		<antcall target="mvn-install-unix"/>
+		<antcall target="mvn-install-windows"/>
+	</target>
+	
+	<target name="mvn-install-unix"
+			if="is-unix"
+			description="Installs the jar into the local maven repository">
+		<exec executable="mvn">
+			<arg value="install"/>
+			<arg value="-DgroupId=org.sgodden"/>
+			<arg value="-DartifactId=echo3ext20"/>
+			<arg value="-Dversion=1.0-SNAPSHOT"/>
+			<arg value="-Dpackaging=jar"/>
+			<arg value="-Dfile=build${file.separator}echo3ext20.jar"/>
+		</exec>
+	</target>
+	
+	<target name="mvn-install-windows"
+			if="is-windows"
+			description="Installs the jar into the local maven repository (windows environment)">
+		<exec executable="cmd">
+			<arg value="/c"/>
+			<arg value="mvn install -DgroupId=org.sgodden -DartifactId=echo3ext20 -Dversion=1.0-SNAPSHOT -Dpackaging=jar -Dfile=build${file.separator}echo3ext20.jar"/>
+		</exec>
+	</target>
+	
+	<target name="os-detect">
+	  	<condition property="is-unix" value="true">
+	  	     <os family="unix"/>
+	  	</condition>
+	  	<condition property="is-windows" value="true">
+	  		<os family="windows"/>
+	  	</condition>
+    </target>
+    
+</project>
