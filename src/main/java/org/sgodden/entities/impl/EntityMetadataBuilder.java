@@ -17,7 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sgodden.entities.Aggregation;
 import org.sgodden.entities.Attribute;
-import org.sgodden.entities.AttributeTypeMetadata;
+import org.sgodden.entities.AttributeTypeMetadataProvider;
 import org.sgodden.entities.LocaleDependent;
 import org.sgodden.entities.metadata.EntityMetadata;
 import org.sgodden.entities.metadata.PropertyMetadata;
@@ -47,6 +47,8 @@ public class EntityMetadataBuilder {
 	private static final transient Log log = LogFactory.getLog(EntityMetadataBuilder.class);
 	
 	private Map<String, EntityMetadata> metadatas = new HashMap<String, EntityMetadata>();
+	
+	private AttributeTypeMetadataProvider attributeTypeMetadataProvider;
 	
 	public Map<String, EntityMetadata> createMetadatas(String className, Locale locale) {
 		createMetadata(className, locale);
@@ -107,7 +109,7 @@ public class EntityMetadataBuilder {
 						attr.unique(), 
 						attr.uniqueInComposedSet(), 
 						EntityInstanceUtils.getDataType(m.getReturnType()),
-						AttributeTypeMetadata.get(attr.attributeType()));
+						attributeTypeMetadataProvider.getMetadata(attr.attributeTypeName()));
 				
 				pmds.add(siam);
 				
@@ -116,7 +118,7 @@ public class EntityMetadataBuilder {
 		
 		md.setSimpleInstanceAttributeMetadatas((SimpleInstanceAttributeMetadata[]) pmds.toArray(new SimpleInstanceAttributeMetadata[pmds.size()]));
 	}
-	
+
 	private void addManyToOneAggregations(EntityMetadata md, Method[] methods, Locale locale) {
 		
 		Set<ToOneAggregationMetadata> toams = new HashSet<ToOneAggregationMetadata>();
@@ -258,6 +260,15 @@ public class EntityMetadataBuilder {
 			
 		}
 		
+	}
+	
+	/**
+	 * Sets the provider that will return attribute type metadata.
+	 * @param attributeTypeMetadataProvider the provider of attribute type metadata.
+	 */
+	public void setAttributeTypeMetadataProvider(
+			AttributeTypeMetadataProvider attributeTypeMetadataProvider) {
+		this.attributeTypeMetadataProvider = attributeTypeMetadataProvider;
 	}
 	
 }

@@ -3,8 +3,6 @@ package org.sgodden.entities.metadata;
 
 /**
  * Provides metadata relating to a certain entity class.
- * <p/>
- * FIXME - implement this.
  * 
  * @author goddens
  *

@@ -17,8 +17,6 @@
 package org.sgodden.entities;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A dictionary of metadata for attribute definitions, for instance 'order number',
@@ -37,8 +35,6 @@ public class AttributeTypeMetadata
 	
 	private int maxLength;
 	private int precision;
-	
-	private static Map<AttributeType, AttributeTypeMetadata> dictionary = new HashMap<AttributeType, AttributeTypeMetadata>();
 	
 	/**
 	 * Default constructor for attribute types such as dates which
@@ -72,45 +68,6 @@ public class AttributeTypeMetadata
 	 */
 	public int getPrecision() {
 		return precision;
-	}
-	
-	/**
-	 * Returns the metadata for the specified attribute type.
-	 * @param attributeType the attribute type.
-	 * @return the metadata.
-	 */
-	public static AttributeTypeMetadata get(AttributeType attributeType){
-		AttributeTypeMetadata ret = dictionary.get(attributeType);
-		if (ret == null){
-			throw new IllegalArgumentException("Unknown attribute type: " + attributeType);
-		}
-		return ret;
-	}
-
-	// and now all the enumeration constants in alphabetical order please
-	
-	//public static final AttributeTypeMetadata CODE = new AttributeTypeMetadata(17);
-	
-	static {
-		dictionary.put(AttributeType.ADDRESS_LINE, new AttributeTypeMetadata(35));
-		dictionary.put(AttributeType.BUILDING_NAME, new AttributeTypeMetadata(35));
-		dictionary.put(AttributeType.BUILDING_NUMBER, new AttributeTypeMetadata(7, 0));
-		dictionary.put(AttributeType.CODE, new AttributeTypeMetadata(17));
-		dictionary.put(AttributeType.DESCRIPTION_OF_GOODS, new AttributeTypeMetadata(35));
-		dictionary.put(AttributeType.DESCRIPTION, new AttributeTypeMetadata(35));
-		dictionary.put(AttributeType.GROSS_WEIGHT, new AttributeTypeMetadata(9, 2));
-		dictionary.put(AttributeType.LOCALE, new AttributeTypeMetadata(10));
-		dictionary.put(AttributeType.LOCALITY, new AttributeTypeMetadata(35));
-		dictionary.put(AttributeType.LINE_ITEM_NUMBER, new AttributeTypeMetadata(3, 0));
-		dictionary.put(AttributeType.MARKS, new AttributeTypeMetadata(35));
-		dictionary.put(AttributeType.NAME, new AttributeTypeMetadata(35));
-		dictionary.put(AttributeType.ORDER_NUMBER, new AttributeTypeMetadata(35));
-		dictionary.put(AttributeType.ORDER_DATE, new AttributeTypeMetadata());
-		dictionary.put(AttributeType.PIECES, new AttributeTypeMetadata(7, 0));
-		dictionary.put(AttributeType.POSTAL_CODE, new AttributeTypeMetadata(17));
-		dictionary.put(AttributeType.REFERENCE, new AttributeTypeMetadata(35));
-		dictionary.put(AttributeType.STATE, new AttributeTypeMetadata(35));
-		dictionary.put(AttributeType.TOWN, new AttributeTypeMetadata(35));
 	}
 
 }
