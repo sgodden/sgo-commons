@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 /**
  * Specifies information about an aggregation, such as its default
  * presentation sequence.
- * 
+ * <p/>
  * FIXME - uniqueness attributes are relevant only to to-one aggregations
  * 
  * @author goddens
@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
 public @interface Aggregation {
 	/**
 	 * Whether the value of this aggregation needs to be unique across
-	 * all instances of the type.
+	 * all instances of the declaring type.
 	 * <p/>
 	 * This might be used to infer indexes to be added to the database.
 	 * <p/>

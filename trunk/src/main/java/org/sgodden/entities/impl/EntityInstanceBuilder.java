@@ -35,6 +35,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.sgodden.entities.Aggregation;
 import org.sgodden.entities.Attribute;
 import org.sgodden.entities.AttributeTypeMetadata;
+import org.sgodden.entities.AttributeTypeMetadataProvider;
 import org.sgodden.entities.EntityInstance;
 import org.sgodden.entities.EntityReference;
 import org.sgodden.entities.IllegalEntityConfigurationException;
@@ -45,6 +46,8 @@ import org.sgodden.resources.ResourceUtils;
 public class EntityInstanceBuilder {
 	
 	//private static final transient Log log = LogFactory.getLog(EntityInstanceBuilder.class);
+	
+	private AttributeTypeMetadataProvider attributeTypeMetadataProvider;
 	
 	public EntityInstance build(
 			Class clazz,
@@ -143,7 +146,7 @@ public class EntityInstanceBuilder {
 					
 					if (m.getAnnotation(Attribute.class) != null) {
 						Attribute attr = m.getAnnotation(Attribute.class);
-						md = AttributeTypeMetadata.get(attr.attributeType());
+						md = attributeTypeMetadataProvider.getMetadata(attr.attributeTypeName());
 						unique = attr.unique();
 						uniqueInSet = attr.uniqueInComposedSet();
 					}
@@ -343,6 +346,15 @@ public class EntityInstanceBuilder {
 			} 
 		}
 		return ret;
+	}
+
+	/**
+	 * Sets the provider that will return attribute type metadata.
+	 * @param attributeTypeMetadataProvider the provider of attribute type metadata.
+	 */
+	public void setAttributeTypeMetadataProvider(
+			AttributeTypeMetadataProvider attributeTypeMetadataProvider) {
+		this.attributeTypeMetadataProvider = attributeTypeMetadataProvider;
 	}
 
 }

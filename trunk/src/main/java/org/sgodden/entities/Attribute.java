@@ -40,7 +40,7 @@ public @interface Attribute {
 	 * The attribute type.
 	 * @return
 	 */
-	AttributeType attributeType();
+	String attributeTypeName();
 	/**
 	 * Whether the value of this attribute needs to be unique across
 	 * all instances of the type.
