@@ -76,7 +76,7 @@ public class FrontController
              */
             Method m;
             try {
-                m = controller.getClass().getMethod(resolutionName.toLowerCase(), null);
+                m = controller.getClass().getMethod(resolutionName.toLowerCase(), (Class[])null);
             } catch (NoSuchMethodException e) {
                 throw new IllegalStateException("Unable to find method: resolution name '" + resolutionName + "'; controller class " + controller.getClass(), e);
             }
