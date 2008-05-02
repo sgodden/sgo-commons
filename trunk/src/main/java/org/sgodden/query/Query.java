@@ -27,6 +27,10 @@ import java.util.Locale;
  * TODO - provide usage examples.
  * <p/>
  * FIXME - fetch size and max rows do not work in conjunction
+ * <p/>
+ * TODO - allow the caller to set the WHERE clause directly rather than
+ * using the filter criteria, and probably remove the filter criteria 
+ * altogether.
  * 
  * @author goddens
  *

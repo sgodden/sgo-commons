@@ -18,7 +18,8 @@ package org.sgodden.ui.mvc.models;
 
 import java.util.Map;
 
-import org.sgodden.ui.mvc.Model;
+import javax.swing.table.TableModel;
+
 import org.sgodden.ui.mvc.messages.MessageModel;
 
 /**
@@ -28,7 +29,7 @@ import org.sgodden.ui.mvc.messages.MessageModel;
  *
  */
 public interface FilterableTableModel 
-		extends Model {
+		extends TableModel  {
 	
 	/**
 	 * Refreshes the model based on the passed filter model.
