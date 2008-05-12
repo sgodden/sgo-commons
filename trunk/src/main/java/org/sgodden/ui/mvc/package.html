@@ -1,109 +1,355 @@
 <body>
 <p>A lightweight MVC framework.</p>
+<p>
+	This framework borrows on some of the ideas found in classic web MVC frameworks such as Struts, with the
+	"pull-style" MVC paradigm found in JSF, to produce a lightweight view flow framework suitable for 
+	object-oriented user interface toolkits such as <a href="http://java.sun.com/docs/books/tutorial/uiswing/">Swing</a>, 
+	<a href="http://echo.nextapp.com/site/">Echo</a>,
+	<a href="http://www.millstone.org/">Millstone</a>, <a href="www.thinwire.com">Thinwire</a> etc.
+</p>
 
-<p>Explain the similarities to JSF but also the advantage over it.</p>
-<p>Give an example scenario and how it would play out in this and also JSF</p>
+<div class="toc">
+	<p><u>Table of contents</u></p>
+	<ol>
+		<li><a href="#concepts">Key concepts</a></li>
+		<li><a href="#example">Example scenario</a></li>
+		<ol>
+			<li><a href="#required-classes">Required classes</a></li>
+			<li><a href="#sample-controller-code">Sample controller code</a></li>
+			<li><a href="#sample-list-view-code">Sample list view code</a></li>
+		</ol>
+		<li><a href="#configure-spring">Configuring via Spring</a></li>
+	</ol>
+</div>
 
-<h1>To do</h1>
-<ol>
-<li>Allow null to be returned from controller methods to just redisplay the previous view?</li>
-<li>Ensure global resolutions are handled properly</li> 
-<li>Cater for storing the view config(s) in progress so that they can be resumed in the event of failure (low priority)</li>
-</ol>
+<h1 id="concepts">Key concepts</h1>
+<h2>Flow</h2>
+<p>
+	The framework functions via the configuration of <a href="Flow.html"><em>flows</em></a>, which are then managed in the context of
+	a particular <em>container</em> visible in the user interface.  This container might be the whole screen, or
+	just a part of it.  Because of this, the framework allows you to have more than one flow executing on the overall
+	screen at one time.
+</p>
+<p>
+	A flow is made up of <em>views</em>, <em>controllers</em> and other <em>managed objects</em>.
+</p>
 
-<h1>Historical notes</h1>
-<p>Make sure the strategy for view creation is encapsulated.</p>
+<h2>View</h2>
+<p>
+Views, unsurprisingly, have the reponsibility of presenting data to the user.  They will extend
+the relevant classes in your UI framework, such as Panel, Container, etc., and take data from the model
+to present to the user.
+</p>
 
-<p>In terms of flexible view composition, will need decorators that implement the necessary view interfaces, and then
-probably configure those through spring or another easily configurable factory mechanism, telling it which is
-the decorated component which e.g. really holds the list selection model.</p>
+<p>Views must implement the <a href="View.html">View</a> interface, which is a very simple interface allowing
+views to construct their user interface components at the correct point in the lifecycle, when it can be guaranteed
+that references to other objects in the flow (such as controllers or other managed objects) will resolve correctly,
+and that those objects will have all been configured.</p>
 
-<p>That means that a flow would have a step of loading the object in question, then progressing through several views 
-which do not retrieve the model but only manipulate it in transient
-storage, then to a controller which validates / saves but has no view, and returns a forward to a new view.<p/>
+<p>When an action related to navigation occurs within the view, the view fires a <em>resolution</em>, which is
+picked up by the flow manager, and is used to determine where to go next - either to invoke a certain controller method
+so that model updates can be handled, or to navigate to a different view.</p>
 
-<p>We can then use e.g. jBPM to handle the page flow, maybe even just using jPDL directly, as Seam does.</p>
+<p>For instance, if we are in a list of orders, and the user double-clicks on a particular order, we would fire a resolution
+named 'ACTIVATE', and allow the flow mappings to take care of where we go next (presumably to the panel where we edit
+a particular order).</p>
 
-<p>One of the really nice things about using jBPM would be that after every view, the updated model could be stored as a 
-process variable, allowing the process to be resumed at any stage
-without having persisted the object to the main database.  
-Obviously, a stale object check would have to be done before allowing resumption of that process, otherwise it would be
-invalid.  And actually, we wouldn't need to use jBPM for that.  We could just have our own mechanism.</p>
+<p>Note that we would not name our resolution 'EDIT', since this makes assumptions about where the flow takes us, and the order
+list view may appear in flows where we do not go to the edit panel when a row is double-clicked.  We call our resolutions
+what has happened, not what we think they will do in a particular flow configuration.  This way, we remove hard-coded logic from views about system navigation, enforcing a separation of concerns which
+makes customisation of application behaviour far easier to implement.</p>
 
-<h2>Global level actions</h2>
-<p>Need to implement the concept of global actions, which are always there, 
-but which may be delegated to the controller of the currently active view</p>
+<p>Of course, you can call your resolutions what you like, but sticking to the above rule will save you getting confused
+in the long term.</p>
 
-<h2>Areas of further research</h2>
+<h2>Controller</h2>
+<p>Controllers mediate between the model and the view, retrieving the model, and processing user interface events to 
+potentially change the model (normally via the use of other configured services).</p>
+
+<p>Controllers have <em>processing methods</em> which are invoked upon a user action taking place in the view.  
+These methods take no arguments, and return a string to indicate the resolution, or outcome, of the method.</p>
+  
+<p>For instance, when the user presses the 'Save' button on an edit panel, we would configure the flow to call
+the <code>save()</code> method on the controller.  That method can have two possible <em>resolutions</em>:  either it succeeds
+in the save operation, or it fails.  If it succeeds, we want to go back to the list panel.  If it fails, then we
+want to remain on the edit panel, where we will presumably show the reasons for the failure to the user.</p>
+
+<p>The controller indicates which resolution has occurred by returning an appropriate string from its processing method, e.g.</p>
+<pre class="code">
+public String save() {
+  String ret = "SUCCESS";
+  try {
+    myService.save(theObject);
+  }
+  catch(ValidationException ex) {
+    ... add some validation messages to a messages object ...
+    ret= "FAIL";
+  }
+  return ret;
+}
+</pre>
+
+<h2>Resolution mappings</h2>
+<p>In order to make a flow, we need to map <em>resolutions</em>, which occur in views and controllers, to appropriate <em>destinations</em>.</p>
+<p>For instance
 <ul>
-<li>General MVC theory research</li>
-<li>Existing Web MVC frameworks</li>
-<li>Any GUI MVC frameworks such as Spring Rich Client</li>
+	<li>when the users presses save on the edit view, call the save method of the order controller;</li>
+	<li>when the save method of the order controller returns 'SUCCESS', go back to the list view;</li>
 </ul>
+</p>
 
-<h2>Current thoughts</h2>
-Whether to convert to a JSF style, where the view simply pulls what it needs from a named configured object, and also
-binds to those objects.  Actions are also routed through managed objects, which then return the logical outcome
-which is then mapped to next view.
-<p/>
-Nice things about this - it imposes no particular API on the controllers, facilitating their re-use across
-different MVC paradigms.
-<p/>
-Bad things - an action goes straight into a controller, such as 'orderController.save'.  What if a customer wants
-to put a validation view into the flow before the save.  As well as changing the flow configuration, you would need
-to write a different implementation of the controller which did not save but instead returned a logical outcome
-of validate, which then routed to the validate view.  Better that the SAVE action from the original view is intercepted
-directly by the framework, which can then simply look at the config to work out that it goes directly to a validation
-view before then actually going to the save controller.
-<p/>
-So the JSF style couples the controllers more tightly into the flow.  Reading from managed objects by the view is fine,
-but having managed beans listen directly to the actions from the view is not.
-<p/>
-If the framework instead handles actions from the view, then the controllers become part of the flow, which is the
-advantage I am after.  Binding could still be done to managed objects, it would just be case of those having to 
-expose data to other controllers which need it.  For instance, the extra validation view would need access to the model
-to perform its validation.
-<p/>
-Also, might need multiple listeners on a model, so that a custom view for a customer can react to model
-changes without modifying the core components.
-<p/>
-There are two different types of update:
+<h2>Context</h2>
+<p>The <a href="Context.html">context</a> provides views and controllers with access to the current state of the flow, and allows them to access the other
+particiapting objects.</p>
+
+<p>This allows, for example, views to obtain a reference to a controller or other managed object in the flow, and to invoke a method on it.
+This facilitates a pattern known as 'pull-style' MVC, where views 'pull' information that they need from the controller.  You will find
+endless debates about whether this it the best pattern to use, but it is the one facilitated by this framework, as the author has found
+it the simplest method to implement.</p>
+
+<p>For example, the list view may pull the controller out of the current context and ask it for the table model which it will use to 
+populate its data table.  The controller will most likely create the model lazily when asked.  Further details of this are given in
+the sample scenario below.</p>
+
+<p><b>IMPORTANT</b> - be sure to read and implement the notes on the {@link org.sgodden.ui.mvc.Context#getCurrentContext()} method, 
+or you may end up with the wrong context object when responding to user interface events.</p>
+
+<!-- EXAMPLE -->
+<h1 id="example">Example</h1>
+<p>Let's take a simple example, represented by the following diagram:</p>
+
+<img src="doc-files/sample-flow.png"/>
+
+<p>In textual form, assuming that we are doing this in the context of customer orders, the rules for this flow
+can be expressed as follows:
 <ol>
-<li>updates that do not represent a navigation intention, such as changing the filter criteria
-for a table model.  That actions can go straight to the managed bean, which does its update and fires a model changed
-event, which the views respond to.  In JSF, this is handled by returning a null navigation string from the action
-handler method, which means redisplay the same view.  But that doesn't sit nicely with partial page updates?
-UPDATE - this can be handled directly in the view.
-</li>
-<li>updates that represent a navigation intention.  These need to be captured by the framework, not bound directly
-to a managed object, so that a specialised page flow does not require changes to the managed objects.</li>
+	<li>I start off at the order list view;</li>
+	<li>If the user selects a row, I go the edit view;</li>
+	<li>If the user presses the cancel button in the edit view, we go back to the list view;</li>
+	<li>If the user presses the save button in the edit view (presumably after having altered some values), then
+	we invoke the validation controller;</code></li>
+	<li>If the validation controller succeeds, we invoke the save controller;</li>
+	<li>If the validation controller fails, we return to the edit view;</li>
+	<li>If the save controller succeeds, we return to the list view;</li>
+	<li>If the save controller fails, we go to the system error view;</li>
+	<li>If the user presses the ok button in the system error view, we go back to the list view.</li>
 </ol>
-<p/>
-<h2>A scenario</h2>
-In a standard flow, sales order details are entered.  Pressing the SAVE button causes a validation controller to be invoked.
-If the validation controller has an outcome of SUCCESS, the system should navigate to the order list view.
-<p/>
-Let's say that for client X, a specialised authorisation number is needed when the order value is greater than
-GBP 1000.  
-<p/>
-When SAVE is pressed from the order edit view, a new controller needs to be invoked which checks the order value,
-and if the value is greater than GBP 1000, causes a special view to be displayed.  When SAVE is pressed from this view,
-a validation controller needs to be invoked for that view.  Only if that returns SUCCESS should the control pass
-to the standard validation controller for the order.  If that returns SUCCESS, then we go back to the list panel.
-<p/>
-Let's consider how this would be implemented with JSF.  The SAVE action would be bound to <code>#{orderController.validate}
-</code>.  <code>orderController</code> is a managed bean with a certain class.  I need to be able to create my customised
-flow without changing my standard view, because that would be a maintenance nightmare.  So I would need to override 
-the implementation class for <code>orderController</code>.  This gives me several problems:
-<ol>
-<li>There is no inheritance mechanism for JSF managed bean definitions(??) - my web app simply has a set of navigation rules.  Perhaps
-I can write a custom bean resolver??</li>
-<li>Being forced to override the definition of that bean is bad, because that bean may have many operations that I need to
-wrap.  Doing it by inheritance would be bad, for all the normal reasons (fragile inheritance hierarchies).  Doing it by
-encapsulation is also bad - I have to keep wrapping new methods added to the standard bean.  It's just more work than
-I want.  Suddenly, a class that should be very simple has to become complex.</li>
-</ol>
-So instead, I want navigation intents to perform binding to the managed objects, but then to simply go into the page flow mechanism,
-to invoke whatever managed bean I want (decouple that from the view)
-The custom bean can then retrieve whatever context objects (managed beans) it wants to do the job.
+</p>
+
+<p>An additional requirement is that I should be able to filter the list view with a partial match on the order number.</p>
+
+<h2 id="required-classes">Required classes</h2>
+<p>We will require the following classes in order to fulfill this flow:
+<ul>
+	<li><em>Order service</em> - conceptually, we would expect there to be some kind of stateless, transactional 
+	service object for customer orders.  This object retrieves lists and individual orders, as well as 
+	validating and saving those individual orders.  Thus, while
+	not explicit in the flow, we will assume its existence;</li> 
+	<li><em>Controller</em> - for the sake of simplicity, we'll have one controller, which does everything: 
+		<ul>
+			<li>Constructs a table model from orders retrieved from the order service;</li>
+			<li>Updates that model in response to the user entering a partial order number in the list view;</li>
+			<li>Retrieves the correct user from the order service based on the id of the record selected
+			in the list view;</li>
+			<li>Delegates validation of that user object to the order service when the user presses save on the 
+			edit view;</li>
+			<li>Delegates persistence of the successfully validated order to the order service, should it pass validation;</li>
+		</ul>
+	</li>
+	<li><em>List view</em> - to display the list of orders to the user;</li>
+	<li><em>Edit view</em> - to allow the user to edit an individual order;</li>
+	<li><em>System error view</em> - to inform the user that a system error has occurred, and to tell them how to report
+	it etc.</li>
+</ul>
+</p>
+
+<p>There now follows some sample code from each of these classes which should demonstrate the point.  These are
+written from the pserspective of being configured through Spring.</p>
+
+<h3 id="sample-controller-code">Sample code from the Controller</h3>
+<pre class="code">
+public class OrderController 
+    implements Serializable { 
+  /*
+   * controller must be serializable so that 
+   * session state can be saved in web applications
+   */
+  
+  /*
+   * The order service, which will presumably
+   * be injected by your DI framework.
+   */
+  private OrderService orderService;
+  
+  /*
+   * The table model for the list view.
+   */
+  private TableModel tableModel;
+  /*
+   * The order being edited, for the edit view.
+   */
+  private Order editedOrder;
+  /*
+   * Messages generated by the last validation attempt.
+   */
+  private Message[] messages;
+  /*
+   * Details of any exception thrown by the save step.
+   */
+  private Exception lastException;
+
+  /**
+   * Returns the table model,
+   * creating it if necessary.
+   */  
+  public TableModel getTableModel() {
+    if (tableModel == null) {
+      List&lt;Order&gt; orders = orderService.getOrderList();
+      ... make a table model from the list of orders ...
+    }
+    return tableModel;
+  }
+  
+  /**
+   * The list view invokes this method when the user
+   * changes the order number they are filtering on.
+   */
+  public void setOrderNumber(String orderNumber) {
+    /*
+     * Update the data in the table model.
+     * The view should have added itself as a listener
+     * on the table model, so this will result in an
+     * auto-magical update of the list seen by the user.
+     */
+    List&lt;Order&gt; orders = orderService.getOrderList(orderNumber);
+    Object[][] data = makeObjectArrayFromOrders();
+    tableModel.setData(data);
+  }
+  
+  /**
+   * Invoked by the list view when the row is selected
+   * by the user.
+   */
+  public void setSelectedId(long id) {
+    editedOrder = orderService.get(id);
+  }
+  
+  /**
+   * Invoked by the edit view when it is activated.
+   * The edit panel will then ensure that values entered
+   * in its text fields are updated into the order object
+   * before it fires any resolutions (such as the user pressing
+   * the save button).
+   */
+  public Order getEditedOrder() {
+    return editedOrder;
+  }
+  
+  /**
+   * Validates the order and returns a resolution indicating
+   * success or failure.
+   * Called by the framework when the user attempts to save
+   * the edited order.
+   */
+  public String validate() {
+    String ret = "SUCCESS";
+    messages = orderService.validate(editedOrder);
+    if (messages != null) {
+      ret = "FAIL";
+    }
+    return ret;
+  }
+  
+  /**
+   * Saves the edited order.
+   * Called by the framework when the validation step succeeds.
+   */
+  public String save() {
+    String ret = "SUCCESS";
+    try {
+      orderService.save(editedOrder);
+    }
+    catch(Exception e) {
+      ret = "FAIL";
+      lastException = e;
+    }
+    return ret;
+  }
+
+}
+</pre>
+
+<h3 id="sample-list-view-code">Sample list view code</h3>
+<p>This is all pseudo-code.  There is no 'addDoubleClickListener' method on JTable.  You can
+work out the real code for yourselves.</p>
+<pre class="code">
+public class OrderListView 
+    extends Panel
+    implements View, Serializable, TableModelListener, ActionListener {
+
+  private Context context;
+  private OrderController orderController;
+  
+  private JTextField filterField;
+  private JButton filterButton;
+  private JTable theTable;
+  
+  public OrderListView() {
+    super();
+    this.context = Context.getCurrentContext(); // has to be done here or in activate
+    this.orderController = (OrderController) context.evaluate("orderController");  
+  }
+  
+  public void activate() {
+    
+    .. add various components including the field to filter on order number ..
+	
+    TableModel tableModel = orderController.getTableModel();
+    /* Swing JTables automatically refresh themselves if the
+     * model changes, but you might need to do add yourself
+     * as a listener on the model and do something yourself
+     * if using a different UI framework.
+     */
+    theTable = new JTable(tableModel);
+    theTable.addDoubleClickListener(this);
+  }
+  
+  public void actionPerformed(ActionEvent e) {
+    if (e.getSource() == filterButton) {
+      controller.setOrderNumber(filterField.getText());
+      /*
+       * That's all we need to do - the controller will
+       * update the model, and the JTable will refresh itself.
+       */
+	}
+  }
+  
+  public void doubleClickPerformed(ActionEvent e) {
+    long id = workOutTheIdFromTheSelectedRow();
+    controller.setSelectedId(id);
+    /**
+     * Tell the context that the activate
+     * resolution has occurred.
+     * This will most likely result in a different
+     * view being displayed.
+     */
+    context.handleResolution("ACTIVATE");
+  }
+
+}  
+</pre>
+
+<h1 id="configure-spring">Configuring via Spring</h1>
+<p>Since all the key configuration parameters are available as simple setters on the <a href="impl/FlowImpl.html">FlowImpl</a> class,
+configuration in a DI framework such as Spring is easy.</p>
+<p>Since our flow holds state, all beans used within it must be configured with scope 'prototype' so that new ones are created
+each time a new flow is created.  If we were to leave them with the default 'singleton' scope, then everyone's flows would 
+trample over each others' state.</p>
+<p>Here's our simple example above expressed as a spring configuration fragment.  Users of other DI frameworks should be able to
+work out their own analagous code.</p>
+
+<div class="code">
+	
+</div>
+
 </body>
