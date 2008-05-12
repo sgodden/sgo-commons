@@ -16,25 +16,9 @@ import org.sgodden.ui.mvc.View;
 import org.sgodden.ui.mvc.ViewFlowOutcome;
 
 /**
- * 
- * FIXME - named object resolvers need separating out as a strategy, so that DI engines can be used.
- * 
- * FIXME - it should not be necessary to have the first step be a view.
- * 
- * FIXME - we need view configurations here, which can be overridden by custom view initialisers (e.g. to set the desired columns for a child list).
- * 
- * FIXME - configurations should be encapsulated in configuration classes, rather than extending the strategy class.
- * 
- * FIXME - Need to define better how we handle dialog views.  Start off by going back to the previous flow step as an option.
- * 
- * FIXME - need to allow a flow resolution of "go back to previous step".
- * 
- * FIXME - base the concepts on jPDL, which seems to have it all covered?  Apart from global transitions, that is.  Also, can it handle dialogs?  Probably not, since it is a page-based technology, so nick the jPDL concepts and extend.
- * 
- * FIXME - separate out the definition of managed objects from the pageflow - they are mixed all together here.
+ * Default implementation of the {@link Flow} interface. 
  * 
  * @author goddens
- *
  */
 public abstract class FlowImpl
         implements Flow {

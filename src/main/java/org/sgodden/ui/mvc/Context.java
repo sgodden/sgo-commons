@@ -53,17 +53,18 @@ public class Context
 	/**
 	 * Returns the context for the current conversation.
 	 * <p/>
-	 * <u>Note for Swing applications</u>
+	 * <u><b>IMPORTANT NOTE FOR VIEW AUTHORS</b></u>
 	 * <p/>
-	 * In Swing applications, references to the current conversation context must
-	 * not be obtained on the EDT, since all applications share that thread for event processing.
+	 * In most applications, references to the current flow context must
+	 * be obtained in the constructor of the view, or at the latest in the 
+	 * {@link View#activate()} method.  This is the only time that the
+	 * current flow reference is guaranteed to be correct.
 	 * <p/>
-	 * Instead, obtain a reference to the context when you are created.  When responding
-	 * to an event on the EDT, you should normally obtain something from the context.
-	 * When that is done, the context will set itself as the thread context, and new
-	 * components obtaining a reference to the context will get the correct one.
+	 * When responding to a user interface event (such as a button press), you 
+	 * will normally obtain something from the context, such as a controller.
+	 * If you invoke this method at that time, you are not guaranteed to get
+	 * the correct context.
 	 * <p/>
-	 * TODO - make that explanation understandable :(
 	 * 
 	 * @return the context for the current thread.
 	 */

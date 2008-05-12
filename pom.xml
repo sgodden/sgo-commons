@@ -69,6 +69,14 @@
 		          </execution>
 		        </executions>
 		    </plugin>
+			<plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-javadoc-plugin</artifactId>
+		        <configuration>
+		          <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
+				  <javadocDirectory>${basedir}/src/main/javadoc</javadocDirectory>
+		        </configuration>
+		      </plugin>
         </plugins>
     </build>
 
