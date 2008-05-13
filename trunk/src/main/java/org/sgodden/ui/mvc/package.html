@@ -1,3 +1,8 @@
+<html>
+	<head>
+		<meta http-equiv=content-type content="text/html; charset=UTF-8">
+	</head>
+</html>
 <body>
 <p>A lightweight MVC framework.</p>
 <p>
@@ -20,6 +25,7 @@
 			<li><a href="#sample-edit-view-code">Sample edit view code</a></li>
 			<li><a href="#sample-error-view-code">Sample error view code</a></li>
 		</ol>
+		<li><a href="#configure-code">Configuring the sample programatically</a></li>
 		<li><a href="#configure-spring">Configuring the sample via Spring</a></li>
 	</ol>
 </div>
@@ -415,17 +421,100 @@ public class OrderEditView
   ...
 </pre>
 
+<h1 id="configure-code">Configuring the example programatically</h1>
+<p>The following code demonstrates how to configure and start this flow programatically, displaying it
+using the <a href="swing/ContainerImpl.html">Swing implementation of Container</a> (you can use
+this as the basis for implementing Container for your own toolkit - it is very simple):</p>
+
+<pre class="code">
+FlowImpl flow = new FlowImpl();
+
+/*-----------------------------------------------------
+ * Create the named objects (controllers and views).
+ * In real life, everything would normally be configured via
+ * your dependency-injection provider.
+ */
+Map&lt;String, Object&gt; namedObjects = new HashMap&lt;String, Object&gt;();
+
+namedObjects.put("orderController", new OrderController());
+namedObjects.put("listView", new OrderListView());
+namedObjects.put("editView", new EditPanel());
+
+flow.setNamedObjects(namedObjects);
+
+/*----------------------------------------------
+ * Set up the validate and savecontroller steps.
+ */
+ControllerStep validateStep = new ControllerStep();
+validateStep.setStepName("validateController");
+validateStep.setObjectName("maintenanceController");
+
+ControllerStep saveStep = new ControllerStep();
+saveStep.setStepName("saveController");
+saveStep.setObjectName("maintenanceController");
+
+flow.setControllerSteps(new ControllerStep[]{saveStep, validateStep});
+
+/*------------------------------------------------
+ * Set up the list and edit view steps.
+ */
+ViewStep listStep = new ViewStep();
+listStep.setStepName("listView");
+
+ViewStep editStep = new ViewStep();
+editStep.setStepName("editView");
+
+flow.setViewSteps(new ViewStep[]{listStep, esitStep});
+flow.setInitialViewName("listView"); // has to know where to start
+
+/*
+ * Set the resolution mappings.
+ */
+flow.setResolutionMappings(new ResolutionMapping[]{
+  createResolutionMapping("listView", "ACTIVATE", "editView", null),
+  createResolutionMapping("editView", "CANCEL", "listView", null),
+  createResolutionMapping("editView", "SAVE", "validateController", "validate"),
+  createResolutionMapping("validateController", "SUCCESS", "saveController", "save"),
+  createResolutionMapping("saveController", "SUCCESS", "listView", null),
+});
+
+ContainerImpl container = new ContainerImpl(); // you need to implement Container for your toolkit.
+FrontController front = new FrontController(container, flow);
+
+JFrame frame = new JFrame("Simple MVC test app");
+frame.getContentPane().add(container);
+
+frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+frame.setSize(300, 300);
+frame.setVisible(true);
+
+}
+
+/**
+ * Convenience method to create a resolution mapping.
+ */
+private static ResolutionMapping createResolutionMapping(
+    String source, 
+    String resolution, 
+    String destination, 
+    String methodName) {
+  ResolutionMapping ret = new ResolutionMapping();
+  ret.setSourceStepName(source);
+  ret.setResolutionName(resolution);
+  ret.setDestinationStepName(destination);
+  ret.setControllerMethodName(methodName);
+
+  return ret;
+}	
+</pre>
+
 <h1 id="configure-spring">Configuring the example via Spring</h1>
 <p>Since all the key configuration parameters are available as simple setters on the <a href="impl/FlowImpl.html">FlowImpl</a> class,
 configuration in a DI framework such as Spring is easy.</p>
 <p>Since our flow holds state, all beans used within it must be configured with scope 'prototype' so that new ones are created
 each time a new flow is created.  If we were to leave them with the default 'singleton' scope, then everyone's flows would 
 trample over each others' state.</p>
-<p>Here's our simple example above expressed as a spring configuration fragment.  Users of other DI frameworks should be able to
+<p>You can find our simple example above expressed as a spring configuration fragment <a href="doc-files/sample.xml">here</a>.  Users of other DI frameworks should be able to
 work out their own analagous code.</p>
-
-<div class="code">
-	
-</div>
 
 </body>
