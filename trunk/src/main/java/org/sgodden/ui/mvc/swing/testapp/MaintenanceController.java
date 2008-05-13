@@ -34,6 +34,11 @@ public class MaintenanceController {
 		this.fail = fail;
 	}
 	
+	public String validate() {
+		debug("VALIDATE");
+		return "SUCCESS";
+	}
+	
 	public String save() {
 		debug("SAVE");
 		String ret = "SUCCESS";
