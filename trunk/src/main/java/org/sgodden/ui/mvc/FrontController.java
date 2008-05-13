@@ -68,6 +68,11 @@ public class FrontController
         	Context.getCurrentContext().setAvailableResolutions(null);
 
             Object controller = ((ControllerFlowOutcome) flowOutcome).getController();
+            
+            String methodName = ((ControllerFlowOutcome) flowOutcome).getMethodName();
+            if (methodName == null) {
+            	methodName = resolutionName.toLowerCase();
+            }
 
             /*
              * Controller methods must have the same name as resolution name (lower-cased), and no arguments.
@@ -76,7 +81,7 @@ public class FrontController
              */
             Method m;
             try {
-                m = controller.getClass().getMethod(resolutionName.toLowerCase(), (Class[])null);
+                m = controller.getClass().getMethod(methodName, (Class[])null);
             } catch (NoSuchMethodException e) {
                 throw new IllegalStateException("Unable to find method: resolution name '" + resolutionName + "'; controller class " + controller.getClass(), e);
             }

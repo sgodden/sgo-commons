@@ -16,10 +16,7 @@
  # ================================================================= */
 package org.sgodden.ui.mvc;
 
-import java.util.Map;
 import java.util.Set;
-
-import javax.swing.Action;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.sgodden.ui.mvc.messages.DefaultMessageModel;

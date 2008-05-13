@@ -29,5 +29,12 @@ public interface ControllerFlowOutcome
      * @return the controller.
      */
     public Object getController();
+    
+    /**
+     * Returns the name of the method to invoke on the controller, or
+     * <code>null</code> if no method name was specified.
+     * @return
+     */
+    public String getMethodName();
 
 }
