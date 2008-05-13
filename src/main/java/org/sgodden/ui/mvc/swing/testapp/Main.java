@@ -61,10 +61,15 @@ public class Main {
 		/*
 		 * Set the controller steps.
 		 */
-		ControllerStep cstep = new ControllerStep();
-		cstep.setStepName("saveController");
-		cstep.setObjectName("maintenanceController");
-		flow.setControllerSteps(new ControllerStep[]{cstep});
+		ControllerStep saveStep = new ControllerStep();
+		saveStep.setStepName("saveController");
+		saveStep.setObjectName("maintenanceController");
+
+		ControllerStep validateStep = new ControllerStep();
+		validateStep.setStepName("validateController");
+		validateStep.setObjectName("maintenanceController");
+		
+		flow.setControllerSteps(new ControllerStep[]{saveStep, validateStep});
 		
 		/*
 		 * Set the view steps.
@@ -84,7 +89,8 @@ public class Main {
 		flow.setResolutionMappings(new ResolutionMapping[]{
 				createResolutionMapping("listView", "EDIT", "editView", null),
 				createResolutionMapping("editView", "CANCEL", "listView", null),
-				createResolutionMapping("editView", "SAVE", "saveController", "save"),
+				createResolutionMapping("editView", "SAVE", "validateController", "validate"),
+				createResolutionMapping("validateController", "SUCCESS", "saveController", "save"),
 				createResolutionMapping("saveController", "SUCCESS", "listView", null),
 		});
 		
