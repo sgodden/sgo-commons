@@ -1,0 +1,72 @@
+<bean id="initialFlow" class="com.micros.c3g.ui.SupplierMaintenanceFlowImpl" scope="prototype">
+    
+    <!-- set up the named objects, which are views and controllers -->
+    <property name="namedObjects">
+        <map>
+            <entry key="listView" value-ref="orderListView"/>
+            <entry key="editView" value-ref="orderEditView"/>
+            <entry key="controller" value-ref="orderController"/>
+        </map>
+    </property>
+    
+    <!-- set up the view steps -->
+    <property name="viewSteps">
+        <list>
+            <bean class="org.sgodden.ui.mvc.config.ViewStep">
+                <property name="stepName" value="listView"/>
+            </bean>
+            <bean class="org.sgodden.ui.mvc.config.ViewStep">
+                <property name="stepName" value="editView"/>
+            </bean>
+        </list>
+    </property>
+    <!-- set the initial view name -->
+    <property name="initialViewName" value="listView"/>
+    
+    <!-- set up the controller steps -->
+    <property name="controllerSteps">
+        <list>
+            <bean class="org.sgodden.ui.mvc.config.ControllerStep">
+                <property name="stepName" value="validateController"/>
+                <property name="objectName" value="controller"/>
+            </bean>
+            <bean class="org.sgodden.ui.mvc.config.ControllerStep">
+                <property name="stepName" value="saveController"/>
+                <property name="objectName" value="controller"/>
+            </bean>
+        </list>
+    </property>
+    
+    <!-- and set up the resolution mappings -->
+    <property name="resolutionMappings">
+        <list>
+            <bean class="org.sgodden.ui.mvc.config.ResolutionMapping">
+                <property name="sourceStepName" value="listView"/>
+                <property name="resolutionName" value="ACTIVATE"/>
+                <property name="destinationStepName" value="editView"/>
+            </bean>
+            <bean class="org.sgodden.ui.mvc.config.ResolutionMapping">
+                <property name="sourceStepName" value="editView"/>
+                <property name="resolutionName" value="CANCEL"/>
+                <property name="destinationStepName" value="listView"/>
+            </bean>
+            <bean class="org.sgodden.ui.mvc.config.ResolutionMapping">
+                <property name="sourceStepName" value="editView"/>
+                <property name="resolutionName" value="SAVE"/>
+                <property name="destinationStepName" value="validateController"/>
+                <property name="controllerMethodName" value="validate"/>
+            </bean>
+            <bean class="org.sgodden.ui.mvc.config.ResolutionMapping">
+                <property name="sourceStepName" value="validateController"/>
+                <property name="resolutionName" value="SUCCESS"/>
+                <property name="destinationStepName" value="saveController"/>
+                <property name="controllerMethodName" value="save"/>
+            </bean>
+            <bean class="org.sgodden.ui.mvc.config.ResolutionMapping">
+                <property name="sourceStepName" value="saveController"/>
+                <property name="resolutionName" value="SUCCESS"/>
+                <property name="destinationStepName" value="listView"/>
+            </bean>
+        </list>
+    </property>
+</bean>
