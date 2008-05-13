@@ -16,16 +16,15 @@
  # ================================================================= */
 package org.sgodden.ui.mvc.swing.testapp;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import javax.swing.Action;
 import javax.swing.JFrame;
 
 import org.sgodden.ui.mvc.FrontController;
-import org.sgodden.ui.mvc.impl.ActionFactory;
+import org.sgodden.ui.mvc.config.ControllerStep;
+import org.sgodden.ui.mvc.config.ResolutionMapping;
+import org.sgodden.ui.mvc.config.ViewStep;
 import org.sgodden.ui.mvc.impl.FlowImpl;
 import org.sgodden.ui.mvc.swing.ContainerImpl;
 
@@ -39,13 +38,13 @@ public class Main {
 	
 	public static void main(String[] args) {
 		
-		FlowImpl flow = new TestFlowImpl();
+		FlowImpl flow = new FlowImpl();
 		
 		/*
+		 * Create the named objects (controllers and views).
 		 * In real life, everything would normally be configured via
 		 * your dependency-injection provider.
 		 */
-		
 		Map<String, Object> namedObjects = new HashMap<String, Object>();
 		
 		MaintenanceController maintenanceController = new MaintenanceController();
@@ -59,8 +58,35 @@ public class Main {
 		
 		flow.setNamedObjects(namedObjects);
 		
-		List<ActionFactory> actionFactories = new ArrayList<ActionFactory>();
-		actionFactories.add(new ActionFactoryImpl());
+		/*
+		 * Set the controller steps.
+		 */
+		ControllerStep cstep = new ControllerStep();
+		cstep.setStepName("saveController");
+		cstep.setObjectName("maintenanceController");
+		flow.setControllerSteps(new ControllerStep[]{cstep});
+		
+		/*
+		 * Set the view steps.
+		 */
+		ViewStep vstep = new ViewStep();
+		vstep.setStepName("listView");
+		
+		ViewStep vstep2 = new ViewStep();
+		vstep2.setStepName("editView");
+		
+		flow.setViewSteps(new ViewStep[]{vstep, vstep2});
+		flow.setInitialViewName("listView");
+		
+		/*
+		 * Set the resolution mappings.
+		 */
+		flow.setResolutionMappings(new ResolutionMapping[]{
+				createResolutionMapping("listView", "EDIT", "editView", null),
+				createResolutionMapping("editView", "CANCEL", "listView", null),
+				createResolutionMapping("editView", "SAVE", "saveController", "save"),
+				createResolutionMapping("saveController", "SUCCESS", "listView", null),
+		});
 		
 		ContainerImpl container = new ContainerImpl();
 		FrontController front = new FrontController(container, flow);
@@ -75,24 +101,14 @@ public class Main {
 		
 	}
 	
-	public static class ActionFactoryImpl
-			implements ActionFactory {
-
-		public Action getAction(String resolutionName) {
-			if ("CANCEL".equals(resolutionName)) {
-				return new CancelAction();
-			}
-			else if ("EDIT".equals(resolutionName)) {
-				return new EditAction();
-			} 
-			else if ("SAVE".equals(resolutionName)) {
-				return new SaveAction();
-			} 
-			else {
-				throw new IllegalArgumentException(resolutionName);
-			}
-		}
+	private static ResolutionMapping createResolutionMapping(String source, String resolution, String destination, String methodName) {
+		ResolutionMapping ret = new ResolutionMapping();
+		ret.setSourceStepName(source);
+		ret.setResolutionName(resolution);
+		ret.setDestinationStepName(destination);
+		ret.setControllerMethodName(methodName);
 		
+		return ret;
 	}
 
 }

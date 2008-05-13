@@ -14,13 +14,16 @@ import org.sgodden.ui.mvc.Flow;
 import org.sgodden.ui.mvc.FlowOutcome;
 import org.sgodden.ui.mvc.View;
 import org.sgodden.ui.mvc.ViewFlowOutcome;
+import org.sgodden.ui.mvc.config.ControllerStep;
+import org.sgodden.ui.mvc.config.ResolutionMapping;
+import org.sgodden.ui.mvc.config.ViewStep;
 
 /**
  * Default implementation of the {@link Flow} interface. 
  * 
  * @author goddens
  */
-public abstract class FlowImpl
+public class FlowImpl
         implements Flow {
 
     private static final transient Log log = LogFactory.getLog(FlowImpl.class);
@@ -32,12 +35,33 @@ public abstract class FlowImpl
     private Map<String, Object> namedObjects;
     private Map<String, FlowStep> flowStepConfigurations = new HashMap<String, FlowStep>();
     private Map<String, Set<QualifiedResolutionMapping>> globalResolutionMappings = new HashMap<String, Set<QualifiedResolutionMapping>>();
+    
     /**
      * If we have been daisy-chained from a previous flow resolution factory, then this is the outcome in the
      * previous factory that caused us to be invoked.  We will reinvoke this resolution once this flow terminates.
      * In this respect, flow resolution factories operate as a simple linked list. 
      */
     private FlowOutcome precedingFactoryFlowResolution;
+    
+    /**
+     * The name of the initial view to be displayed.
+     */
+    private String initialViewName;
+    
+    /**
+     * The controller steps of the flow.
+     */
+    private ControllerStep[] controllerSteps;
+    
+    /**
+     * The view steps of the flow.
+     */
+    private ViewStep[] viewSteps;
+    
+    /**
+     * The resolution mappings of the flow.
+     */
+    private ResolutionMapping[] resolutionMappings;
 
     /**
      * Sets the map of named objects that will be used to provide view
@@ -47,6 +71,38 @@ public abstract class FlowImpl
      */
     public void setNamedObjects(Map<String, Object> namedObjects) {
         this.namedObjects = namedObjects;
+    }
+    
+    /**
+     * Sets the controller steps of the flow.
+     * @param controllerSteps the controller steps.
+     */
+    public void setControllerSteps(ControllerStep[] controllerSteps) {
+    	this.controllerSteps = controllerSteps;
+    }
+    
+    /**
+     * Sets the view steps of the flow.
+     * @param viewSteps the view steps.
+     */
+    public void setViewSteps(ViewStep[] viewSteps) {
+    	this.viewSteps = viewSteps;
+    }
+    
+    /**
+     * Sets the resolution mappings of the flow.
+     * @param resolutionMappings the resolution mappings.
+     */
+    public void setResolutionMappings(ResolutionMapping[] resolutionMappings) {
+    	this.resolutionMappings = resolutionMappings;
+    }
+    
+    /**
+     * Sets the name of the initial view to be displayed.
+     * @param viewName the initial view to be displayed.
+     */
+    public void setInitialViewName(String viewName) {
+    	this.initialViewName = viewName;
     }
 
     /**
@@ -93,8 +149,7 @@ public abstract class FlowImpl
      */
     protected final void addControllerStep(
             String controllerName,
-            String managedObjectName,
-            Map<String, Object> configurationProperties) {
+            String managedObjectName) {
 
         if (flowStepConfigurations.containsKey(controllerName)) {
             throw new IllegalArgumentException("A flow step already exists with name '" + controllerName);
@@ -104,29 +159,8 @@ public abstract class FlowImpl
                 controllerName,
                 new ControllerFlowStep(
                 controllerName,
-                managedObjectName,
-                configurationProperties));
-    }
-
-    /**
-     * Adds a controller step.
-     * @param controllerName the name of the controller, which must be unique.
-     * @param managedObjectName the name of the managed object which provides the controller function.
-     */
-    protected final void addControllerStep(
-            String controllerName,
-            String managedObjectName) {
-        addControllerStep(controllerName, managedObjectName, null);
-    }
-
-    /**
-     * Adds a controller configuration, where the name of the controller
-     * matches the name of an object provided in <code>setNamedObjects</code>.
-     * @param controllerName the name of the controller, which must be unique.
-     */
-    protected final void addControllerStep(
-            String controllerName) {
-        addControllerStep(controllerName, controllerName, null);
+                managedObjectName
+                ));
     }
     
     /**
@@ -142,7 +176,7 @@ public abstract class FlowImpl
             String sourceStepName,
             String resolutionName,
             String destinationStepName) {
-        addResolutionMapping(sourceStepName, resolutionName, null, destinationStepName);
+        addResolutionMapping(sourceStepName, resolutionName, null, destinationStepName, null);
     }
 
     /**
@@ -159,7 +193,8 @@ public abstract class FlowImpl
             String sourceStepName,
             String resolutionName,
             Guard guard,
-            String destinationStepName) {
+            String destinationStepName,
+            String controllerMethodName) {
 
         FlowStep source = null;
         FlowStep destination = null;
@@ -180,7 +215,7 @@ public abstract class FlowImpl
             destination = flowStepConfigurations.get(destinationStepName);
         }
 
-        source.addResolutionMapping(resolutionName, guard, new FlowStepDestinationImpl(destination));
+        source.addResolutionMapping(resolutionName, guard, new FlowStepDestinationImpl(destination, controllerMethodName));
     }
 
     /**
@@ -198,7 +233,8 @@ public abstract class FlowImpl
             String sourceStepName,
             String resolutionName,
             Guard guard,
-            Destination destination) {
+            Destination destination,
+            String controllerMethodName) {
 
         FlowStep source = flowStepConfigurations.get(sourceStepName);
         if (source == null) {
@@ -222,7 +258,8 @@ public abstract class FlowImpl
     protected void addGlobalResolutionMapping(
             String resolutionName,
             Guard guard,
-            String destinationStepName) {
+            String destinationStepName,
+            String controllerMethodName) {
 
         FlowStep destination = flowStepConfigurations.get(destinationStepName);
 
@@ -237,7 +274,7 @@ public abstract class FlowImpl
             globalResolutionMappings.put(resolutionName, mappings);
         }
 
-        mappings.add(new QualifiedResolutionMapping(guard, new FlowStepDestinationImpl(destination)));
+        mappings.add(new QualifiedResolutionMapping(guard, new FlowStepDestinationImpl(destination, controllerMethodName)));
     }
 
     /**
@@ -251,7 +288,8 @@ public abstract class FlowImpl
     protected void addGlobalResolutionMapping(
             String resolutionName,
             Guard guard,
-            Destination destination) {
+            Destination destination,
+            String controllerMethodName) {
 
         if (resolutionName == null) {
             throw new IllegalArgumentException("resolution name may not be null");
@@ -270,12 +308,6 @@ public abstract class FlowImpl
 
         mappings.add(new QualifiedResolutionMapping(guard, destination));
     }
-
-    /**
-     * Returns the name of the initial view in the flow.
-     * @return the name of the initial view in the flow.
-     */
-    protected abstract String getInitialViewName();
 
     /**
      * Returns the named view flow step.
@@ -315,6 +347,32 @@ public abstract class FlowImpl
         if (firstInvocation) {
             firstInvocation = false;
             precedingFactoryFlowResolution = previousFlowResolution;
+            
+            /*
+             * If we have been configured using the config classes, initialise
+             * from them now.
+             */
+            if (controllerSteps != null) {
+            	for (ControllerStep step : controllerSteps) {
+            		addControllerStep(step.getStepName(), step.getObjectName());
+            	}
+            }
+            if (viewSteps != null) {
+            	for (ViewStep step : viewSteps) {
+            		addViewStep(step.getStepName());
+            	}
+            }
+            if (resolutionMappings != null) {
+            	for (ResolutionMapping mapping : resolutionMappings) {
+            		addResolutionMapping(
+            				mapping.getSourceStepName(), 
+            				mapping.getResolutionName(), 
+            				mapping.getGuard(), 
+            				mapping.getDestinationStepName(),
+            				mapping.getControllerMethodName());
+            	}
+            }
+            
             ret = configureFlowResolutionFromViewFlowStep(getInitialViewFlowStep(), previousFlowResolution);
         } else {
             ret = handleResolution(controllerResolution, (FlowOutcomeImpl) previousFlowResolution);
@@ -368,7 +426,7 @@ public abstract class FlowImpl
          * Destination is a step from this flow. 
          */ else if (destination instanceof FlowStepDestinationImpl) {
             FlowStepDestinationImpl ccd = (FlowStepDestinationImpl) destination;
-            ret = configureFlowOutcomeFromFlowStep(ccd.destination, previousFlowResolution);
+            ret = configureFlowOutcomeFromFlowStep(ccd, previousFlowResolution);
         } /*
          * Destination is a sub-flow.
          */ else if (destination instanceof SubFlowDestination) {
@@ -450,14 +508,16 @@ public abstract class FlowImpl
      */
     private ViewFlowStep getInitialViewFlowStep() {
         ViewFlowStep ret = null;
-
-        String viewName = getInitialViewName();
-
-        if (!(flowStepConfigurations.containsKey(viewName))) {
-            throw new IllegalArgumentException("No view configuration exists for name: " + viewName);
+        
+        if (initialViewName == null) {
+        	throw new IllegalStateException("The initial view name has not been set");
         }
 
-        ret = (ViewFlowStep) flowStepConfigurations.get(viewName);
+        if (!(flowStepConfigurations.containsKey(initialViewName))) {
+            throw new IllegalArgumentException("No view configuration exists for name: " + initialViewName);
+        }
+
+        ret = (ViewFlowStep) flowStepConfigurations.get(initialViewName);
 
         return ret;
     }
@@ -470,18 +530,21 @@ public abstract class FlowImpl
      * @return the new flow outcome.
      */
     private FlowOutcome configureFlowOutcomeFromFlowStep(
-            FlowStep destination,
+            FlowStepDestinationImpl destination,
             FlowOutcome previousFlowOutcome) {
 
         FlowOutcome ret;
+        
+        FlowStep target = destination.destination;
 
-        if (destination instanceof ControllerFlowStep) {
+        if (target instanceof ControllerFlowStep) {
             ret = configureFlowResolutionFromControllerFlowStep(
-                    (ControllerFlowStep) destination,
-                    previousFlowOutcome);
+                    (ControllerFlowStep) target,
+                    previousFlowOutcome,
+                    destination.controllerMethodName);
         } else {
             ret = configureFlowResolutionFromViewFlowStep(
-                    (ViewFlowStep) destination,
+                    (ViewFlowStep) target,
                     previousFlowOutcome);
         }
 
@@ -498,7 +561,8 @@ public abstract class FlowImpl
      */
     private FlowOutcome configureFlowResolutionFromControllerFlowStep(
             ControllerFlowStep destination,
-            FlowOutcome previousFlowOutcome) {
+            FlowOutcome previousFlowOutcome,
+            String controllerMethodName) {
 
         Object controller = destination.getController();
 
@@ -510,6 +574,7 @@ public abstract class FlowImpl
         return new ControllerFlowOutcomeImpl(
                 this,
                 controller,
+                controllerMethodName,
                 this,
                 destination.getFlowStepName(),
                 previousFlowOutcome);
@@ -559,7 +624,6 @@ public abstract class FlowImpl
     protected abstract class FlowStep {
 
         private String flowStepName;
-        private Map<String, Object> configurationProperties;
         private Map<String, Set<QualifiedResolutionMapping>> resolutionMappings = new HashMap<String, Set<QualifiedResolutionMapping>>();
 
         /**
@@ -569,11 +633,9 @@ public abstract class FlowImpl
          * @param configurationProperties an optional map of configuration properties for this step.
          */
         protected FlowStep(
-                String flowStepName,
-                Map<String, Object> configurationProperties) {
+                String flowStepName) {
             super();
             this.flowStepName = flowStepName;
-            this.configurationProperties = configurationProperties;
         }
 
         /**
@@ -607,17 +669,6 @@ public abstract class FlowImpl
         }
 
         /**
-         * Returns the map of configuration properties for this step.
-         * @return the map of configuration properties.
-         */
-        public Map<String, Object> getConfigurationProperties() {
-            if (configurationProperties == null) {
-                configurationProperties = new HashMap<String, Object>();
-            }
-            return configurationProperties;
-        }
-
-        /**
          * Returns the flow step name.
          * @return
          */
@@ -645,9 +696,8 @@ public abstract class FlowImpl
          */
         protected ControllerFlowStep(
                 String flowStepName,
-                String managedObjectName,
-                Map<String, Object> configurationProperties) {
-            super(flowStepName, configurationProperties);
+                String managedObjectName) {
+            super(flowStepName);
             this.managedObjectName = managedObjectName;
         }
 
@@ -676,7 +726,7 @@ public abstract class FlowImpl
          * @param viewClass the view class.
          */
         private ViewFlowStep(String flowStepName) {
-            super(flowStepName, null);
+            super(flowStepName);
         }
 
         /**
@@ -686,19 +736,6 @@ public abstract class FlowImpl
         private View getView() {
             if (view == null) {
                 view = (View) getNamedObject(getFlowStepName());
-                try {
-                    if (getConfigurationProperties() != null) {
-                        for (String propertyName : getConfigurationProperties().keySet()) {
-                            PropertyUtils.setProperty(
-                                    view,
-                                    propertyName,
-                                    getConfigurationProperties().get(propertyName));
-                        }
-                    }
-                } catch (Exception e) {
-                    throw new Error("Could not initialise view: " + view.getClass(), e);
-                }
-
             }
 
             return view;
@@ -717,8 +754,11 @@ public abstract class FlowImpl
 
         private Guard guard;
         private Destination destination;
+        private String controllerMethodName;
 
-        public QualifiedResolutionMapping(Guard guard, Destination destination) {
+        public QualifiedResolutionMapping(
+        		Guard guard, 
+        		Destination destination) {
             super();
             this.guard = guard;
             this.destination = destination;

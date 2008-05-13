@@ -18,10 +18,12 @@ class ControllerFlowOutcomeImpl
         implements ControllerFlowOutcome {
 
 	private Object controller;
+	private String methodName;
 
     ControllerFlowOutcomeImpl(
 			FlowImpl factory,
 			Object controller,
+			String methodName,
 			Flow nextFlowResolutionFactory,
 			String flowStepName,
 			FlowOutcome previousFlowResolution) {
@@ -31,10 +33,15 @@ class ControllerFlowOutcomeImpl
                 previousFlowResolution,
                 flowStepName);
 		this.controller = controller;
+		this.methodName = methodName;
 	}
 
 	public Object getController() {
 		return controller;
+	}
+	
+	public String getMethodName() {
+		return methodName;
 	}
 
 	@Override

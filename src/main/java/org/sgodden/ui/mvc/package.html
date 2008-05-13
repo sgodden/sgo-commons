@@ -19,8 +19,8 @@
 			<li><a href="#sample-list-view-code">Sample list view code</a></li>
 			<li><a href="#sample-edit-view-code">Sample edit view code</a></li>
 			<li><a href="#sample-error-view-code">Sample error view code</a></li>
-			<li><a href="#configure-spring">Configuring the sample via Spring</a></li>
 		</ol>
+		<li><a href="#configure-spring">Configuring the sample via Spring</a></li>
 	</ol>
 </div>
 
@@ -415,7 +415,7 @@ public class OrderEditView
   ...
 </pre>
 
-<h2 id="configure-spring">Configuring the example via Spring</h2>
+<h1 id="configure-spring">Configuring the example via Spring</h1>
 <p>Since all the key configuration parameters are available as simple setters on the <a href="impl/FlowImpl.html">FlowImpl</a> class,
 configuration in a DI framework such as Spring is easy.</p>
 <p>Since our flow holds state, all beans used within it must be configured with scope 'prototype' so that new ones are created
