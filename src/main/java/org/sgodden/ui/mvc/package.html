@@ -17,8 +17,10 @@
 			<li><a href="#required-classes">Required classes</a></li>
 			<li><a href="#sample-controller-code">Sample controller code</a></li>
 			<li><a href="#sample-list-view-code">Sample list view code</a></li>
+			<li><a href="#sample-edit-view-code">Sample edit view code</a></li>
+			<li><a href="#sample-error-view-code">Sample error view code</a></li>
+			<li><a href="#configure-spring">Configuring the sample via Spring</a></li>
 		</ol>
-		<li><a href="#configure-spring">Configuring via Spring</a></li>
 	</ol>
 </div>
 
@@ -104,15 +106,16 @@ particiapting objects.</p>
 
 <p>This allows, for example, views to obtain a reference to a controller or other managed object in the flow, and to invoke a method on it.
 This facilitates a pattern known as 'pull-style' MVC, where views 'pull' information that they need from the controller.  You will find
-endless debates about whether this it the best pattern to use, but it is the one facilitated by this framework, as the author has found
-it the simplest method to implement.</p>
+endless debates about whether this is the best pattern to use, but anyhow it is the one facilitated by this framework.</p>
 
 <p>For example, the list view may pull the controller out of the current context and ask it for the table model which it will use to 
 populate its data table.  The controller will most likely create the model lazily when asked.  Further details of this are given in
 the sample scenario below.</p>
 
-<p><b>IMPORTANT</b> - be sure to read and implement the notes on the {@link org.sgodden.ui.mvc.Context#getCurrentContext()} method, 
-or you may end up with the wrong context object when responding to user interface events.</p>
+<p><b>IMPORTANT</b> - when writing views, be sure to read and implement the notes on the {@link org.sgodden.ui.mvc.Context#getCurrentContext()} method, 
+or you may end up with the wrong context object when responding to user interface events.  These notes do not apply to controllers, since
+the correct current context will always have been (re)set on the thread by the time a controller processing method
+is invoked.</p>
 
 <!-- EXAMPLE -->
 <h1 id="example">Example</h1>
@@ -163,8 +166,14 @@ can be expressed as follows:
 </ul>
 </p>
 
-<p>There now follows some sample code from each of these classes which should demonstrate the point.  These are
-written from the pserspective of being configured through Spring.</p>
+<p>It's important to remember that one instance of each of these objects will be created when the flow is created, and attached
+to the flow.  That instance will then be re-invoked as the step in the flow to which it is attached is (re)invoked.  So as the user
+travels between the list and edit, and back to list and back to edit for a different order, the same edit view object is re-invoked.
+It is therefore important that the object reconfigures itself whenever the 
+{@link org.sgodden.ui.mvc.View#activate()} method is invoked.</p>
+
+<p>There now follows some sample code from each of these classes.  For the sake
+of brevity, the code here is not robust, only sufficient to demonstrate the point.</p>
 
 <h3 id="sample-controller-code">Sample code from the Controller</h3>
 <pre class="code">
@@ -275,6 +284,10 @@ public class OrderController
     }
     return ret;
   }
+  
+  public Exception getLastException() {
+    return lastException;
+  }
 
 }
 </pre>
@@ -296,8 +309,8 @@ public class OrderListView
   
   public OrderListView() {
     super();
-    this.context = Context.getCurrentContext(); // has to be done here or in activate
-    this.orderController = (OrderController) context.evaluate("orderController");  
+    context = Context.getCurrentContext(); // has to be done here or in activate
+    orderController = (OrderController) context.evaluate("orderController");  
   }
   
   public void activate() {
@@ -339,7 +352,70 @@ public class OrderListView
 }  
 </pre>
 
-<h1 id="configure-spring">Configuring via Spring</h1>
+<h3 id="sample-edit-view-code">Sample edit view code</h3>
+<pre class="code">
+public class OrderEditView
+    extends JPanel
+    implements View, Serializable, ActionListener {
+
+  private Context context;
+  private OrderController controller;
+  private Order theOrder;
+  
+  ... various text fields to hold values ...
+  
+  JButton saveButton;
+
+  public OrderEditView(){
+    super();
+    context = Context.getCurrentContext(); // has to be done here or in activate
+    orderController = (OrderController) context.evaluate("orderController");  
+  }
+
+  public void activate() {
+    theOrder = orderController.getEditedOrder();
+	
+	// create components first time only
+	if (saveButton == null) {
+      saveButton = new JButton("Save");
+	  saveButton.addActionListener(this);
+	  
+      ... similarly for cancel button ...
+    
+      ... create various text fields to hold values etc. ...
+    }
+	
+	// and populate from the order values
+	updateScreenFieldsFromOrder();
+  }
+  
+  public void actionPerformed(ActionEvent evt) {
+    if (evt.getSource() == saveButton) {
+      updateOrderFromScreenFields();
+      context.handleResolution("SAVE");
+    }
+    else {
+      context.handleResolution("CANCEL");
+    }
+  }
+
+}
+</pre>
+
+<h3 id="sample-error-view-code">Sample error view code</h3>
+<p>I'll leave this one largely to your imagination</p>
+<pre class="code">
+  ...
+  
+  public void activate(){
+    Exception ex = orderController.getLastException();
+	... create some UI to show the exception ...
+  }
+  
+  ...
+</pre>
+
+<h2 id="configure-spring">Configuring the example via Spring</h2>
 <p>Since all the key configuration parameters are available as simple setters on the <a href="impl/FlowImpl.html">FlowImpl</a> class,
 configuration in a DI framework such as Spring is easy.</p>
 <p>Since our flow holds state, all beans used within it must be configured with scope 'prototype' so that new ones are created
