@@ -34,7 +34,7 @@ public class EditAction
 	
 	public EditAction(){
 		super("Edit"); // FIXME - i18n
-		this.context = Context.getCurrentContext();
+		//this.context = Context.getCurrentContext();
 	}
 
 	/**

@@ -26,8 +26,6 @@ import org.sgodden.ui.mvc.messages.MessageModel;
  * Provides access to context at various levels, and provides the hooks to handle
  * resolutions that occur within views.
  * <p/>
- * FIXME - needs to implement event, conversation, session and application level contexts.(?)
- * <p/>
  * TODO - better documentation and api method naming.
  * <p/>
  * FIXME - view-specific concerns should be separated out.
@@ -38,39 +36,12 @@ import org.sgodden.ui.mvc.messages.MessageModel;
 public class Context 
 		implements ResolutionHandler {
 	
-	private static ThreadLocal<Context> currentContext = new ThreadLocal<Context>();
-	
 	private NamedObjectResolver conversationContext;
     private MessageModel messageModel = new DefaultMessageModel();
     private ResolutionHandler resolutionHandler;
     private Set<String> availableResolutions;
 
-    private Context() {}
-	
-	/**
-	 * Returns the context for the current conversation.
-	 * <p/>
-	 * <u><b>IMPORTANT NOTE FOR VIEW AUTHORS</b></u>
-	 * <p/>
-	 * In most applications, references to the current flow context must
-	 * be obtained in the constructor of the view, or at the latest in the 
-	 * {@link View#activate()} method.  This is the only time that the
-	 * current flow reference is guaranteed to be correct.
-	 * <p/>
-	 * When responding to a user interface event (such as a button press), you 
-	 * will normally obtain something from the context, such as a controller.
-	 * If you invoke this method at that time, you are not guaranteed to get
-	 * the correct context.
-	 * <p/>
-	 * 
-	 * @return the context for the current thread.
-	 */
-	public static Context getCurrentContext() {
-		if (currentContext.get() == null) {
-			currentContext.set(new Context());
-		}
-		return currentContext.get();
-	}
+    Context() {}
 	
 	/**
 	 * Evaluates the passed expression, and returns the return value.
@@ -79,9 +50,6 @@ public class Context
 	 * @return the return value.
 	 */
 	public Object evaluate(String expression) {
-
-        // we may have been called on the EDT, in which case we need to re-set this instance as the thread local context
-        currentContext.set(this);
 
         Object ret;
 		
