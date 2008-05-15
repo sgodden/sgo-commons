@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.swing.JDialog;
 
+import org.sgodden.ui.mvc.Context;
 import org.sgodden.ui.mvc.DialogListener;
 import org.sgodden.ui.mvc.DialogView;
 import org.sgodden.ui.mvc.View;
@@ -71,8 +72,8 @@ public class DialogViewImpl
 	 * (non-Javadoc)
 	 * @see org.sgodden.ui.mvc.View#activate()
 	 */
-	public void activate() {
-		innerView.activate();
+	public void activate(Context context) {
+		innerView.activate(context);
 	}
 	
 	private void fireDialogClosed(){

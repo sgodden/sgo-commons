@@ -23,6 +23,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.sgodden.ui.mvc.Context;
 import org.sgodden.ui.mvc.View;
 
 /**
@@ -53,7 +54,7 @@ public class ListPanel
 	 * (non-Javadoc)
 	 * @see org.sgodden.ui.mvc.View#activate()
 	 */
-	public void activate() {
+	public void activate(Context context) {
 		// nothing to do
 	}
 

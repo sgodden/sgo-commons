@@ -35,6 +35,7 @@ public class FrontController
     private Container container;
 	private FlowOutcome previousFlowOutcome;
 	private ViewFlowOutcome previousViewFlowOutcome;
+	private Context context;
 
 	/**
 	 * Creates a new front controller to manage the specified container
@@ -45,12 +46,17 @@ public class FrontController
 	public FrontController(Container container, Flow flow) {
 		this.container = container;
 		
+		context = new Context();
+		context.setControllerResolutionHandler(this);
+		context.setConversationNamedObjectResolver(flow);
+		
 		processFlowResolution(
 				flow.getFlowOutcome(null, null), 
 				null);
 	}
 	
 	private void processFlowResolution(FlowOutcome flowOutcome, String resolutionName) {
+	    
 		previousFlowOutcome = flowOutcome;
 
         log.debug("Processing flow resolution: " + flowOutcome);
@@ -60,12 +66,9 @@ public class FrontController
             throw new IllegalArgumentException("Only a view can be invoked when the resolution name is null");
         }
 
-        Context.getCurrentContext().setConversationNamedObjectResolver(flowOutcome.getNamedObjectResolver());
-        Context.getCurrentContext().setControllerResolutionHandler(this);
-
         if (flowOutcome instanceof ControllerFlowOutcome) {
         	
-        	Context.getCurrentContext().setAvailableResolutions(null);
+        	context.setAvailableResolutions(null);
 
             Object controller = ((ControllerFlowOutcome) flowOutcome).getController();
             
@@ -115,7 +118,7 @@ public class FrontController
 	
 	private void configureFromViewFlowOutcome(ViewFlowOutcome vfr) {
     	
-    	Context.getCurrentContext().setAvailableResolutions(vfr.getAvailableResolutions());
+    	context.setAvailableResolutions(vfr.getAvailableResolutions());
     	
         View view = vfr.getView();
         
@@ -127,7 +130,7 @@ public class FrontController
         	container.display(view);
         }
         
-        view.activate();
+        view.activate(context);
 		
 	}
 

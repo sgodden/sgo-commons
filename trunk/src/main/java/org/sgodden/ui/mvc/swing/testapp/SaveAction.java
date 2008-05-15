@@ -34,7 +34,7 @@ public class SaveAction
 	
 	public SaveAction(){
 		super("Save"); // FIXME - i18n
-		context = Context.getCurrentContext();
+		//context = Context.getCurrentContext();
 	}
 
 	/**

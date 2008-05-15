@@ -24,7 +24,8 @@ public interface View {
     /**
      * Indicates that the view has been (re)placed into a container
      * and should (re)initialise itself.
+     * @param context the context for the current flow.
      */
-    public void activate();
+    public void activate(Context context);
 
 }

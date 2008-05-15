@@ -34,7 +34,7 @@ public class CancelAction
 	
 	public CancelAction(){
 		super("Cancel"); // FIXME - i18n
-		context = Context.getCurrentContext();
+		//context = Context.getCurrentContext();
 	}
 
 	/**
