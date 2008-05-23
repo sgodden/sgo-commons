@@ -27,17 +27,5 @@ package org.sgodden.ui.mvc;
  */
 public interface DialogView 
 	extends View {
-	
-	/**
-	 * Adds the specified listener to be notified of dialog events.
-	 * @param l the listener to add.
-	 */
-	public void addDialogListener(DialogListener l);
-	
-	/**
-	 * Removes the specified dialog listener.
-	 * @param l the listener to remove.
-	 */
-	public void removeDialogListener(DialogListener l);
 
 }
