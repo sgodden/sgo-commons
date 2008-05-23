@@ -47,13 +47,5 @@ public interface Container {
 	 * @param view
 	 */
 	public void displayModalDialog(View view);
-	
-	/**
-	 * Closes the open dialog.
-	 * <p/>
-	 * FIXME - the close method on the dialog view interface should be called instead, to allow for multiple open dialogs.
-	 * @throws IllegalStateException if no dialog is open.
-	 */
-	public void closeDialog();
 
 }
