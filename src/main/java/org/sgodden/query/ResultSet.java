@@ -39,7 +39,12 @@ import org.sgodden.query.service.QueryService;
  */
 public class ResultSet implements Serializable {
 	
-	private static final transient Log log = LogFactory.getLog(ResultSet.class);
+	/**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 1L;
+
+    private static final transient Log log = LogFactory.getLog(ResultSet.class);
 	
 	private QueryService queryService;
 	
@@ -47,6 +52,12 @@ public class ResultSet implements Serializable {
 	
 	private int rowCount = -1;
 	private boolean queryBailedOut = false;
+	
+	/**
+	 * The total number of rows matching the query criteria (regardless of
+	 * the setting of {@link Query#setMaxRows(int)}).
+	 */
+	private int totalRowCount;
 	
 	private Query query;
 	
@@ -72,9 +83,16 @@ public class ResultSet implements Serializable {
 	}
 
 	/**
-	 * Returns the number of rows in the result set. 
+	 * Returns the number of rows in this result set, which may
+	 * not equal the total number of rows that matched the query,
+	 * depending on whether the user set {@link Query#setMaxRows(int)}.
+	 * <p>
+	 * To get the total number of rows that matched the query criteria,
+	 * see {@link #getTotalRowCount()}.
+	 * </p>
 	 * 
-	 * @return
+	 * @return the number of rows in this result set.
+	 * @see #getTotalRowCount()
 	 */
 	public int getRowCount() {
 		return rowCount;
@@ -235,5 +253,23 @@ public class ResultSet implements Serializable {
 	public void setQueryService(QueryService queryService) {
 		this.queryService = queryService;
 	}
+
+	/**
+	 * Returns the total number of rows that matched the query criteria,
+	 * regardless of the setting of {@link Query#setMaxRows(int)}.
+	 * @return the total number of rows.
+	 */
+    public int getTotalRowCount() {
+        return totalRowCount;
+    }
+
+    /**
+     * Sets the total number of rows that matched the query criteria,
+     * regardless of the setting of {@link Query#setMaxRows(int)}.
+     * @param totalRowCount the total number of rows.
+     */
+    public void setTotalRowCount(int totalRowCount) {
+        this.totalRowCount = totalRowCount;
+    }
 
 }
