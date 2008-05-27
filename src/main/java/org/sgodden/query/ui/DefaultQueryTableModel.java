@@ -122,6 +122,7 @@ public class DefaultQueryTableModel
 	 */
 	public void setMaxRows(int maxRows) {
 		this.maxRows = maxRows;
+		this.fetchSize = -1;
 	}
 
 	public Class getEntityClass() {
