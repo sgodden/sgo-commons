@@ -30,11 +30,16 @@ import org.sgodden.ui.mvc.Context;
 public class SaveAction 
 		extends AbstractAction {
 	
-	private Context context;
+	/**
+     * serial version uid.
+     */
+    private static final long serialVersionUID = 20080527L;
+    
+    private Context context;
 	
-	public SaveAction(){
+	public SaveAction(Context context){
 		super("Save"); // FIXME - i18n
-		//context = Context.getCurrentContext();
+		this.context = context;
 	}
 
 	/**

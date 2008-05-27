@@ -72,14 +72,25 @@ public class DialogViewImpl
 	 * (non-Javadoc)
 	 * @see org.sgodden.ui.mvc.View#activate()
 	 */
-	public void activate(Context context) {
-		innerView.activate(context);
+	public void activate() {
+		innerView.activate();
 	}
 	
+	/**
+	 * Fires a dialog closed event to all listeners.
+	 */
 	private void fireDialogClosed(){
 		for (DialogListener l : listeners) {
 			l.dialogClosed(this);
 		}
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sgodden.ui.mvc.View#initialise(org.sgodden.ui.mvc.Context)
+	 */
+    public void initialise(Context context) {
+        innerView.initialise(context);
+    }
 
 }
