@@ -74,14 +74,23 @@ public class QueryServiceImpl
 		ret.setQueryService(this);
 		ret.setQuery(query);
 		
-		// impose an arbitary limit of 5000 for now
+		// impose an arbitrary limit of 5000 for now
 		if (query.getBailOutSize() <= 0){
 			query.setBailOutSize(5000);
 		}
-		
+
+		// calculate the result set size, and total size
 		if (query.getCalculateRowCount()
 				|| query.getBailOutSize() > 0){
-			ret.setRowCount((int)getRowCount(query));			
+		    int totalRowCount = (int)getRowCount(query);
+			ret.setTotalRowCount(totalRowCount);
+			
+			if (query.getMaxRows() < totalRowCount) {
+			    ret.setRowCount(query.getMaxRows());
+			}
+			else {
+			    ret.setRowCount(totalRowCount);
+			}
 		}
 		
 		/*
@@ -123,8 +132,13 @@ public class QueryServiceImpl
 		String queryString = buf.toString();
 		log.debug(queryString);
 		
+		if (query.getFetchSize() > 0 && query.getMaxRows() > 0) {
+		    throw new IllegalArgumentException("Setting fetch size and max rows is contradictory");
+		}
+		
 		org.hibernate.Query hq = sessionFactory.getCurrentSession().createQuery(queryString);
 		if (query.getFetchSize() > 0){
+		    log.debug("Setting fetch size to " + query.getMaxRows());
 			hq.setMaxResults(query.getFetchSize() + 1);
 		} else if (query.getMaxRows() > 0){
 			log.debug("Setting max rows to " + query.getMaxRows());
