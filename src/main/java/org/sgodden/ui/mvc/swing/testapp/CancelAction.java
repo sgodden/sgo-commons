@@ -30,11 +30,15 @@ import org.sgodden.ui.mvc.Context;
 public class CancelAction 
 		extends AbstractAction {
 	
-	private Context context;
+	/**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 20080527L;
+    private Context context;
 	
-	public CancelAction(){
+	public CancelAction(Context context){
 		super("Cancel"); // FIXME - i18n
-		//context = Context.getCurrentContext();
+		this.context = context;
 	}
 
 	/**

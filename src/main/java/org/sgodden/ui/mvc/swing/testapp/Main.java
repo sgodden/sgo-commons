@@ -87,7 +87,7 @@ public class Main {
 		 * Set the resolution mappings.
 		 */
 		flow.setResolutionMappings(new ResolutionMapping[]{
-				createResolutionMapping("listView", "ACTIVATE", "editView", null),
+				createResolutionMapping("listView", "EDIT", "editView", null),
 				createResolutionMapping("editView", "CANCEL", "listView", null),
 				createResolutionMapping("editView", "SAVE", "validateController", "validate"),
 				createResolutionMapping("validateController", "SUCCESS", "saveController", "save"),

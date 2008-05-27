@@ -17,6 +17,8 @@
 package org.sgodden.ui.mvc;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +38,8 @@ public class FrontController
 	private FlowOutcome previousFlowOutcome;
 	private ViewFlowOutcome previousViewFlowOutcome;
 	private Context context;
+	
+	private Set < Integer > initialisedViews = new HashSet < Integer >();
 
 	/**
 	 * Creates a new front controller to manage the specified container
@@ -96,7 +100,7 @@ public class FrontController
             String newResolutionName = null;
 
             try {
-                newResolutionName = (String) m.invoke(controller, null);
+                newResolutionName = (String) m.invoke(controller, (Object[])null);
             } catch (Exception e) {
                 throw new Error("Error invoking controller", e);
             }
@@ -122,7 +126,6 @@ public class FrontController
     	
         View view = vfr.getView();
         
-        // FIXME - the container can tell whether it is a dialog, no need for a separate method in the interface
         if (view instanceof DialogView) {
         	container.displayModalDialog(view);
         }
@@ -130,7 +133,12 @@ public class FrontController
         	container.display(view);
         }
         
-        view.activate(context);
+        if (!(initialisedViews.contains(view.hashCode()))) {
+            view.initialise(context);
+            initialisedViews.add(view.hashCode());
+        }
+        
+        view.activate();
 		
 	}
 

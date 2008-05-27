@@ -22,10 +22,17 @@ package org.sgodden.ui.mvc;
 public interface View {
 
     /**
-     * Indicates that the view has been (re)placed into a container
-     * and should (re)initialise itself.
+     * Called immediately prior to a view being activated
+     * for the first time.
+     * <p>This is where views should perform initialisation
+     * processing such as creating components.</p>
      * @param context the context for the current flow.
      */
-    public void activate(Context context);
+    public void initialise(Context context);
+    
+    /**
+     * Indicates that the view has been (re)placed into a container.
+     */
+    public void activate();
 
 }

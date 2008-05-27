@@ -36,26 +36,39 @@ public class ListPanel
 		extends JPanel 
 		implements View {
 	
-	public ListPanel(){
-		setLayout(new BorderLayout());
-		add(new JLabel("Some pretend list of objects goes here"), BorderLayout.CENTER);
-		add(makeButtons(), BorderLayout.SOUTH);
-	}
-	
-	public JPanel makeButtons() {
-		JPanel ret = new JPanel(new FlowLayout());
-		
-		ret.add(new JButton(new EditAction())); 
-		
-		return ret;
+	/**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 20080527L;
+
+    public ListPanel(){
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.sgodden.ui.mvc.View#activate()
-	 */
-	public void activate(Context context) {
-		// nothing to do
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.sgodden.ui.mvc.View#initialise(org.sgodden.ui.mvc.Context)
+     */
+    public void initialise(Context context) {
+        setLayout(new BorderLayout());
+        add(new JLabel("Some pretend list of objects goes here"), BorderLayout.CENTER);
+        add(makeButtons(context), BorderLayout.SOUTH);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.sgodden.ui.mvc.View#activate()
+     */
+    public void activate() {
+    }
+
+    /**
+     * Makes a panel containing action buttons.
+     * @return the panel.
+     */
+    private JPanel makeButtons(Context context) {
+        JPanel ret = new JPanel(new FlowLayout());
+        ret.add(new JButton(new EditAction(context))); 
+        return ret;
+    }
 
 }
