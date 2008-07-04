@@ -33,16 +33,18 @@ import org.sgodden.query.service.QueryService;
  * @author goddens
  *
  */
+@SuppressWarnings("serial")
 public class DefaultQueryTableModel 
 		extends AbstractQueryTableModel 
 		{
-
-	private int fetchSize = 100;
+    
+    private int fetchSize = 50;
 	private int bailOutSize = 10000;
-	private int maxRows = -1;
+	private int maxRows = 0;
 	
 	private Object[] columnIdentifiers;
 	private String[] attributePaths;
+	@SuppressWarnings("unchecked")
 	private Class entityClass;
 	private Locale locale;
 	
@@ -54,6 +56,7 @@ public class DefaultQueryTableModel
 	 * @param columnIdentifiers the column identifiers.
 	 * @param attributePaths the attribute paths for each column.
 	 */
+	@SuppressWarnings("unchecked")
 	public DefaultQueryTableModel(
 			Locale locale,
 			Class entityClass,
@@ -84,10 +87,6 @@ public class DefaultQueryTableModel
 		query.setFetchSize(fetchSize);
 		query.setBailOutSize(bailOutSize);
 		
-		if (maxRows != -1) {
-			query.setMaxRows(maxRows);
-		}
-		
 		return query;
 	}
 
@@ -98,7 +97,7 @@ public class DefaultQueryTableModel
 	
 	/**
 	 * Sets the number of rows that should be fetched in one call
-	 * to the query service.
+	 * to the query service (default is 50).
 	 * 
 	 * @param fetchSize
 	 */
@@ -125,6 +124,11 @@ public class DefaultQueryTableModel
 		this.fetchSize = -1;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.sgodden.query.ui.QueryTableModel#getEntityClass()
+	 */
+	@SuppressWarnings("unchecked")
 	public Class getEntityClass() {
 		return entityClass;
 	}

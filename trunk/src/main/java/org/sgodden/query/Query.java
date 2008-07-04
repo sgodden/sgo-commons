@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.sgodden.ui.mvc.models.SortData;
+
 /**
  * Encapsulates a simple query.
  * <p/>
@@ -47,6 +49,7 @@ public class Query
 	private int rowOffset = 0;
 	private int bailOutSize = 0;
 	private boolean calculateRowCount = false;
+	private SortData sortData;
 	
 	/**
 	 * Constructs a new query.
@@ -256,7 +259,7 @@ public class Query
 	/**
 	 * Returns a deep clone of this object (that is, all nested criteria and
 	 * column objects are also copied).
-	 * @return
+	 * @return the new clone.
 	 */
 	public Query makeClone(){
 		try {
@@ -297,7 +300,7 @@ public class Query
 
 	/**
 	 * See {@link #setCalculateRowCount(boolean)}.
-	 * @return
+	 * @return whether the row count should be calculated.
 	 */
 	public boolean getCalculateRowCount() {
 		return calculateRowCount;
@@ -310,10 +313,35 @@ public class Query
 	 * This is potentially an expensive operation, so it defaults
 	 * to false.
 	 * @param calculateRowCount
+	 * @return this query.
 	 */
 	public Query setCalculateRowCount(boolean calculateRowCount) {
 		this.calculateRowCount = calculateRowCount;
 		return this;
+	}
+	
+	/**
+	 * Sets the sort data for primary sorting.
+	 * <p>
+	 * When set, the query will be sorted by the specified column
+	 * first, and then by all other columns in the order that
+	 * they were added to the query.
+	 * </p>
+	 * @param sortData the sort data.
+	 * @return this query.
+	 */
+	public Query setSortData(SortData sortData) {
+	    this.sortData = sortData;
+	    return this;
+	}
+
+	/**
+	 * Returns the sort data specified for the query, 
+	 * or <code>null</code> if none was specified.
+	 * @return the sort data, or <code>null</code> if none was specified.
+	 */
+	public SortData getSortData() {
+	    return sortData;
 	}
 
 }

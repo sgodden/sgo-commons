@@ -65,7 +65,7 @@ public class FrontController
 
         log.debug("Processing flow resolution: " + flowOutcome);
 
-        // if the resolution name is null (i.e. it's the first flow step), then we can only invoke a view - FIXME - why so?
+        // FIXME - allow a controller to be the first step in a flow
         if (resolutionName == null && !(flowOutcome instanceof ViewFlowOutcome)) {
             throw new IllegalArgumentException("Only a view can be invoked when the resolution name is null");
         }

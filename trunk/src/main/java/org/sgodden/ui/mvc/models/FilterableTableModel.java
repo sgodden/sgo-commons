@@ -20,8 +20,6 @@ import java.util.Map;
 
 import javax.swing.table.TableModel;
 
-import org.sgodden.ui.mvc.messages.MessageModel;
-
 /**
  * A table model that may be filtered.
  * 
@@ -39,14 +37,5 @@ public interface FilterableTableModel
 	 * @param filterMap
 	 */
 	public void refresh(Map<String, Object> filterModel);
-	
-	/**
-	 * Refreshes the model based on the passed filter model, and emits
-	 * results messages into the passed message model.
-	 * 
-	 * @param filterModel a map of attribute path to filter values.
-	 * @param messageModel a message model to which to add results messages.
-	 */
-	public void refresh(Map<String, Object> filterModel, MessageModel messageModel);
 
 }
