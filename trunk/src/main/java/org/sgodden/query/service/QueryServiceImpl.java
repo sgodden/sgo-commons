@@ -693,10 +693,11 @@ public class QueryServiceImpl implements QueryService {
 		    /*
 		     * Record the index used as primary sort so that we don't include it again
 		     * later.
-		     * We have to add 1, since we always select the id as an extra column
+		     * We have to add 2, since the sort column is zero-indexed, whereas
+             * queries are 1-indexed, and we always select the id as an extra column
 		     * to whatever the incoming query selected.
 		     */
-		    primarySortColumn = query.getSortData().getColumnIndex() + 1;
+		    primarySortColumn = query.getSortData().getColumnIndex() + 2;
 		    buf.append(primarySortColumn);
 		    buf.append(" " + (query.getSortData().getAscending() ? "ASC" : "DESC") );
             first = false;
