@@ -27,7 +27,6 @@ import org.sgodden.query.ResultSetRow;
 import org.sgodden.query.service.QueryService;
 import org.sgodden.ui.mvc.ModelListener;
 import org.sgodden.ui.models.SortData;
-import org.sgodden.ui.models.SortOrder;
 
 /**
  * Abstract implementation of the {@link QueryTableModel} interface.
@@ -40,14 +39,6 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * The query service which will actually execute the queries.
      */
     private QueryService service;
-    /**
-     * The column index to use as the primary sort, one-indexed.
-     */
-    private int sortColumnIndex;
-    /**
-     * The order in which the sort column should be sorted.
-     */
-    private SortOrder sortOrder;
     
     /**
      * The filter criteria used on the last query refresh.
@@ -238,6 +229,10 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
                     }
                 }
             }
+        }
+        
+        if (sortData != null) {
+            query.setSortData(sortData);
         }
 
         doRefresh(query);
