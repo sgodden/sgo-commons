@@ -1,4 +1,4 @@
-package org.sgodden.ui.mvc.models;
+package org.sgodden.ui.models;
 
 /**
  * A table model which can be sorted by a particular column index.
@@ -20,9 +20,9 @@ public interface SortableTableModel {
      * Sorts the table model by the specified (one-indexed)
      * column, and in the specified sort sequence.
      * @param columnIndex the column index to sort by, one-indexed.
-     * @param sortSequence the sorting sequence, either ascending
-     * or descending.
+     * @param ascending whether to sort ascending (true), or descending
+     * (false).
      */
-    public void sort(int columnIndex, SortOrder sortSequence);
+    public void sort(int columnIndex, boolean ascending);
 
 }

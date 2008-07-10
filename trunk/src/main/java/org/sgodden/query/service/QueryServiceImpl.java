@@ -43,7 +43,7 @@ import org.sgodden.query.QueryColumn;
 import org.sgodden.query.ResultSet;
 import org.sgodden.query.ResultSetColumn;
 import org.sgodden.query.ResultSetRow;
-import org.sgodden.ui.mvc.models.SortOrder;
+import org.sgodden.ui.models.SortOrder;
 
 /**
  * An implementation of the query service which uses hibernate.
@@ -698,7 +698,7 @@ public class QueryServiceImpl implements QueryService {
 		     */
 		    primarySortColumn = query.getSortData().getColumnIndex() + 1;
 		    buf.append(primarySortColumn);
-		    buf.append(" " + (query.getSortData().getSortOrder() == SortOrder.ASCENDING ? "ASC" : "DESC") );
+		    buf.append(" " + (query.getSortData().getAscending() ? "ASC" : "DESC") );
             first = false;
 		}
 		

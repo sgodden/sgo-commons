@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.sgodden.ui.mvc.models.SortData;
+import org.sgodden.ui.models.SortData;
 
 /**
  * Encapsulates a simple query.

@@ -1,7 +1,7 @@
 package org.sgodden.query.ui;
 
-import org.sgodden.ui.mvc.models.FilterableTableModel;
-import org.sgodden.ui.mvc.models.SortableTableModel;
+import org.sgodden.ui.models.FilterableTableModel;
+import org.sgodden.ui.models.SortableTableModel;
 
 /**
  * A table model built on a simple object query interface.
