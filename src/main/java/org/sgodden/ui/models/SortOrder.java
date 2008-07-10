@@ -1,4 +1,4 @@
-package org.sgodden.ui.mvc.models;
+package org.sgodden.ui.models;
 
 /**
  * An enumeration of sorting orders.

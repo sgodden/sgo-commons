@@ -1,4 +1,4 @@
-package org.sgodden.ui.mvc.models;
+package org.sgodden.ui.models;
 
 import java.io.Serializable;
 
@@ -20,18 +20,18 @@ public class SortData implements Serializable {
     private int columnIndex;
 
     /**
-     * The sort order.
+     * Whether to sort the data ascending (true) or descending (false).
      */
-    private SortOrder sortOrder;
+    private boolean ascending;
 
     /**
      * Constructs a new sort data.
      * @param columnIndex the column index.
      * @param sortOrder the sort order.
      */
-    public SortData(int columnIndex, SortOrder sortOrder) {
+    public SortData(int columnIndex, boolean ascending) {
         this.columnIndex = columnIndex;
-        this.sortOrder = sortOrder;
+        this.ascending = ascending;
     }
 
     /**
@@ -43,11 +43,11 @@ public class SortData implements Serializable {
     }
 
     /**
-     * Returns the sort order.
-     * @returnthe sort order.
+     * Returns whether the sort should be performed ascending or descending.
+     * @return true to sort ascending, false to sort descending.
      */
-    public SortOrder getSortOrder() {
-        return sortOrder;
+    public boolean getAscending() {
+        return ascending;
     }
 
 }

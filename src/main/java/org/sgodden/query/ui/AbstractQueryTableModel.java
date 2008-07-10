@@ -26,10 +26,8 @@ import org.sgodden.query.ResultSet;
 import org.sgodden.query.ResultSetRow;
 import org.sgodden.query.service.QueryService;
 import org.sgodden.ui.mvc.ModelListener;
-import org.sgodden.ui.mvc.messages.Message;
-import org.sgodden.ui.mvc.messages.MessageModel;
-import org.sgodden.ui.mvc.models.SortData;
-import org.sgodden.ui.mvc.models.SortOrder;
+import org.sgodden.ui.models.SortData;
+import org.sgodden.ui.models.SortOrder;
 
 /**
  * Abstract implementation of the {@link QueryTableModel} interface.
@@ -270,8 +268,8 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * See {@link org.sgodden.ui.mvc.models.SortableTableModel#sort(int, org.sgodden.ui.mvc.models.SortOrder)}.
      * @see org.sgodden.ui.mvc.models.SortableTableModel#sort(int, org.sgodden.ui.mvc.models.SortOrder)
      */
-    public void sort(int columnIndex, SortOrder sortOrder) {
-        refresh(filterCriteria, new SortData(columnIndex, sortOrder));
+    public void sort(int columnIndex, boolean ascending) {
+        refresh(filterCriteria, new SortData(columnIndex, ascending));
     }
 
 }
