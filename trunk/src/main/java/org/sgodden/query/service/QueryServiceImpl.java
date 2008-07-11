@@ -43,7 +43,6 @@ import org.sgodden.query.QueryColumn;
 import org.sgodden.query.ResultSet;
 import org.sgodden.query.ResultSetColumn;
 import org.sgodden.query.ResultSetRow;
-import org.sgodden.ui.models.SortOrder;
 
 /**
  * An implementation of the query service which uses hibernate.
