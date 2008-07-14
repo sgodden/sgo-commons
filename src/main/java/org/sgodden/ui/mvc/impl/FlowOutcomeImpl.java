@@ -21,17 +21,20 @@ abstract class FlowOutcomeImpl
 	private Flow nextFlowResolutionFactory;
 	private FlowOutcome previousFlowResolution;
     private String flowStepName;
+    private String flowStepDescription;
 
     FlowOutcomeImpl(
 			FlowImpl factory, 
 			Flow nextFlowResolutionFactory,
 			FlowOutcome previousFlowResolution,
-            String flowStepName) {
+            String flowStepName,
+            String flowStepDescription) {
 		super();
 		this.factory = factory;
 		this.nextFlowResolutionFactory = nextFlowResolutionFactory;
 		this.previousFlowResolution = previousFlowResolution;
         this.flowStepName = flowStepName;
+        this.flowStepDescription = flowStepDescription;
     }
 
 	public Flow getNextFlowResolutionFactory() {
@@ -46,6 +49,10 @@ abstract class FlowOutcomeImpl
 			String controllerResolution) {
 		return this.factory.getFlowOutcome(controllerResolution, this);
 	}
+
+    public String getFlowStepDescription() {
+        return flowStepDescription;
+    }
 
     public String getFlowStepName(){
         return flowStepName;

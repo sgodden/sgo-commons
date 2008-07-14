@@ -10,6 +10,6 @@ package org.sgodden.ui.mvc.impl;
  * @author sgodden
  *
  */
-interface Destination {
+public interface Destination {
 	
 }

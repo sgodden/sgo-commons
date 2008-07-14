@@ -14,8 +14,9 @@
  # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  #
  # ================================================================= */
-package org.sgodden.ui.mvc.swing.testapp;
+package org.sgodden.ui.mvc.swing.testapp.flow1;
 
+import org.sgodden.ui.mvc.swing.testapp.*;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 

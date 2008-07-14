@@ -53,4 +53,11 @@ public interface FlowOutcome {
 	 */
 	public NamedObjectResolver getNamedObjectResolver();
 
+    /**
+     * Returns the description of the flow step, for example to be used as the title
+     * of a container showing the resultant view.
+     * @return the description of the flow step.
+     */
+    public String getFlowStepDescription();
+
 }
