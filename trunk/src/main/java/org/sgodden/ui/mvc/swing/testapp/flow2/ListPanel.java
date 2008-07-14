@@ -38,11 +38,6 @@ import org.sgodden.ui.mvc.swing.testapp.EditAction;
 public class ListPanel 
 		extends JPanel 
 		implements View {
-	
-	/**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 20080527L;
 
     public ListPanel(){
 	}
@@ -52,6 +47,9 @@ public class ListPanel
      * @see org.sgodden.ui.mvc.View#initialise(org.sgodden.ui.mvc.Context)
      */
     public void initialise(Context context) {
+
+        System.out.println(context.evaluate("inputFlow2"));
+
         setLayout(new BorderLayout());
         add(new JLabel("Some pretend list of objects goes here"), BorderLayout.CENTER);
         add(makeButtons(context), BorderLayout.SOUTH);

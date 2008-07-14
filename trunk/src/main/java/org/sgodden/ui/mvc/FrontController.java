@@ -57,7 +57,7 @@ public class FrontController
 		
 		context = new Context();
 		context.setControllerResolutionHandler(this);
-		context.setConversationNamedObjectResolver(flow);
+		context.setFlow(flow);
 		
 		processFlowResolution(
 				flow.getFlowOutcome(null, null), 
@@ -65,6 +65,8 @@ public class FrontController
 	}
 	
 	private void processFlowResolution(FlowOutcome flowOutcome, String resolutionName) {
+
+        context.setFlow(flowOutcome.getFlow());
 	    
 		previousFlowOutcome = flowOutcome;
 

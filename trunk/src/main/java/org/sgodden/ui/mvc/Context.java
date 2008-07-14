@@ -36,7 +36,7 @@ import org.sgodden.ui.mvc.messages.MessageModel;
 public class Context 
 		implements ResolutionHandler {
 	
-	private NamedObjectResolver conversationContext;
+	private Flow flow;
     private MessageModel messageModel = new DefaultMessageModel();
     private ResolutionHandler resolutionHandler;
     private Set<String> availableResolutions;
@@ -47,7 +47,8 @@ public class Context
 	 * Evaluates the passed expression, and returns the return value.
 	 * 
 	 * @param expression a bean-path expression, such as <code>myBean.myValue</code>. 
-	 * @return the return value.
+	 * @return the return value, or <code>null</code> if no such value
+     * could be found.
 	 */
 	public Object evaluate(String expression) {
 
@@ -65,10 +66,16 @@ public class Context
 			propertyPath = expression.substring(expression.indexOf('.') + 1);
 		}
 		
-		Object o = conversationContext.getNamedObject(objectName);
+		Object o = flow.getVariable(objectName);
+
+        if (o == null) {
+            try {
+                o = flow.getNamedObject(objectName);
+            } catch (IllegalArgumentException ignored) {}
+        }
 		
 		if (o == null) {
-			throw new IllegalArgumentException("Unable to resolve object with name: " + objectName);
+			return null;
 		}
 
 		if (propertyPath != null) {
@@ -84,6 +91,37 @@ public class Context
 		
 		return ret;
 	}
+
+    /**
+     * Returns a map of actions representing the available resolutions from
+     * the current step in the flow.
+     * <p/>
+     * This allows generic views to construct their available options from what
+     * has been configured in the flow, so that may function without modification
+     * in any flow.
+     *
+     * @return the map of available actions, keyed by destination flow step name.
+     */
+    public Set<String> getAvailableResolutions() {
+		return availableResolutions;
+	}
+
+    /**
+     * Returns the message model, to be used for recording messages.
+     * @return
+     */
+    public MessageModel getMessageModel() {
+        return messageModel;
+    }
+
+    /**
+     * Returns the named variable, or <code>null</code> if it is not set.
+     * @param name the of the variable to return.
+     * @return the value, or <code>null</code> if no value is set.
+     */
+    public Object getFlowVariable(String name) {
+        return flow.getVariable(name);
+    }
 
 	/**
 	 * Allows a view to fire a particular named resolution.
@@ -107,23 +145,13 @@ public class Context
         resolutionHandler.handleResolution(resolution);
     }
 
-    /**
-     * Sets the object which will be responsible for resolving named beans within
-     * the conversation (flow) currently in place.
-     * 
-     * @param conversationNamedObjectResolver
-     */
-    public void setConversationNamedObjectResolver(NamedObjectResolver conversationNamedObjectResolver) {
-		conversationContext = conversationNamedObjectResolver;
+	/**
+	 * Sets the resolutions available from the current flow step.
+	 * @param availableResolutions the map of available resolutions.
+	 */
+	public void setAvailableResolutions(Set<String> availableResolutions) {
+		this.availableResolutions = availableResolutions;
 	}
-
-    /**
-     * Returns the message model, to be used for recording messages.
-     * @return
-     */
-    public MessageModel getMessageModel() {
-        return messageModel;
-    }
 
     /**
      * Sets the handler which will determine what to do when a resolution occurs.
@@ -136,26 +164,22 @@ public class Context
     }
 
     /**
-     * Returns a map of actions representing the available resolutions from
-     * the current step in the flow.
-     * <p/>
-     * This allows generic views to construct their available options from what
-     * has been configured in the flow, so that may function without modification
-     * in any flow.
-     * 
-     * @return the map of available actions, keyed by destination flow step name.
+     * Sets the object which will be responsible for resolving named beans within
+     * the conversation (flow) currently in place.
+     *
+     * @param conversationNamedObjectResolver
      */
-    public Set<String> getAvailableResolutions() {
-		return availableResolutions;
+    public void setFlow(Flow flow) {
+		this.flow = flow;
 	}
 
-	/**
-	 * Sets the resolutions available from the current flow step.
-	 * @param availableResolutions the map of available resolutions.
-	 */
-	public void setAvailableResolutions(Set<String> availableResolutions) {
-		this.availableResolutions = availableResolutions;
-	}
-    
+    /**
+     * Sets a variable on the currently executing flow.
+     * @param name the name of the variable.
+     * @param value the value, or <code>null</code> to unset the variable.
+     */
+    public void setFlowVariable(String name, Object value) {
+        flow.setVariable(name, value);
+    }
 
 }

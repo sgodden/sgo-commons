@@ -2,6 +2,7 @@ package org.sgodden.ui.mvc.config;
 
 import java.io.Serializable;
 
+import java.util.Map;
 import org.sgodden.ui.mvc.impl.Guard;
 
 /**
@@ -36,6 +37,7 @@ public class ResolutionMapping
 	private String controllerMethodName;
     private String terminationResolutionName;
 	private String subFlowName;
+    private Map<String, String> subFlowParameters;
 	
 	/**
 	 * Returns the name of the source step which triggers
@@ -163,6 +165,23 @@ public class ResolutionMapping
     public void setSubFlowName(String subFlowName) {
         checkState();
         this.subFlowName = subFlowName;
+    }
+
+    /**
+     * Returns the mapping of parameters from this flow, to parameters in
+     * the sub-flow.
+     * @return the parameter mappings.
+     */
+    public Map<String, String> getSubFlowParameters() {
+        return subFlowParameters;
+    }
+
+    /**
+     * Sets the mapping of attributes from this flow to the sub-flow.
+     * @param subFlowParameters the attribute mappings.
+     */
+    public void setSubFlowParameters(Map<String, String> subFlowParameters) {
+        this.subFlowParameters = subFlowParameters;
     }
 
     private void checkState() {
