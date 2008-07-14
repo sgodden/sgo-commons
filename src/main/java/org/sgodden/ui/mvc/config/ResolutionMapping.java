@@ -34,7 +34,6 @@ public class ResolutionMapping
 	private String resolutionName;
 	private Guard guard;
 	private String destinationStepName;
-	private String controllerMethodName;
     private String terminationResolutionName;
 	private String subFlowName;
     private Map<String, String> subFlowParameters;
@@ -109,24 +108,6 @@ public class ResolutionMapping
 	public void setDestinationStepName(String destinationStepName) {
         checkState();
 		this.destinationStepName = destinationStepName;
-	}
-
-	/**
-	 * Returns the name of the method to invoke in the controller, in the case
-	 * that the destination points to a controller.
-	 * @return the name of the method to invoke in the controller.
-	 */
-	public String getControllerMethodName() {
-		return controllerMethodName;
-	}
-
-	/**
-	 * Returns the name of the method to invoke in the controller, in the case
-	 * that the destination points to a controller.
-	 * @param controllerMethodName the name of the method to invoke in the controller.
-	 */
-	public void setControllerMethodName(String controllerMethodName) {
-		this.controllerMethodName = controllerMethodName;
 	}
 
     /**

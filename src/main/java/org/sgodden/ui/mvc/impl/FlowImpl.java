@@ -158,7 +158,8 @@ public class FlowImpl
     protected final void addControllerStep(
             String controllerName,
             String description,
-            String managedObjectName) {
+            String managedObjectName,
+            String methodName) {
 
         if (flowStepConfigurations.containsKey(controllerName)) {
             throw new IllegalArgumentException("A flow step already exists with name '" + controllerName);
@@ -169,7 +170,8 @@ public class FlowImpl
                 new ControllerFlowStep(
                 controllerName,
                 description,
-                managedObjectName));
+                managedObjectName,
+                methodName));
     }
 
     /**
@@ -185,7 +187,7 @@ public class FlowImpl
             String sourceStepName,
             String resolutionName,
             String destinationStepName) {
-        addResolutionMapping(sourceStepName, resolutionName, null, destinationStepName, null);
+        addResolutionMapping(sourceStepName, resolutionName, null, destinationStepName);
     }
 
     /**
@@ -202,8 +204,7 @@ public class FlowImpl
             String sourceStepName,
             String resolutionName,
             Guard guard,
-            String destinationStepName,
-            String controllerMethodName) {
+            String destinationStepName) {
 
         FlowStep source = null;
         FlowStep destination = null;
@@ -224,7 +225,7 @@ public class FlowImpl
             destination = flowStepConfigurations.get(destinationStepName);
         }
 
-        source.addResolutionMapping(resolutionName, guard, new FlowStepDestinationImpl(destination, controllerMethodName));
+        source.addResolutionMapping(resolutionName, guard, new FlowStepDestinationImpl(destination));
     }
 
     /**
@@ -242,8 +243,7 @@ public class FlowImpl
             String sourceStepName,
             String resolutionName,
             Guard guard,
-            Destination destination,
-            String controllerMethodName) {
+            Destination destination) {
 
         FlowStep source = flowStepConfigurations.get(sourceStepName);
         if (source == null) {
@@ -267,8 +267,7 @@ public class FlowImpl
     protected void addGlobalResolutionMapping(
             String resolutionName,
             Guard guard,
-            String destinationStepName,
-            String controllerMethodName) {
+            String destinationStepName) {
 
         FlowStep destination = flowStepConfigurations.get(destinationStepName);
 
@@ -283,7 +282,7 @@ public class FlowImpl
             globalResolutionMappings.put(resolutionName, mappings);
         }
 
-        mappings.add(new QualifiedResolutionMapping(guard, new FlowStepDestinationImpl(destination, controllerMethodName)));
+        mappings.add(new QualifiedResolutionMapping(guard, new FlowStepDestinationImpl(destination)));
     }
 
     /**
@@ -366,7 +365,8 @@ public class FlowImpl
                     addControllerStep(
                             step.getName(),
                             step.getDescription(),
-                            step.getObjectName());
+                            step.getObjectName(),
+                            step.getMethodName());
                 }
             }
             if (viewSteps != null) {
@@ -383,16 +383,14 @@ public class FlowImpl
                                 mapping.getSourceStepName(),
                                 mapping.getResolutionName(),
                                 mapping.getGuard(),
-                                mapping.getDestinationStepName(),
-                                mapping.getControllerMethodName());
+                                mapping.getDestinationStepName());
                     } else if (mapping.getTerminationResolutionName() != null) {
                         addResolutionMapping(
                                 mapping.getSourceStepName(),
                                 mapping.getResolutionName(),
                                 mapping.getGuard(),
                                 new FlowTerminationDestinationImpl(
-                                mapping.getTerminationResolutionName()),
-                                mapping.getControllerMethodName());
+                                mapping.getTerminationResolutionName()));
                     } else if (mapping.getSubFlowName() != null) {
                         addResolutionMapping(
                                 mapping.getSourceStepName(),
@@ -400,8 +398,8 @@ public class FlowImpl
                                 mapping.getGuard(),
                                 new SubFlowDestination(
                                     mapping.getSubFlowName(),
-                                    mapping.getSubFlowParameters()),
-                                mapping.getControllerMethodName());
+                                    mapping.getSubFlowParameters())
+                                );
                     } else {
                         throw new Error("Incorrectly configured resolution mapping: " + mapping.getSourceStepName());
                     }
@@ -598,8 +596,7 @@ public class FlowImpl
         if (target instanceof ControllerFlowStep) {
             ret = configureFlowResolutionFromControllerFlowStep(
                     (ControllerFlowStep) target,
-                    previousFlowOutcome,
-                    destination.controllerMethodName);
+                    previousFlowOutcome);
         } else {
             ret = configureFlowResolutionFromViewFlowStep(
                     (ViewFlowStep) target,
@@ -619,8 +616,7 @@ public class FlowImpl
      */
     private FlowOutcome configureFlowResolutionFromControllerFlowStep(
             ControllerFlowStep destination,
-            FlowOutcome previousFlowOutcome,
-            String controllerMethodName) {
+            FlowOutcome previousFlowOutcome) {
 
         Object controller = destination.getController();
 
@@ -632,7 +628,7 @@ public class FlowImpl
         return new ControllerFlowOutcomeImpl(
                 this,
                 controller,
-                controllerMethodName,
+                destination.getMethodName(),
                 this,
                 destination.getFlowStepName(),
                 destination.getFlowStepDescription(),
@@ -757,6 +753,7 @@ public class FlowImpl
             extends FlowStep {
 
         private String managedObjectName;
+        private String methodName;
 
         /**
          * Creates a new controller flow step.
@@ -767,9 +764,11 @@ public class FlowImpl
         protected ControllerFlowStep(
                 String flowStepName,
                 String flowStepDescription,
-                String managedObjectName) {
+                String managedObjectName,
+                String methodName) {
             super(flowStepName, flowStepDescription);
             this.managedObjectName = managedObjectName;
+            this.methodName = methodName;
         }
 
         /**
@@ -778,6 +777,14 @@ public class FlowImpl
          */
         public Object getController() {
             return getNamedObject(managedObjectName);
+        }
+
+        /**
+         * Returns the name of the method to invoke in the controller.
+         * @return the name of the method to invoke in the controller.
+         */
+        public String getMethodName() {
+            return methodName;
         }
     }
 

@@ -14,14 +14,11 @@ public class FlowStepDestinationImpl
 		implements Destination {
 	
 	FlowStep destination;
-	String controllerMethodName;
 
 	protected FlowStepDestinationImpl(
-			FlowStep destination,
-			String controllerMethodName) {
+			FlowStep destination) {
 		super();
 		this.destination = destination;
-		this.controllerMethodName = controllerMethodName;
 	}
 	
 }
