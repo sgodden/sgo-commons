@@ -14,18 +14,23 @@
  # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  #
  # ================================================================= */
-package org.sgodden.ui.mvc.swing.testapp;
+package org.sgodden.ui.mvc.swing.testapp.flow1;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sgodden.ui.mvc.Context;
 import org.sgodden.ui.mvc.View;
+import org.sgodden.ui.mvc.swing.testapp.CancelAction;
+import org.sgodden.ui.mvc.swing.testapp.SaveAction;
 
 /**
  * Provides a dummy list panel for the test app.
@@ -37,17 +42,13 @@ public class EditPanel
 		extends JPanel 
 		implements View {
 
-	/**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 20080527L;
+    private static final transient Log log = LogFactory.getLog(EditPanel.class);
+    
     private MaintenanceController maintenanceController;
+    
+    private JLabel label;
 	
 	public EditPanel(){
-	}
-	
-	public void setMaintenanceController(MaintenanceController maintenanceController) {
-		this.maintenanceController = maintenanceController;
 	}
 
 	/*
@@ -55,9 +56,12 @@ public class EditPanel
 	 * @see org.sgodden.ui.mvc.View#initialise(org.sgodden.ui.mvc.Context)
 	 */
     public void initialise(Context context) {
-        System.out.println("Edit panel: initialise");
+        maintenanceController = (MaintenanceController)
+                context.evaluate("maintenanceController");
+
         setLayout(new BorderLayout());
-        add(new JLabel("Here's the edit panel"), BorderLayout.CENTER);
+        label = new JLabel();
+        add(label, BorderLayout.CENTER);
         add(makeButtons(context), BorderLayout.SOUTH);
     }
 
@@ -66,6 +70,12 @@ public class EditPanel
      * @see org.sgodden.ui.mvc.View#activate()
      */
     public void activate() {
+        if (maintenanceController.getFail()) {
+            label.setText("Here's the edit view - the last validation failed");
+        }
+        else {
+            label.setText("Here's the edit panel");
+        }
     }
 
     /**
@@ -73,7 +83,7 @@ public class EditPanel
      * @param context the current context.
      * @return the panel.
      */
-    private JPanel makeButtons(Context context) {
+    private JPanel makeButtons(final Context context) {
         JPanel ret = new JPanel(new FlowLayout());
         
         ret.add(new JButton(new CancelAction(context)));
@@ -95,6 +105,14 @@ public class EditPanel
         });
         failSave.setText("Fail save");
         ret.add(failSave);
+
+        JButton subflow = new JButton(new AbstractAction(){
+            public void actionPerformed(ActionEvent e) {
+                context.handleResolution("SUBFLOW");
+            }
+        });
+        subflow.setText("Sub flow");
+        ret.add(subflow);
         
         return ret;
     }

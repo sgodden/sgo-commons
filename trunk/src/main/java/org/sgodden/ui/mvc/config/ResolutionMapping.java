@@ -20,7 +20,7 @@ import org.sgodden.ui.mvc.impl.Guard;
  * <p/>
  * It is up to the flow designer to ensure that only one qualified
  * resolution mapping can succeed in such a scenario.  In practise,
- * the first mapping found fulfills the transition will be used.  
+ * the first mapping found which fulfills the transition will be used.
  * @author sgodden
  *
  */
@@ -34,6 +34,8 @@ public class ResolutionMapping
 	private Guard guard;
 	private String destinationStepName;
 	private String controllerMethodName;
+    private String terminationResolutionName;
+	private String subFlowName;
 	
 	/**
 	 * Returns the name of the source step which triggers
@@ -97,11 +99,13 @@ public class ResolutionMapping
 	}
 	
 	/**
-	 * (Mandatory) - Sets the name of the destination step to which the
-	 * flow should go.
+	 * Sets the name of the destination step to which the
+	 * flow should go.  Only one of destination step name and
+     * termination resolution name may be specified.
 	 * @param destinationStepName the name of the destination step.
 	 */
 	public void setDestinationStepName(String destinationStepName) {
+        checkState();
 		this.destinationStepName = destinationStepName;
 	}
 
@@ -122,5 +126,58 @@ public class ResolutionMapping
 	public void setControllerMethodName(String controllerMethodName) {
 		this.controllerMethodName = controllerMethodName;
 	}
+
+    /**
+     * A non-null value indicates that the flow should be terminated with the
+     * returned resolution name.
+     * @return the resolution name with which to terminate the flow.
+     */
+    public String getTerminationResolutionName() {
+        return terminationResolutionName;
+    }
+
+    /**
+     * Sets the resolution name with which to terminate the flow.
+     * Only one of termination resolution name and destination step name
+     * may be specified.
+     * @param terminationResolutionName the resolution name with which to
+     * terminate the flow.
+     */
+    public void setTerminationResolutionName(String terminationResolutionName) {
+        checkState();
+        this.terminationResolutionName = terminationResolutionName;
+    }
+
+    /**
+     * Returns the name of the sub-flow to invoke.
+     * @return the name of the sub-flow to invoke.
+     */
+    public String getSubFlowName() {
+        return subFlowName;
+    }
+
+    /**
+     * Sets the name of the sub-flow to invoke.
+     * @param subFlowName the name of the sub-flow to invoke.
+     */
+    public void setSubFlowName(String subFlowName) {
+        checkState();
+        this.subFlowName = subFlowName;
+    }
+
+    private void checkState() {
+        if (
+                (destinationStepName != null
+                && (terminationResolutionName != null || subFlowName != null))
+                || (terminationResolutionName != null
+                && (destinationStepName != null || subFlowName != null))
+                || (subFlowName != null
+                && (terminationResolutionName != null || subFlowName != null))
+                ) {
+            throw new IllegalStateException("Only one of destinationStepName," +
+                    " terminationResolutionName and subFlowName may be " +
+                    "specified");
+        }
+    }
 
 }

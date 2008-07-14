@@ -6,11 +6,11 @@ import java.util.Map;
 import java.util.Set;
 
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sgodden.ui.mvc.ControllerFlowOutcome;
 import org.sgodden.ui.mvc.Flow;
+import org.sgodden.ui.mvc.FlowFactory;
 import org.sgodden.ui.mvc.FlowOutcome;
 import org.sgodden.ui.mvc.View;
 import org.sgodden.ui.mvc.ViewFlowOutcome;
@@ -62,6 +62,10 @@ public class FlowImpl
      * The resolution mappings of the flow.
      */
     private ResolutionMapping[] resolutionMappings;
+    /**
+     * A factory used to create instances of subflows.
+     */
+    private FlowFactory flowFactory;
 
     /**
      * Sets the map of named objects that will be used to provide view
@@ -79,6 +83,14 @@ public class FlowImpl
      */
     public void setControllerSteps(ControllerStep[] controllerSteps) {
     	this.controllerSteps = controllerSteps;
+    }
+
+    /**
+     * Sets the factory to be used to create sub-flows.
+     * @param flowFactory the factory to be used to create sub-flows.
+     */
+    public void setFlowFactory(FlowFactory flowFactory) {
+        this.flowFactory = flowFactory;
     }
     
     /**
@@ -115,7 +127,7 @@ public class FlowImpl
      * @param viewName the name of the view, which must be unique.
      */
     protected final void addViewStep(
-            String viewName) {
+            String viewName, String description) {
 
         if (flowStepConfigurations.containsKey(viewName)) {
             throw new IllegalArgumentException("A view configuration already exists with name " + viewName);
@@ -123,7 +135,7 @@ public class FlowImpl
 
         flowStepConfigurations.put(
                 viewName,
-                new ViewFlowStep(viewName));
+                new ViewFlowStep(viewName, description));
 
     }
 
@@ -149,6 +161,7 @@ public class FlowImpl
      */
     protected final void addControllerStep(
             String controllerName,
+            String description,
             String managedObjectName) {
 
         if (flowStepConfigurations.containsKey(controllerName)) {
@@ -159,6 +172,7 @@ public class FlowImpl
                 controllerName,
                 new ControllerFlowStep(
                 controllerName,
+                description,
                 managedObjectName
                 ));
     }
@@ -354,28 +368,58 @@ public class FlowImpl
              */
             if (controllerSteps != null) {
             	for (ControllerStep step : controllerSteps) {
-            		addControllerStep(step.getStepName(), step.getObjectName());
+            		addControllerStep(
+                            step.getName(),
+                            step.getDescription(),
+                            step.getObjectName());
             	}
             }
             if (viewSteps != null) {
             	for (ViewStep step : viewSteps) {
-            		addViewStep(step.getStepName());
+            		addViewStep(
+                            step.getName(),
+                            step.getDescription());
             	}
             }
             if (resolutionMappings != null) {
             	for (ResolutionMapping mapping : resolutionMappings) {
-            		addResolutionMapping(
-            				mapping.getSourceStepName(), 
-            				mapping.getResolutionName(), 
-            				mapping.getGuard(), 
-            				mapping.getDestinationStepName(),
-            				mapping.getControllerMethodName());
+                    if (mapping.getDestinationStepName() != null) {
+                        addResolutionMapping(
+                                mapping.getSourceStepName(),
+                                mapping.getResolutionName(),
+                                mapping.getGuard(),
+                                mapping.getDestinationStepName(),
+                                mapping.getControllerMethodName());
+                    }
+                    else if (mapping.getTerminationResolutionName() != null) {
+                        addResolutionMapping(
+                                mapping.getSourceStepName(),
+                                mapping.getResolutionName(),
+                                mapping.getGuard(),
+                                new FlowTerminationDestinationImpl(
+                                    mapping.getTerminationResolutionName()),
+                                mapping.getControllerMethodName());
+                    }
+                    else if (mapping.getSubFlowName() != null) {
+                        addResolutionMapping(
+                                mapping.getSourceStepName(),
+                                mapping.getResolutionName(),
+                                mapping.getGuard(),
+                                new SubFlowDestination(mapping.getSubFlowName()),
+                                mapping.getControllerMethodName());
+                    }
+                    else {
+                        throw new Error("Incorrectly configured resolution mapping: "
+                                + mapping.getSourceStepName());
+                    }
             	}
             }
             
-            ret = configureFlowResolutionFromViewFlowStep(getInitialViewFlowStep(), previousFlowResolution);
+            ret = configureFlowResolutionFromViewFlowStep(
+                    getInitialViewFlowStep(), previousFlowResolution);
         } else {
-            ret = handleResolution(controllerResolution, (FlowOutcomeImpl) previousFlowResolution);
+            ret = handleResolution(
+                    controllerResolution, (FlowOutcomeImpl) previousFlowResolution);
         }
 
         log.debug("Returning flow resolution: " + ret);
@@ -433,12 +477,15 @@ public class FlowImpl
             SubFlowDestination subFlowDestination = (SubFlowDestination) destination;
 
             try {
-                Flow nextFactory = subFlowDestination.destinationFlowFactoryClass.newInstance();
-                ret = nextFactory.getFlowOutcome(
+                Flow nextFlow = flowFactory.makeFlow(
+                        subFlowDestination.destinationFlowName);
+                ret = nextFlow.getFlowOutcome(
                         resolutionName,
                         new SubFlowFlowOutcomeImpl(previousFlowResolution));
             } catch (Exception e) {
-                throw new Error("Error trying to instantiate the next flow resolution factory: " + subFlowDestination.destinationFlowFactoryClass.getName(), e);
+                throw new Error("Error trying to instantiate the " +
+                        "next flow: " + subFlowDestination.destinationFlowName,
+                        e);
             }
         } /*
          * Destination is an instruction to return to the previous step.
@@ -577,6 +624,7 @@ public class FlowImpl
                 controllerMethodName,
                 this,
                 destination.getFlowStepName(),
+                destination.getFlowStepDescription(),
                 previousFlowOutcome);
 
     }
@@ -624,6 +672,7 @@ public class FlowImpl
     protected abstract class FlowStep {
 
         private String flowStepName;
+        private String flowStepDescription;
         private Map<String, Set<QualifiedResolutionMapping>> resolutionMappings = new HashMap<String, Set<QualifiedResolutionMapping>>();
 
         /**
@@ -633,9 +682,11 @@ public class FlowImpl
          * @param configurationProperties an optional map of configuration properties for this step.
          */
         protected FlowStep(
-                String flowStepName) {
+                String flowStepName,
+                String flowStepDescription) {
             super();
             this.flowStepName = flowStepName;
+            this.flowStepDescription = flowStepDescription;
         }
 
         /**
@@ -675,6 +726,15 @@ public class FlowImpl
         public String getFlowStepName() {
             return flowStepName;
         }
+
+        /**
+         * Returns the flow step description.
+         * @return
+         */
+        public String getFlowStepDescription() {
+            return flowStepDescription;
+        }
+
     }
 
     /**
@@ -696,8 +756,9 @@ public class FlowImpl
          */
         protected ControllerFlowStep(
                 String flowStepName,
+                String flowStepDescription,
                 String managedObjectName) {
-            super(flowStepName);
+            super(flowStepName, flowStepDescription);
             this.managedObjectName = managedObjectName;
         }
 
@@ -725,8 +786,8 @@ public class FlowImpl
          * @param flowStepName the name of the flow step, which must be unique.
          * @param viewClass the view class.
          */
-        private ViewFlowStep(String flowStepName) {
-            super(flowStepName);
+        private ViewFlowStep(String flowStepName, String flowStepDescription) {
+            super(flowStepName, flowStepDescription);
         }
 
         /**

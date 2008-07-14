@@ -35,5 +35,9 @@ class SubFlowFlowOutcomeImpl
 	public NamedObjectResolver getNamedObjectResolver() {
 		return null; // FIXME - this is clearly crap
 	}
+
+    public String getFlowStepDescription() {
+        return null; // FIXME - this is clearly crap
+    }
 	
 }

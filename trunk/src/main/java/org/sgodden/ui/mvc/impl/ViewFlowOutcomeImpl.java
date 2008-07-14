@@ -36,7 +36,8 @@ class ViewFlowOutcomeImpl
                 factory,
                 nextFlowResolutionFactory,
                 previousFlowResolution,
-                viewFlowStep.getFlowStepName());
+                viewFlowStep.getFlowStepName(),
+                viewFlowStep.getFlowStepDescription());
 		this.view = view;
 		this.viewFlowStep = viewFlowStep;
 	}

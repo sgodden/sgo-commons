@@ -14,17 +14,36 @@ public abstract class FlowStep
 	
 	private static final long serialVersionUID = 1L;
 	
-	private String stepName;
+	private String name;
+    private String description;
 	
 	public FlowStep(){}
+
+    /**
+     * Returns the step description.
+     * @return the step description.
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Sets the step description.
+     * @param stepDescription the step description.
+     */
+    public void setDescription(String stepDescription) {
+        this.description = stepDescription;
+    }
+
+
 
 	/**
 	 * Returns the step name, which must
 	 * be unique within the flow.
 	 * @return the step name.
 	 */
-	public String getStepName() {
-		return stepName;
+	public String getName() {
+		return name;
 	}
 
 	/**
@@ -32,8 +51,8 @@ public abstract class FlowStep
 	 * unique within the flow.
 	 * @param stepName the step name.
 	 */
-	public void setStepName(String stepName) {
-		this.stepName = stepName;
+	public void setName(String stepName) {
+		this.name = stepName;
 	}	
 
 }

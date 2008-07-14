@@ -14,7 +14,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 # ================================================================= */
-package org.sgodden.ui.mvc.swing.testapp;
+package org.sgodden.ui.mvc.swing.testapp.flow1;
 
 /**
  * A simulated implementation of a maintenance controller.
@@ -50,6 +50,10 @@ public class MaintenanceController {
 		
 		return ret;
 	}
+    
+    public boolean getFail() {
+        return fail;
+    }
 	
 	private static void debug(String msg) {
 		System.out.println(MaintenanceController.class + ": " + msg);

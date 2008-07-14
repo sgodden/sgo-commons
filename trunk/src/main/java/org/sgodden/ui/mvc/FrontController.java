@@ -40,6 +40,7 @@ public class FrontController
 	private Context context;
 	
 	private Set < Integer > initialisedViews = new HashSet < Integer >();
+    private TitledContainer titledContainer;
 
 	/**
 	 * Creates a new front controller to manage the specified container
@@ -49,6 +50,10 @@ public class FrontController
 	 */
 	public FrontController(Container container, Flow flow) {
 		this.container = container;
+
+        if (container instanceof TitledContainer) {
+            this.titledContainer = (TitledContainer) container;
+        }
 		
 		context = new Context();
 		context.setControllerResolutionHandler(this);
@@ -132,6 +137,10 @@ public class FrontController
         else {
         	container.display(view);
         }
+
+        if (titledContainer != null) {
+            titledContainer.setTitle(vfr.getFlowStepDescription());
+        }
         
         if (!(initialisedViews.contains(view.hashCode()))) {
             view.initialise(context);
@@ -148,4 +157,18 @@ public class FrontController
 			processFlowResolution(flowResolution, resolutionName);
 		}
 	}
+
+    /**
+     * Sets the container which will show the title of the currently
+     * executing view step.
+     * @param titledContainer the container which will show the title.
+     */
+    public void setTitledContainer(TitledContainer titledContainer) {
+        this.titledContainer = titledContainer;
+        if (previousViewFlowOutcome != null) {
+            titledContainer.setTitle(
+                    previousViewFlowOutcome.getFlowStepDescription());
+        }
+    }
+
 }

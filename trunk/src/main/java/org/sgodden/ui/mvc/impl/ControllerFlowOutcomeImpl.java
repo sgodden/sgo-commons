@@ -26,12 +26,14 @@ class ControllerFlowOutcomeImpl
 			String methodName,
 			Flow nextFlowResolutionFactory,
 			String flowStepName,
+            String flowStepDescription,
 			FlowOutcome previousFlowResolution) {
 		super(
                 factory,
                 nextFlowResolutionFactory,
                 previousFlowResolution,
-                flowStepName);
+                flowStepName,
+                flowStepDescription);
 		this.controller = controller;
 		this.methodName = methodName;
 	}

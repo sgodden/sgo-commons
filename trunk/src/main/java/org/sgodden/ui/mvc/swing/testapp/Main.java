@@ -16,15 +16,15 @@
  # ================================================================= */
 package org.sgodden.ui.mvc.swing.testapp;
 
-import java.util.HashMap;
-import java.util.Map;
 
+import groovy.util.GroovyScriptEngine;
+import java.net.URL;
 import javax.swing.JFrame;
 
+import org.sgodden.ui.mvc.Flow;
+import org.sgodden.ui.mvc.FlowFactory;
 import org.sgodden.ui.mvc.FrontController;
-import org.sgodden.ui.mvc.config.ControllerStep;
-import org.sgodden.ui.mvc.config.ResolutionMapping;
-import org.sgodden.ui.mvc.config.ViewStep;
+import org.sgodden.ui.mvc.TitledContainer;
 import org.sgodden.ui.mvc.impl.FlowImpl;
 import org.sgodden.ui.mvc.swing.ContainerImpl;
 
@@ -35,86 +35,73 @@ import org.sgodden.ui.mvc.swing.ContainerImpl;
  *
  */
 public class Main {
+
+    private static GroovyScriptEngine groovyScriptEngine;
+
+    static {
+        try {
+            groovyScriptEngine = new GroovyScriptEngine(
+                    new URL[]{new URL(System.getProperty("groovy.script.url"))});
+        } catch (Exception e) {
+            throw new Error("Error initialsing groovy script engine", e);
+        }
+    }
 	
 	public static void main(String[] args) {
 		
-		FlowImpl flow = new FlowImpl();
-		
-		/*
-		 * Create the named objects (controllers and views).
-		 * In real life, everything would normally be configured via
-		 * your dependency-injection provider.
-		 */
-		Map<String, Object> namedObjects = new HashMap<String, Object>();
-		
-		MaintenanceController maintenanceController = new MaintenanceController();
-		namedObjects.put("maintenanceController", maintenanceController);
-		
-		namedObjects.put("listView", new ListPanel());
-		
-		EditPanel editPanel = new EditPanel();
-		editPanel.setMaintenanceController(maintenanceController);
-		namedObjects.put("editView", editPanel);
-		
-		flow.setNamedObjects(namedObjects);
-		
-		/*
-		 * Set the controller steps.
-		 */
-		ControllerStep saveStep = new ControllerStep();
-		saveStep.setStepName("saveController");
-		saveStep.setObjectName("maintenanceController");
-
-		ControllerStep validateStep = new ControllerStep();
-		validateStep.setStepName("validateController");
-		validateStep.setObjectName("maintenanceController");
-		
-		flow.setControllerSteps(new ControllerStep[]{saveStep, validateStep});
-		
-		/*
-		 * Set the view steps.
-		 */
-		ViewStep vstep = new ViewStep();
-		vstep.setStepName("listView");
-		
-		ViewStep vstep2 = new ViewStep();
-		vstep2.setStepName("editView");
-		
-		flow.setViewSteps(new ViewStep[]{vstep, vstep2});
-		flow.setInitialViewName("listView");
-		
-		/*
-		 * Set the resolution mappings.
-		 */
-		flow.setResolutionMappings(new ResolutionMapping[]{
-				createResolutionMapping("listView", "EDIT", "editView", null),
-				createResolutionMapping("editView", "CANCEL", "listView", null),
-				createResolutionMapping("editView", "SAVE", "validateController", "validate"),
-				createResolutionMapping("validateController", "SUCCESS", "saveController", "save"),
-				createResolutionMapping("saveController", "SUCCESS", "listView", null),
-		});
-		
+		FlowImpl flow = (FlowImpl)
+                getGroovyObjectInstance("org.sgodden.ui.mvc.swing.testapp.flow1.Flow1");
+        flow.setFlowFactory(new FlowFactoryImpl());
+	
 		ContainerImpl container = new ContainerImpl();
 		FrontController front = new FrontController(container, flow);
 		
-		JFrame frame = new JFrame("Simple MVC test app");
+		TitledJFrame frame = new TitledJFrame();
+        front.setTitledContainer(frame);
+
 		frame.getContentPane().add(container);
 		
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.setSize(300, 300);
-		//frame.pack();
+		frame.setSize(500, 500);
 		frame.setVisible(true);
 		
 	}
-	
-	private static ResolutionMapping createResolutionMapping(String source, String resolution, String destination, String methodName) {
-		ResolutionMapping ret = new ResolutionMapping();
-		ret.setSourceStepName(source);
-		ret.setResolutionName(resolution);
-		ret.setDestinationStepName(destination);
-		ret.setControllerMethodName(methodName);
-		
-		return ret;
-	}
+
+    /**
+     * Returns a new instance of the class defined in the specified
+     * groovy script.
+     * @param scriptName the groovy script name.
+     * @return a new instance of the class defined in the script.
+     */
+    private static Object getGroovyObjectInstance(String scriptName) {
+        Object ret = null;
+        try {
+            Class clazz = groovyScriptEngine.loadScriptByName(scriptName);
+            ret = clazz.newInstance();
+        } catch (Exception e) {
+            throw new Error("Error creating groovy object instance for" +
+                    " script name: " + scriptName, e);
+        }
+
+        return ret;
+    }
+
+    private static class FlowFactoryImpl implements FlowFactory {
+
+        public Flow makeFlow(String flowName) {
+            if (flowName.equals("flow2")) {
+                return (Flow) getGroovyObjectInstance(
+                        "org.sgodden.ui.mvc.swing.testapp.flow2.Flow2");
+            }
+            else {
+                throw new IllegalArgumentException("Unknown flow: " + flowName);
+            }
+        }
+
+    }
+
+    private static class TitledJFrame extends JFrame
+            implements TitledContainer {
+    }
 
 }

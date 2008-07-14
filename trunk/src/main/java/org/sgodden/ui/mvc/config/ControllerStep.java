@@ -30,6 +30,7 @@ public class ControllerStep
 	private static final long serialVersionUID = 1L;
 	
 	private String objectName;
+    private String methodName;
 	
 	public ControllerStep(){}
 
@@ -53,5 +54,25 @@ public class ControllerStep
 	public void setObjectName(String objectName) {
 		this.objectName = objectName;
 	}
+
+    /**
+     * Returns the name of the method which should be invoked
+     * on the controller.
+     * @return the name of the controller method to invoke.
+     */
+    public String getMethodName() {
+        return methodName;
+    }
+
+    /**
+     * Sets the name of the method which should be invoked
+     * on the controller.
+     * @param methodName the name of the controller method to invoke.
+     */
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
+
 
 }
