@@ -54,4 +54,19 @@ public interface Flow
 			String resolutionName,
 			FlowOutcome previousFlowResolution);
 
+    /**
+     * Returns the value of the specified flow variable, or <code>null</code>
+     * if no variable by that name is set.
+     * @param name the name of the variable.
+     * @return the value, or <code>null</code> if no value is set.
+     */
+    public Object getVariable(String name);
+
+    /**
+     * Sets or unsets a variable on the flow.
+     * @param name the name of the variable.
+     * @param value the value, or <code>null</code> to unset the variable.
+     */
+    public void setVariable(String name, Object value);
+
 }

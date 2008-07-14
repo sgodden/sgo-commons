@@ -35,29 +35,25 @@ public class FlowImpl
     private Map<String, Object> namedObjects;
     private Map<String, FlowStep> flowStepConfigurations = new HashMap<String, FlowStep>();
     private Map<String, Set<QualifiedResolutionMapping>> globalResolutionMappings = new HashMap<String, Set<QualifiedResolutionMapping>>();
-    
+    private Map<String, Object> variables;
     /**
      * If we have been daisy-chained from a previous flow resolution factory, then this is the outcome in the
      * previous factory that caused us to be invoked.  We will reinvoke this resolution once this flow terminates.
      * In this respect, flow resolution factories operate as a simple linked list. 
      */
     private FlowOutcome precedingFactoryFlowResolution;
-    
     /**
      * The name of the initial view to be displayed.
      */
     private String initialViewName;
-    
     /**
      * The controller steps of the flow.
      */
     private ControllerStep[] controllerSteps;
-    
     /**
      * The view steps of the flow.
      */
     private ViewStep[] viewSteps;
-    
     /**
      * The resolution mappings of the flow.
      */
@@ -76,13 +72,13 @@ public class FlowImpl
     public void setNamedObjects(Map<String, Object> namedObjects) {
         this.namedObjects = namedObjects;
     }
-    
+
     /**
      * Sets the controller steps of the flow.
      * @param controllerSteps the controller steps.
      */
     public void setControllerSteps(ControllerStep[] controllerSteps) {
-    	this.controllerSteps = controllerSteps;
+        this.controllerSteps = controllerSteps;
     }
 
     /**
@@ -92,29 +88,29 @@ public class FlowImpl
     public void setFlowFactory(FlowFactory flowFactory) {
         this.flowFactory = flowFactory;
     }
-    
+
     /**
      * Sets the view steps of the flow.
      * @param viewSteps the view steps.
      */
     public void setViewSteps(ViewStep[] viewSteps) {
-    	this.viewSteps = viewSteps;
+        this.viewSteps = viewSteps;
     }
-    
+
     /**
      * Sets the resolution mappings of the flow.
      * @param resolutionMappings the resolution mappings.
      */
     public void setResolutionMappings(ResolutionMapping[] resolutionMappings) {
-    	this.resolutionMappings = resolutionMappings;
+        this.resolutionMappings = resolutionMappings;
     }
-    
+
     /**
      * Sets the name of the initial view to be displayed.
      * @param viewName the initial view to be displayed.
      */
     public void setInitialViewName(String viewName) {
-    	this.initialViewName = viewName;
+        this.initialViewName = viewName;
     }
 
     /**
@@ -173,10 +169,9 @@ public class FlowImpl
                 new ControllerFlowStep(
                 controllerName,
                 description,
-                managedObjectName
-                ));
+                managedObjectName));
     }
-    
+
     /**
      * A convenience version of {@link #addResolutionMapping(String, String, Guard, Destination)}
      * where the destination is the named step.
@@ -361,28 +356,28 @@ public class FlowImpl
         if (firstInvocation) {
             firstInvocation = false;
             precedingFactoryFlowResolution = previousFlowResolution;
-            
+
             /*
              * If we have been configured using the config classes, initialise
              * from them now.
              */
             if (controllerSteps != null) {
-            	for (ControllerStep step : controllerSteps) {
-            		addControllerStep(
+                for (ControllerStep step : controllerSteps) {
+                    addControllerStep(
                             step.getName(),
                             step.getDescription(),
                             step.getObjectName());
-            	}
+                }
             }
             if (viewSteps != null) {
-            	for (ViewStep step : viewSteps) {
-            		addViewStep(
+                for (ViewStep step : viewSteps) {
+                    addViewStep(
                             step.getName(),
                             step.getDescription());
-            	}
+                }
             }
             if (resolutionMappings != null) {
-            	for (ResolutionMapping mapping : resolutionMappings) {
+                for (ResolutionMapping mapping : resolutionMappings) {
                     if (mapping.getDestinationStepName() != null) {
                         addResolutionMapping(
                                 mapping.getSourceStepName(),
@@ -390,31 +385,29 @@ public class FlowImpl
                                 mapping.getGuard(),
                                 mapping.getDestinationStepName(),
                                 mapping.getControllerMethodName());
-                    }
-                    else if (mapping.getTerminationResolutionName() != null) {
+                    } else if (mapping.getTerminationResolutionName() != null) {
                         addResolutionMapping(
                                 mapping.getSourceStepName(),
                                 mapping.getResolutionName(),
                                 mapping.getGuard(),
                                 new FlowTerminationDestinationImpl(
-                                    mapping.getTerminationResolutionName()),
+                                mapping.getTerminationResolutionName()),
                                 mapping.getControllerMethodName());
-                    }
-                    else if (mapping.getSubFlowName() != null) {
+                    } else if (mapping.getSubFlowName() != null) {
                         addResolutionMapping(
                                 mapping.getSourceStepName(),
                                 mapping.getResolutionName(),
                                 mapping.getGuard(),
-                                new SubFlowDestination(mapping.getSubFlowName()),
+                                new SubFlowDestination(
+                                    mapping.getSubFlowName(),
+                                    mapping.getSubFlowParameters()),
                                 mapping.getControllerMethodName());
+                    } else {
+                        throw new Error("Incorrectly configured resolution mapping: " + mapping.getSourceStepName());
                     }
-                    else {
-                        throw new Error("Incorrectly configured resolution mapping: "
-                                + mapping.getSourceStepName());
-                    }
-            	}
+                }
             }
-            
+
             ret = configureFlowResolutionFromViewFlowStep(
                     getInitialViewFlowStep(), previousFlowResolution);
         } else {
@@ -466,30 +459,48 @@ public class FlowImpl
                 ret = precedingFactoryFlowResolution.getFlowOutcome(resolutionName);
             }
         // if the previous resolution was null, nothing will happen (the action will just be consumed)
-        } /*
-         * Destination is a step from this flow. 
-         */ else if (destination instanceof FlowStepDestinationImpl) {
+        }
+        else if (destination instanceof FlowStepDestinationImpl) {
+            /*
+             * Destination is a step from this flow.
+             */
             FlowStepDestinationImpl ccd = (FlowStepDestinationImpl) destination;
             ret = configureFlowOutcomeFromFlowStep(ccd, previousFlowResolution);
-        } /*
-         * Destination is a sub-flow.
-         */ else if (destination instanceof SubFlowDestination) {
+        } else if (destination instanceof SubFlowDestination) {
+            /*
+             * Destination is a sub-flow.
+             */
             SubFlowDestination subFlowDestination = (SubFlowDestination) destination;
 
             try {
                 Flow nextFlow = flowFactory.makeFlow(
                         subFlowDestination.destinationFlowName);
+
+                // map variables from one flow to the next
+                if (subFlowDestination.parameterMappings != null) {
+                    Map<String, String> mappings = subFlowDestination.parameterMappings;
+                    for (String from : mappings.keySet()) {
+                        nextFlow.setVariable(
+                                mappings.get(from),
+                                getVariable(from));
+                    }
+                }
+
                 ret = nextFlow.getFlowOutcome(
                         resolutionName,
-                        new SubFlowFlowOutcomeImpl(previousFlowResolution));
+                        new SubFlowFlowOutcomeImpl(
+                                previousFlowResolution,
+                                this));
             } catch (Exception e) {
                 throw new Error("Error trying to instantiate the " +
                         "next flow: " + subFlowDestination.destinationFlowName,
                         e);
             }
-        } /*
+        }
+        /*
          * Destination is an instruction to return to the previous step.
-         */ else if (destination instanceof GoBackDestinationImpl) {
+         */
+        else if (destination instanceof GoBackDestinationImpl) {
             log.debug("Previous flow resolution is: " + previousFlowResolution);
             ret = previousFlowResolution.getPreviousFlowResolution();
         } /*
@@ -555,9 +566,9 @@ public class FlowImpl
      */
     private ViewFlowStep getInitialViewFlowStep() {
         ViewFlowStep ret = null;
-        
+
         if (initialViewName == null) {
-        	throw new IllegalStateException("The initial view name has not been set");
+            throw new IllegalStateException("The initial view name has not been set");
         }
 
         if (!(flowStepConfigurations.containsKey(initialViewName))) {
@@ -581,7 +592,7 @@ public class FlowImpl
             FlowOutcome previousFlowOutcome) {
 
         FlowOutcome ret;
-        
+
         FlowStep target = destination.destination;
 
         if (target instanceof ControllerFlowStep) {
@@ -734,7 +745,6 @@ public class FlowImpl
         public String getFlowStepDescription() {
             return flowStepDescription;
         }
-
     }
 
     /**
@@ -818,11 +828,42 @@ public class FlowImpl
         private String controllerMethodName;
 
         public QualifiedResolutionMapping(
-        		Guard guard, 
-        		Destination destination) {
+                Guard guard,
+                Destination destination) {
             super();
             this.guard = guard;
             this.destination = destination;
+        }
+    }
+
+    /**
+     * Returns the value of the specified flow variable, or <code>null</code>
+     * if no variable by that name is set.
+     * @param name the name of the variable.
+     * @return the value, or <code>null</code> if no value is set.
+     */
+    public Object getVariable(String name) {
+        if (variables != null && variables.containsKey(name)) {
+            return variables.get(name);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Sets or unsets a variable on the flow.
+     * @param name the name of the variable.
+     * @param value the value, or <code>null</code> to unset the variable.
+     */
+    public void setVariable(String name, Object value) {
+        log.info("Setting variable: " + name + ", " + value);
+        if (variables == null) {
+            variables = new HashMap<String, Object>();
+        }
+        if (value != null) {
+            variables.put(name, value);
+        } else {
+            variables.remove(name);
         }
     }
 }

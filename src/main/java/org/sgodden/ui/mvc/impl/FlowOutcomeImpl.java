@@ -37,6 +37,14 @@ abstract class FlowOutcomeImpl
         this.flowStepDescription = flowStepDescription;
     }
 
+    /**
+     * Returns the flow which generated this outcome.
+     * @return the flow.
+     */
+    public Flow getFlow() {
+        return factory;
+    }
+
 	public Flow getNextFlowResolutionFactory() {
 		return nextFlowResolutionFactory;
 	}

@@ -32,6 +32,12 @@ package org.sgodden.ui.mvc;
  *
  */
 public interface FlowOutcome {
+
+    /**
+     * Returns the flow which caused this outcome.
+     * @return the flow.
+     */
+    public Flow getFlow();
 	
 	/**
 	 * Returns a new FlowResolution object encapsulating the outcome of the flow

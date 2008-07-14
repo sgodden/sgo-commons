@@ -1,5 +1,6 @@
 package org.sgodden.ui.mvc.impl;
 
+import org.sgodden.ui.mvc.Flow;
 import org.sgodden.ui.mvc.FlowOutcome;
 import org.sgodden.ui.mvc.NamedObjectResolver;
 
@@ -17,15 +18,26 @@ import org.sgodden.ui.mvc.NamedObjectResolver;
 class SubFlowFlowOutcomeImpl 
 		implements FlowOutcome {
 
+    /**
+     * The flow which created us.
+     */
+    private Flow flow;
 	private FlowOutcome previousFlowResolution; 
 	
-	SubFlowFlowOutcomeImpl(FlowOutcome previousFlowResolution) {
+	SubFlowFlowOutcomeImpl(
+            FlowOutcome previousFlowResolution,
+            Flow flow) {
 		this.previousFlowResolution = previousFlowResolution;
+        this.flow = flow;
 	}
-	
-	public Object getController() {
-		throw new IllegalStateException("This method should not be called"); // FIXME - indicates broken API
-	}
+
+    /**
+     * Returns the flow which generated this outcome.
+     * @return the flow.
+     */
+    public Flow getFlow() {
+        return flow;
+    }
 
 	public FlowOutcome getFlowOutcome(
 			String controllerResolution) {

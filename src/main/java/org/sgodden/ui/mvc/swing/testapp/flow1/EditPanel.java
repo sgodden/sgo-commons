@@ -47,6 +47,8 @@ public class EditPanel
     private MaintenanceController maintenanceController;
     
     private JLabel label;
+
+    private Context context;
 	
 	public EditPanel(){
 	}
@@ -56,6 +58,7 @@ public class EditPanel
 	 * @see org.sgodden.ui.mvc.View#initialise(org.sgodden.ui.mvc.Context)
 	 */
     public void initialise(Context context) {
+        this.context = context;
         maintenanceController = (MaintenanceController)
                 context.evaluate("maintenanceController");
 
@@ -76,6 +79,8 @@ public class EditPanel
         else {
             label.setText("Here's the edit panel");
         }
+        log.info("Checking flow variable 'outputFlow1': "
+                + context.evaluate("outputFlow1"));
     }
 
     /**
@@ -108,6 +113,7 @@ public class EditPanel
 
         JButton subflow = new JButton(new AbstractAction(){
             public void actionPerformed(ActionEvent e) {
+                context.setFlowVariable("outputFlow1", "Blah");
                 context.handleResolution("SUBFLOW");
             }
         });
