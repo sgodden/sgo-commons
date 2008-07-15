@@ -16,11 +16,14 @@
 # ================================================================= */
 package org.sgodden.ui.mvc.swing.testapp.flow1;
 
+import org.sgodden.ui.mvc.Context;
+import org.sgodden.ui.mvc.ContextAware;
+
 /**
  * A simulated implementation of a maintenance controller.
  * @author sgodden
  */
-public class MaintenanceController {
+public class MaintenanceController implements ContextAware {
 	
 	private boolean fail = false;
 
@@ -58,5 +61,9 @@ public class MaintenanceController {
 	private static void debug(String msg) {
 		System.out.println(MaintenanceController.class + ": " + msg);
 	}
+
+    public void setContext(Context context) {
+        System.out.println("Context set: " + context);
+    }
 
 }
