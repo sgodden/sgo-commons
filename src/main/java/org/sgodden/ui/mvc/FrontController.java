@@ -83,6 +83,10 @@ public class FrontController
 
             Object controller = ((ControllerFlowOutcome) flowOutcome).getController();
             
+            if (controller instanceof ContextAware) {
+                ((ContextAware)controller).setContext(context);
+            }
+            
             String methodName = ((ControllerFlowOutcome) flowOutcome).getMethodName();
             if (methodName == null) {
             	methodName = resolutionName.toLowerCase();

@@ -863,7 +863,6 @@ public class FlowImpl
      * @param value the value, or <code>null</code> to unset the variable.
      */
     public void setVariable(String name, Object value) {
-        log.info("Setting variable: " + name + ", " + value);
         if (variables == null) {
             variables = new HashMap<String, Object>();
         }
