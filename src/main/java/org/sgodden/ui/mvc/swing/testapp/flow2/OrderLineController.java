@@ -14,56 +14,37 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 # ================================================================= */
-package org.sgodden.ui.mvc.swing.testapp.flow1;
+package org.sgodden.ui.mvc.swing.testapp.flow2;
 
 import org.apache.log4j.Logger;
 import org.sgodden.ui.mvc.Context;
 import org.sgodden.ui.mvc.ContextAware;
 
 /**
- * A simulated implementation of a maintenance controller.
+ * A simulated implementation of a controller for the order lines.
  * @author sgodden
  */
-public class MaintenanceController implements ContextAware {
-	
-	private boolean fail = false;
-    private boolean valid = true;
-    private static final Logger log = Logger.getLogger
-            (MaintenanceController.class);
-    
+public class OrderLineController implements ContextAware {
+
+    private static final Logger log = Logger.getLogger(
+            OrderLineController.class);
+
     private Context context;
-
-    public void addOrderLine() {
-        String s = (String) context.getFlowVariable("addedOrderLine");
-        log.debug("Adding order line: " + s);
-    }
-
-    public void exportForValidate() {
-        context.setFlowVariable("order", "ORDER SET BY FLOW 1");
-        context.setFlowVariable("messageModel", "MESSAGE MODEL SET BY FLOW 1");
-    }
-
-    public boolean getFail() {
-        return fail;
-    }
-
-    public void reload() {
-        log.debug("Reloading");
-    }
-
-    public void setFail(boolean fail) {
-        this.fail = fail;
-    }
-
-	public void setValidationFailed() {
-		this.valid = false;
+	
+	public String save() {
+        log.debug("Save");
+		String ret = "SUCCESS";
+		return ret;
 	}
 
-    public void setValidationSucceeded() {
-        this.valid = true;
+    public void exportOrderLine() {
+        log.debug("Exporting order line");
+        context.setFlowVariable("orderLine", "I AM AN ORDER LINE" +
+                " CREATED BY THE ORDER LINE FLOW");
     }
 
     public void setContext(Context context) {
+        log.debug("Setting context");
         this.context = context;
     }
 

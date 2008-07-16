@@ -19,6 +19,7 @@ package org.sgodden.ui.mvc;
 import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.log4j.Logger;
 import org.sgodden.ui.mvc.messages.DefaultMessageModel;
 import org.sgodden.ui.mvc.messages.MessageModel;
 
@@ -36,6 +37,8 @@ import org.sgodden.ui.mvc.messages.MessageModel;
 public class Context 
 		implements ResolutionHandler {
 	
+    private static final transient Logger log = Logger.getLogger(Context.class);
+
 	private Flow flow;
     private MessageModel messageModel = new DefaultMessageModel();
     private ResolutionHandler resolutionHandler;
@@ -51,6 +54,8 @@ public class Context
      * could be found.
 	 */
 	public Object evaluate(String expression) {
+
+        log.debug("Evaluating expression: " + expression);
 
         Object ret;
 		

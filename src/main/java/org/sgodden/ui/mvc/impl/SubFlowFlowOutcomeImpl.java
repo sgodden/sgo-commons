@@ -15,41 +15,6 @@ import org.sgodden.ui.mvc.NamedObjectResolver;
  * @author goddens
  *
  */
-class SubFlowFlowOutcomeImpl 
-		implements FlowOutcome {
-
-    /**
-     * The flow which created us.
-     */
-    private Flow flow;
-	private FlowOutcome previousFlowResolution; 
-	
-	SubFlowFlowOutcomeImpl(
-            FlowOutcome previousFlowResolution,
-            Flow flow) {
-		this.previousFlowResolution = previousFlowResolution;
-        this.flow = flow;
-	}
-
-    /**
-     * Returns the flow which generated this outcome.
-     * @return the flow.
-     */
-    public Flow getFlow() {
-        return flow;
-    }
-
-	public FlowOutcome getFlowOutcome(
-			String controllerResolution) {
-		return previousFlowResolution;
-	}
-
-	public NamedObjectResolver getNamedObjectResolver() {
-		return null; // FIXME - this is clearly crap
-	}
-
-    public String getFlowStepDescription() {
-        return null; // FIXME - this is clearly crap
-    }
+class SubFlowFlowOutcomeImpl {
 	
 }

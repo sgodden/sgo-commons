@@ -11,7 +11,7 @@ import org.sgodden.ui.mvc.NamedObjectResolver;
  * @author goddens
  *
  */
-abstract class FlowOutcomeImpl
+class FlowOutcomeImpl
 	implements FlowOutcome {
 	
 	/**
@@ -69,7 +69,8 @@ abstract class FlowOutcomeImpl
     @Override
 	public String toString() {
 		return new ToStringBuilder(this)
-			.append("nextFlowResolutionFactory", nextFlowResolutionFactory)
+			.append("flowStepName", flowStepName)
+            .append("flowStepDescription", flowStepDescription)
 			.toString();
 	}
 

@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sgodden.ui.mvc.impl.FlowImpl;
 
 /**
  * Manages the flow within a particular visual container.
@@ -58,6 +59,7 @@ public class FrontController
 		context = new Context();
 		context.setControllerResolutionHandler(this);
 		context.setFlow(flow);
+        ((FlowImpl)flow).setContext(context); // FIXME - horrible bodge
 		
 		processFlowResolution(
 				flow.getFlowOutcome(null, null), 
@@ -82,10 +84,6 @@ public class FrontController
         	context.setAvailableResolutions(null);
 
             Object controller = ((ControllerFlowOutcome) flowOutcome).getController();
-            
-            if (controller instanceof ContextAware) {
-                ((ContextAware)controller).setContext(context);
-            }
             
             String methodName = ((ControllerFlowOutcome) flowOutcome).getMethodName();
             if (methodName == null) {

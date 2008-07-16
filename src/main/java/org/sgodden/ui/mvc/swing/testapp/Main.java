@@ -21,6 +21,10 @@ import groovy.util.GroovyScriptEngine;
 import java.net.URL;
 import javax.swing.JFrame;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.sgodden.ui.mvc.Flow;
 import org.sgodden.ui.mvc.FlowFactory;
 import org.sgodden.ui.mvc.FrontController;
@@ -46,26 +50,30 @@ public class Main {
             throw new Error("Error initialsing groovy script engine", e);
         }
     }
-	
-	public static void main(String[] args) {
-		
-		FlowImpl flow = (FlowImpl)
-                getGroovyObjectInstance("org.sgodden.ui.mvc.swing.testapp.flow1.Flow1");
+    
+    public static void main(String[] args) {
+
+        Logger logger = Logger.getLogger("org.sgodden");
+        logger.setLevel(Level.toLevel(Level.DEBUG_INT));
+        
+        FlowImpl flow = (FlowImpl)
+                getGroovyObjectInstance("org.sgodden.ui.mvc.swing.testapp.flow1.OrderFlow");
+        
         flow.setFlowFactory(new FlowFactoryImpl());
-	
-		ContainerImpl container = new ContainerImpl();
-		FrontController front = new FrontController(container, flow);
-		
-		TitledJFrame frame = new TitledJFrame();
+    
+        ContainerImpl container = new ContainerImpl();
+        FrontController front = new FrontController(container, flow);
+        
+        TitledJFrame frame = new TitledJFrame();
         front.setTitledContainer(frame);
 
-		frame.getContentPane().add(container);
-		
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.setSize(500, 500);
-		frame.setVisible(true);
-		
-	}
+        frame.getContentPane().add(container);
+        
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(500, 500);
+        frame.setVisible(true);
+        
+    }
 
     /**
      * Returns a new instance of the class defined in the specified
@@ -89,9 +97,13 @@ public class Main {
     private static class FlowFactoryImpl implements FlowFactory {
 
         public Flow makeFlow(String flowName) {
-            if (flowName.equals("flow2")) {
+            if (flowName.equals("ValidateAndSaveOrder")) {
                 return (Flow) getGroovyObjectInstance(
-                        "org.sgodden.ui.mvc.swing.testapp.flow2.Flow2");
+                        "org.sgodden.ui.mvc.swing.testapp.flow1.ValidateAndSaveOrder");
+            }
+            else if (flowName.equals("OrderLineFlow")) {
+                return (Flow) getGroovyObjectInstance(
+                        "org.sgodden.ui.mvc.swing.testapp.flow2.OrderLineFlow");
             }
             else {
                 throw new IllegalArgumentException("Unknown flow: " + flowName);
@@ -100,6 +112,7 @@ public class Main {
 
     }
 
+    @SuppressWarnings("serial")
     private static class TitledJFrame extends JFrame
             implements TitledContainer {
     }

@@ -18,16 +18,15 @@ package org.sgodden.ui.mvc.swing.testapp.flow2;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.sgodden.ui.mvc.Context;
 import org.sgodden.ui.mvc.View;
-import org.sgodden.ui.mvc.swing.testapp.EditAction;
 
 /**
  * Provides a dummy list panel for the test app.
@@ -35,11 +34,12 @@ import org.sgodden.ui.mvc.swing.testapp.EditAction;
  * @author sgodden
  *
  */
-public class ListPanel 
+@SuppressWarnings("serial")
+public class EditPanel 
 		extends JPanel 
 		implements View {
 
-    public ListPanel(){
+    public EditPanel(){
 	}
 
     /*
@@ -51,7 +51,7 @@ public class ListPanel
         System.out.println(context.evaluate("inputFlow2"));
 
         setLayout(new BorderLayout());
-        add(new JLabel("Some pretend list of objects goes here"), BorderLayout.CENTER);
+        add(new JLabel("A pretend edit panel for an order line"), BorderLayout.CENTER);
         add(makeButtons(context), BorderLayout.SOUTH);
     }
 
@@ -68,12 +68,11 @@ public class ListPanel
      */
     private JPanel makeButtons(final Context context) {
         JPanel ret = new JPanel(new FlowLayout());
-        ret.add(new JButton(new EditAction(context)));
 
-        JButton cancel = new JButton("Cancel");
+        JButton cancel = new JButton("Save");
         cancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                context.handleResolution("CANCEL");
+                context.handleResolution("SAVE");
             }
         });
         ret.add(cancel);
