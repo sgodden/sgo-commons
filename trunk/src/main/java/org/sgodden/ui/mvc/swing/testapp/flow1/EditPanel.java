@@ -38,13 +38,14 @@ import org.sgodden.ui.mvc.swing.testapp.SaveAction;
  * @author sgodden
  *
  */
+@SuppressWarnings("serial")
 public class EditPanel 
 		extends JPanel 
 		implements View {
 
     private static final transient Log log = LogFactory.getLog(EditPanel.class);
     
-    private MaintenanceController maintenanceController;
+    private MaintenanceController controller;
     
     private JLabel label;
 
@@ -59,11 +60,11 @@ public class EditPanel
 	 */
     public void initialise(Context context) {
         this.context = context;
-        maintenanceController = (MaintenanceController)
-                context.evaluate("maintenanceController");
+        controller = (MaintenanceController)
+                context.evaluate("controller");
 
         setLayout(new BorderLayout());
-        label = new JLabel();
+        label = new JLabel("");
         add(label, BorderLayout.CENTER);
         add(makeButtons(context), BorderLayout.SOUTH);
     }
@@ -73,7 +74,7 @@ public class EditPanel
      * @see org.sgodden.ui.mvc.View#activate()
      */
     public void activate() {
-        if (maintenanceController.getFail()) {
+        if (controller.getFail()) {
             label.setText("Here's the edit view - the last validation failed");
         }
         else {
@@ -96,7 +97,7 @@ public class EditPanel
         ret.add(new JButton(new SaveAction(context){
             @Override
             public void actionPerformed(ActionEvent evt) {
-                maintenanceController.setFail(false);
+                controller.setFail(false);
                 super.actionPerformed(evt);
             }
         }));
@@ -104,7 +105,7 @@ public class EditPanel
         JButton failSave = new JButton(new SaveAction(context){
             @Override
             public void actionPerformed(ActionEvent evt) {
-                maintenanceController.setFail(true);
+                controller.setFail(true);
                 super.actionPerformed(evt);
             }
         });

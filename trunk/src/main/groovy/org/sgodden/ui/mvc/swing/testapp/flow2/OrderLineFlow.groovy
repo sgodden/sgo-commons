@@ -17,35 +17,34 @@
 package org.sgodden.ui.mvc.swing.testapp.flow2
 
 import org.sgodden.ui.mvc.impl.FlowImpl
-import org.sgodden.ui.mvc.config.ViewStep
-import org.sgodden.ui.mvc.config.ResolutionMapping
 
 /**
- * A second flow in the test app.
+ * A flow to maintain an order line.
  * @author sgodden
  */
-class Flow2 extends FlowImpl {
+class OrderLineFlow extends FlowImpl {
 
-    Flow2(){
+    OrderLineFlow(){
         namedObjects = [
-            listView: new ListPanel()
+            editView: new EditPanel(),
+            controller: new OrderLineController()
         ]
 
-        viewSteps = [
-            new ViewStep(
-                name: "listView",
-                description: "Flow 2 list view"
-            )
-        ]
-
-        initialViewName = "listView"
-
-        resolutionMappings = [
-            new ResolutionMapping(
-                sourceStepName: "listView",
-                resolutionName: "CANCEL",
-                terminationResolutionName: "SUCCESS"
-            )
+        initialStepName = "edit"
+        
+        steps = [
+            [
+                name: "edit",
+                viewName: "editView",
+                transitions: [
+                    [on: "SAVE", to: "terminate"]
+                ]
+            ],
+            [
+                name: "terminate",
+                endState: "SUCCESS",
+                entryControllerMethods: ["controller#exportOrderLine"]
+            ]
         ]
     }
 }
