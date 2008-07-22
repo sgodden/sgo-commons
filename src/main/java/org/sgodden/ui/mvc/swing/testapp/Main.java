@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.sgodden.ui.mvc.Flow;
-import org.sgodden.ui.mvc.FlowFactory;
+import org.sgodden.ui.mvc.ObjectFactory;
 import org.sgodden.ui.mvc.FrontController;
 import org.sgodden.ui.mvc.TitledContainer;
 import org.sgodden.ui.mvc.impl.FlowImpl;
@@ -59,7 +59,7 @@ public class Main {
         FlowImpl flow = (FlowImpl)
                 getGroovyObjectInstance("org.sgodden.ui.mvc.swing.testapp.flow1.OrderFlow");
         
-        flow.setFlowFactory(new FlowFactoryImpl());
+        flow.setObjectFactory(new FlowFactoryImpl());
     
         ContainerImpl container = new ContainerImpl();
         FrontController front = new FrontController(container, flow);
@@ -94,9 +94,9 @@ public class Main {
         return ret;
     }
 
-    private static class FlowFactoryImpl implements FlowFactory {
+    private static class FlowFactoryImpl implements ObjectFactory {
 
-        public Flow makeFlow(String flowName) {
+        public Flow makeObject(String flowName) {
             if (flowName.equals("ValidateAndSaveOrder")) {
                 return (Flow) getGroovyObjectInstance(
                         "org.sgodden.ui.mvc.swing.testapp.flow1.ValidateAndSaveOrder");
