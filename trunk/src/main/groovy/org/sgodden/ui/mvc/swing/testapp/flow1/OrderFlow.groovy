@@ -49,7 +49,6 @@ class OrderFlow extends FlowImpl {
                  description: "Flow 1 edit view",
                  transitions: [
                      [on: "CANCEL", to: "listView"],
-                     [on: "EDIT", to: "editView"],
                      [on: "SAVE", to: "validateAndSave"],
                      [on: "SUBFLOW", to: "orderLine"]
                  ]
@@ -59,9 +58,9 @@ class OrderFlow extends FlowImpl {
                  entryControllerMethods: ["controller#exportForValidate"],
                  subFlowName: "ValidateAndSaveOrder",
                  subFlowInputParameters: [
-                     "order" : '''${order}''',
-                     "messageModel" : '''${messageModel}''',
-                     "fail" : '''${controller.fail}'''
+                     "order" : '${asdasd}',
+                     "messageModel" : '${messageModel}',
+                     "fail" : '${controller.fail}'
                  ],
                  transitions: [
                      [on: "FAIL", to: "*LAST-VIEW",
@@ -74,7 +73,7 @@ class OrderFlow extends FlowImpl {
                  name: "orderLine",
                  subFlowName: "OrderLineFlow",
                  subFlowInputParameters: [
-                     "orderLineId" : '''return "orderLineId"'''
+                     "orderLineId" : "orderLineId"
                  ],
                  subFlowOutputParameters: [
                      "orderLine" : "addedOrderLine"
