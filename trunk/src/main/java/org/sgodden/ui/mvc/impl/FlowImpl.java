@@ -170,8 +170,12 @@ public class FlowImpl implements Flow {
             log.debug("First invocation - configuring from initial flow step");
             firstInvocation = false;
             precedingFactoryFlowResolution = previousFlowResolution;
+            
+            FlowStep step = getInitialFlowStep();
+            // execute any entry controller methods
+            executeControllerMethods(step.getEntryControllerMethods());
 
-            ret = configureFlowOutcomeFromFlowStep(getInitialFlowStep(),
+            ret = configureFlowOutcomeFromFlowStep(step,
                     previousFlowResolution);
         }
         else {
