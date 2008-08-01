@@ -74,11 +74,6 @@ public class FrontController
 
         log.debug("Processing flow resolution: " + flowOutcome);
 
-        // FIXME - allow a controller to be the first step in a flow
-        if (resolutionName == null && !(flowOutcome instanceof ViewFlowOutcome)) {
-            throw new IllegalArgumentException("Only a view can be invoked when the resolution name is null");
-        }
-
         if (flowOutcome instanceof ControllerFlowOutcome) {
         	
         	context.setAvailableResolutions(null);
