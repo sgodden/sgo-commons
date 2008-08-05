@@ -22,17 +22,17 @@ package org.sgodden.ui.models;
 public interface BackingObjectDataModel {
     
     /**
-     * Sets the backing objects for the data rows in their current
-     * order.
-     * @param backingObjects the backing objects, one per row.
-     */
-    public void setBackingObjects(Object[] backingObjects);
-    
-    /**
      * Returns the backing object for the row at the specified index.
      * @param rowIndex the row index.
      * @return the backing object for that row.
      */
     public Object getBackingObjectForRow(int rowIndex);
+    
+    /**
+     * Returns the model value for the selected backing object.
+     * @param backingObject the backing object.
+     * @return the model value.
+     */
+    public Object getValueForBackingObject(Object backingObject);
     
 }
