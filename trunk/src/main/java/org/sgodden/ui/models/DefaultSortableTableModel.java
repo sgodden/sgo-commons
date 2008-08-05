@@ -2,11 +2,12 @@ package org.sgodden.ui.models;
 
 import java.util.Arrays;
 import java.util.Comparator;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+
 import javax.swing.table.DefaultTableModel;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -159,5 +160,13 @@ public class DefaultSortableTableModel
             }
         }
         
+    }
+
+    /**
+     * Not implemented - See {@link BackingObjectDataModel#getValueForBackingObject(Object)}.
+     */
+    public Object getValueForBackingObject(Object backingObject) {
+        // FIXME - shows that the API is wrong
+        throw new UnsupportedOperationException();
     }
 }
