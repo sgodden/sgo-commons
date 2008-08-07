@@ -188,6 +188,7 @@ public class FlowImpl implements Flow {
         return ret;
     }
 
+    @SuppressWarnings("unchecked")
     private FlowOutcome handleResolution(String resolutionName,
             FlowOutcomeImpl previousFlowResolution) {
 
@@ -309,26 +310,22 @@ public class FlowImpl implements Flow {
      * @param source
      * @return
      */
+    @SuppressWarnings("unchecked")
     private Transition getTransition(String resolutionName, FlowStep source) {
 
         Transition destination = null;
 
-        // find the first resolution which is either unqualified, or whose guard
-        // is satisfied by the model
         Set < Transition > transitions = source.getTransitions(resolutionName);
         destination = getTransition(transitions);
 
-        // if the destination is null, then go for the global mappings
         if (destination == null && globalResolutionMappings != null) {
             transitions = globalResolutionMappings.get(resolutionName);
             destination = getTransition(transitions);
         }
 
-        // if we haven't found any mappings for this resolution name, then throw
-        // an error
-        if (transitions == null) {
+        if (destination == null) {
             throw new IllegalArgumentException(
-                    "Neither a specific step mapping nor a global mapping could be found for resolution name: "
+                    "No valid destination could be found: "
                             + resolutionName
                             + "; Flow resolution factory class name: "
                             + this.getClass().getName());
@@ -351,7 +348,7 @@ public class FlowImpl implements Flow {
         if (transitions != null) {
             for (Transition transition : transitions) {
                 if (transition.getGuard() == null
-                        || transition.getGuard().approve()) {
+                        || transition.getGuard().approve(context)) {
                     ret = transition;
                     break;
                 }
