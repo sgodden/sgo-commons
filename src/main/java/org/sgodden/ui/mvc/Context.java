@@ -44,7 +44,7 @@ public class Context
     private ResolutionHandler resolutionHandler;
     private Set<String> availableResolutions;
 
-    Context() {}
+    public Context() {}
 	
 	/**
 	 * Evaluates the passed expression, and returns the return value.
@@ -110,6 +110,14 @@ public class Context
     public Set<String> getAvailableResolutions() {
 		return availableResolutions;
 	}
+    
+    /**
+     * Returns the resolution handler.
+     * @return the resolution handler.
+     */
+    public ResolutionHandler getControllerResolutionHandler() {
+        return this.resolutionHandler;
+    }
 
     /**
      * Returns the message model, to be used for recording messages.

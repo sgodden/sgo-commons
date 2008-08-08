@@ -255,7 +255,10 @@ public class FlowImpl implements Flow {
             try {
                 FlowImpl nextFlow = (FlowImpl) objectFactory.makeObject(target
                         .getSubFlowName());
-                nextFlow.setContext(context);
+                Context newContext = new Context();
+                newContext.setControllerResolutionHandler(this.context.getControllerResolutionHandler());
+                newContext.setFlow(nextFlow);
+                nextFlow.setContext(newContext);
 
                 // map variables from one flow to the next
                 if (target.getSubFlowInputParameters() != null) {
