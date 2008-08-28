@@ -1,6 +1,7 @@
 package org.sgodden.ui.mvc.impl;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -485,6 +486,14 @@ public class FlowImpl implements Flow {
         else {
             return null;
         }
+    }
+
+    /**
+     * See {@link Flow#getVariables()}.
+     * @return an unmodifiable map of the current flow variables.
+     */
+    public Map < String, Object > getVariables() {
+        return Collections.unmodifiableMap(variables);
     }
 
     /**

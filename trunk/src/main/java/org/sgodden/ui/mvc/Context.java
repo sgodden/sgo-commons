@@ -16,6 +16,7 @@
  # ================================================================= */
 package org.sgodden.ui.mvc;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
@@ -134,6 +135,16 @@ public class Context
      */
     public Object getFlowVariable(String name) {
         return flow.getVariable(name);
+    }
+    
+    /**
+     * Returns an unmodifiable map of the current
+     * flow variables.
+     * @return an unmodifiable map of the current
+     *          flow variables.
+     */
+    public Map < String, Object > getFlowVariables() {
+        return flow.getVariables();
     }
 
 	/**
