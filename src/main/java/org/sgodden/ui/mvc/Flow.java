@@ -16,6 +16,8 @@
  # ================================================================= */
 package org.sgodden.ui.mvc;
 
+import java.util.Map;
+
 /**
  * Interface for an object which handles a set of view
  * and controller linkages to form a view 'flow'.
@@ -68,5 +70,11 @@ public interface Flow
      * @param value the value, or <code>null</code> to unset the variable.
      */
     public void setVariable(String name, Object value);
+ 
+    /**
+     * Returns an unmodifiable map of flow variables.
+     * @return an unmodifiable map of flow variables.
+     */
+    public Map < String, Object > getVariables();
 
 }
