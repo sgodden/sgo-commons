@@ -18,20 +18,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.table.AbstractTableModel;
+import nextapp.echo.app.table.AbstractTableModel;
+import nextapp.echo.app.table.TableModel;
 
 import org.sgodden.query.Operator;
 import org.sgodden.query.Query;
 import org.sgodden.query.ResultSet;
 import org.sgodden.query.ResultSetRow;
 import org.sgodden.query.service.QueryService;
-import org.sgodden.ui.mvc.ModelListener;
 import org.sgodden.ui.models.SortData;
+import org.sgodden.ui.mvc.ModelListener;
 
 /**
  * Abstract implementation of the {@link QueryTableModel} interface.
  * @author goddens
  */
+@SuppressWarnings("serial")
 public abstract class AbstractQueryTableModel extends AbstractTableModel
         implements QueryTableModel {
 
@@ -39,11 +41,11 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * The query service which will actually execute the queries.
      */
     private QueryService service;
-    
+
     /**
      * The filter criteria used on the last query refresh.
      */
-    private Map<String, Object> filterCriteria;
+    private Map < String, Object > filterCriteria;
 
     /**
      * Sets the query service to be used to run the queries.
@@ -109,7 +111,7 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * Returns the array of column identifiers.
      * @return the array of column identifiers.
      */
-    protected abstract Object[] getColumnIdentifiers();
+    public abstract Object[] getColumnIdentifiers();
 
     /**
      * Returns the column name for the specified index, zero-indexed.
@@ -129,21 +131,12 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
     }
 
     /**
-     * See {@link javax.swing.table.TableModel#getValueAt(int, int)}.
-     * @see javax.swing.table.TableModel#getValueAt(int, int)
+     * See {@link TableModel#getValueAt(int, int)}.
+     * @see TableModel#getValueAt(int, int)
      */
-    public Object getValueAt(int rowIndex, int colIndex) {
+    public Object getValueAt(int colIndex, int rowIndex) {
         ResultSetRow row = rs.getRow(rowIndex);
         return row.getColumns()[colIndex].getValue();
-    }
-
-    /**
-     * See {@link javax.swing.table.AbstractTableModel#isCellEditable(int, int)}.
-     * @see javax.swing.table.AbstractTableModel#isCellEditable(int, int)
-     */
-    @Override
-    public boolean isCellEditable(int row, int column) {
-        return false;
     }
 
     /**
@@ -155,8 +148,8 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
     }
 
     /**
-     * See {@link javax.swing.table.TableModel#getRowCount()}
-     * @see javax.swing.table.TableModel#getRowCount()
+     * See {@link TableModel#getRowCount()}
+     * @see TableModel#getRowCount()
      */
     public int getRowCount() {
         if (rs == null) {
@@ -171,8 +164,8 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
     }
 
     /**
-     * See {@link javax.swing.table.TableModel#getColumnCount()}.
-     * @see javax.swing.table.TableModel#getColumnCount()
+     * See {@link TableModel#getColumnCount()}.
+     * @see TableModel#getColumnCount()
      */
     public int getColumnCount() {
         return getColumnIdentifiers().length;
@@ -204,8 +197,8 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * change that.
      * </p>
      * <p>
-     * XXX - changing filter criteria really means the model is changing,
-     * so this method should be removed?
+     * XXX - changing filter criteria really means the model is changing, so
+     * this method should be removed?
      * </p>
      * @param filterCriteria the filter criteria to put in the query, or
      *            <code>null</code> to perform no filtering.
@@ -230,7 +223,7 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
                 }
             }
         }
-        
+
         if (sortData != null) {
             query.setSortData(sortData);
         }
@@ -260,8 +253,11 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
     protected abstract Query makeQuery();
 
     /**
-     * See {@link org.sgodden.ui.mvc.models.SortableTableModel#sort(int, org.sgodden.ui.mvc.models.SortOrder)}.
-     * @see org.sgodden.ui.mvc.models.SortableTableModel#sort(int, org.sgodden.ui.mvc.models.SortOrder)
+     * See
+     * {@link org.sgodden.ui.mvc.models.SortableTableModel#sort(int, org.sgodden.ui.mvc.models.SortOrder)}
+     * .
+     * @see org.sgodden.ui.mvc.models.SortableTableModel#sort(int,
+     *      org.sgodden.ui.mvc.models.SortOrder)
      */
     public void sort(int columnIndex, boolean ascending) {
         refresh(filterCriteria, new SortData(columnIndex, ascending));

@@ -5,27 +5,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.DefaultListModel;
+import nextapp.echo.app.list.DefaultListModel;
 
 /**
- * Extends {@link DefaultListModel} to allow a backing object to be
- * maintained per item in the list.
+ * Extends {@link DefaultListModel} to allow a backing object to be maintained
+ * per item in the list.
  * @author sgodden
  */
-public class DefaultBackingObjectListModel 
-            extends DefaultListModel implements BackingObjectDataModel {
-    
-    private List < Object > backingObjects = new ArrayList < Object > ();
+@SuppressWarnings("serial")
+public class DefaultBackingObjectListModel extends DefaultListModel implements
+        BackingObjectDataModel {
+
+    private List < Object > backingObjects = new ArrayList < Object >();
     private Map < Object, Object > backingObjectsToItems = new HashMap < Object, Object >();
-    
+
     /**
-     * Adds the specified element to the list, with the corresponding
-     * backing object.
+     * Adds the specified element to the list, with the corresponding backing
+     * object.
      * @param item the item to be rendered in the list.
      * @param backingObject the backing object for the item.
      */
-    public void addElement(Object item, Object backingObject) {
-        super.addElement(item);
+    public void add(Object item, Object backingObject) {
+        super.add(item);
         backingObjects.add(backingObject);
         backingObjectsToItems.put(backingObject, item);
     }
