@@ -37,12 +37,12 @@ import org.sgodden.query.DataType;
 import org.sgodden.query.FilterCriterion;
 import org.sgodden.query.LocaleUtils;
 import org.sgodden.query.ObjectUtils;
-import org.sgodden.query.Operator;
 import org.sgodden.query.Query;
 import org.sgodden.query.QueryColumn;
 import org.sgodden.query.ResultSet;
 import org.sgodden.query.ResultSetColumn;
 import org.sgodden.query.ResultSetRow;
+import org.sgodden.query.SimpleFilterCriterion;
 
 /**
  * An implementation of the query service which uses hibernate.
@@ -59,13 +59,14 @@ public class QueryServiceImpl implements QueryService {
     /**
      * The hibernate session factory.
      */
-    private SessionFactory sessionFactory;
+    private transient SessionFactory sessionFactory;
 
     /**
      * See
      * {@link org.sgodden.query.service.QueryService#executeQuery(org.sgodden.query.Query}.
      * @param query the query to execute.
      */
+    @SuppressWarnings("unchecked")
     public ResultSet executeQuery(Query query) {
 
         Date startTime = null;
@@ -326,7 +327,7 @@ public class QueryServiceImpl implements QueryService {
                     }
                 }
 
-                ret.append(getQualifiedAttributeIdentifier(col
+                ret.append(QueryUtil.getQualifiedAttributeIdentifier(col
                         .getAttributePath()));
 
                 if (func != null) {
@@ -349,57 +350,11 @@ public class QueryServiceImpl implements QueryService {
     private StringBuffer makeLocaleAggregateSelect(Query query, QueryColumn col) {
         StringBuffer ret = new StringBuffer("max( concat ("
                 + "substring (concat(coalesce("
-                + getClassAlias(col.getAttributePath())
+                + QueryUtil.getClassAlias(col.getAttributePath())
                 + ".locale, ''), '          '),1,10),"
-                + getQualifiedAttributeIdentifier(col.getAttributePath())
+                + QueryUtil.getQualifiedAttributeIdentifier(col.getAttributePath())
                 + ") )");
         return ret;
-    }
-
-    /**
-     * Returns the final attribute name in a potentially nested attribute path.
-     * @param attributePath the attribute path.
-     * @return the name of the final attribute in the path.
-     */
-    private String getFinalAttributeName(String attributePath) {
-        String ret;
-        if (isRelatedColumn(attributePath)) {
-            ret = attributePath.substring(attributePath.lastIndexOf('.') + 1,
-                    attributePath.length());
-        }
-        else {
-            ret = attributePath;
-        }
-        return ret;
-    }
-
-    private String getQualifiedAttributeIdentifier(String attributePath) {
-        return getClassAlias(attributePath) + '.'
-                + getFinalAttributeName(attributePath);
-    }
-
-    private String getUnQualifiedAttributeIdentifier(String attributePath) {
-        return attributePath.substring(attributePath.lastIndexOf('.') + 1);
-    }
-
-    private String getClassAlias(String attributePath) {
-        String ret;
-        if (isRelatedColumn(attributePath)) {
-            ret = getRelationName(attributePath).replaceAll("\\.", "");
-        }
-        else {
-            ret = "obj";
-        }
-        return ret;
-    }
-
-    /**
-     * Determines if the requested column comes from a related entity.
-     * @param col
-     * @return
-     */
-    private boolean isRelatedColumn(String attributePath) {
-        return attributePath.indexOf('.') != -1;
     }
 
     /**
@@ -417,13 +372,13 @@ public class QueryServiceImpl implements QueryService {
         aliases.add("obj");
 
         for (QueryColumn col : query.getColumns()) {
-            if (isRelatedColumn(col.getAttributePath())) {
-                String alias = getClassAlias(col.getAttributePath());
+            if (QueryUtil.isRelatedColumn(col.getAttributePath())) {
+                String alias = QueryUtil.getClassAlias(col.getAttributePath());
                 if (!aliases.contains(alias)) {
                     buf.append(" LEFT OUTER JOIN");
                     buf.append(" obj."
-                            + getRelationName(col.getAttributePath()));
-                    buf.append(" AS " + getClassAlias(col.getAttributePath()));
+                            + QueryUtil.getRelationName(col.getAttributePath()));
+                    buf.append(" AS " + QueryUtil.getClassAlias(col.getAttributePath()));
                     aliases.add(alias);
                 }
             }
@@ -442,128 +397,27 @@ public class QueryServiceImpl implements QueryService {
             StringBuffer buf, Set < String > aliases) {
 
         /*
-         * Go through all the columns and left outer joins as necessary.
+         * Go through all the columns and add left outer joins as necessary.
          */
 
-        for (FilterCriterion crit : query.getFilterCriteria()) {
-            if (isRelatedColumn(crit.getAttributePath())) {
-                if (!aliases.contains(getClassAlias(crit.getAttributePath()))) {
-                    buf.append(" LEFT OUTER JOIN");
-                    buf.append(" obj."
-                            + getRelationName(crit.getAttributePath()));
-                    buf.append(" AS " + getClassAlias(crit.getAttributePath()));
+        for (FilterCriterion fc : query.getFilterCriteria()) {
+            if (fc instanceof SimpleFilterCriterion) {
+                SimpleFilterCriterion crit = (SimpleFilterCriterion) fc;
+                if (QueryUtil.isRelatedColumn(crit.getAttributePath())) {
+                    if (!aliases.contains(QueryUtil.getClassAlias(crit.getAttributePath()))) {
+                        buf.append(" LEFT OUTER JOIN");
+                        buf.append(" obj."
+                                + QueryUtil.getRelationName(crit.getAttributePath()));
+                        buf.append(" AS " + QueryUtil.getClassAlias(crit.getAttributePath()));
+                    }
                 }
             }
         }
-    }
-
-    /**
-     * Returns the part of a compound attribute path up to but not including the
-     * last dot.
-     * @param col
-     * @return
-     */
-    private String getRelationName(String attributePath) {
-        return attributePath.substring(0, attributePath.lastIndexOf('.'));
     }
 
     private void appendWhereClause(Query query, StringBuffer buf) {
-
         buf.append(' ');
-
-        if (query.getFilterCriteria().size() > 0) {
-            buf.append("WHERE ");
-        }
-
-        boolean first = true;
-
-        for (FilterCriterion crit : query.getFilterCriteria()) {
-
-            if (!first) {
-                buf.append(" AND ");
-            }
-            else {
-                first = false;
-            }
-
-            buf
-                    .append(getQualifiedAttributeIdentifier(crit
-                            .getAttributePath() + ' '));
-
-            if (crit.getOperator() == Operator.EQUALS) {
-                if (crit.getValues() != null) {
-                    buf.append("=");
-                }
-                else {
-                    buf.append("IS NULL");
-                }
-            }
-            else if (crit.getOperator() == Operator.GREATER_THAN) {
-                buf.append(">");
-            }
-            else if (crit.getOperator() == Operator.GREATER_THAN_OR_EQUALS) {
-                buf.append(">=");
-            }
-            else if (crit.getOperator() == Operator.LESS_THAN) {
-                buf.append("<");
-            }
-            else if (crit.getOperator() == Operator.LESS_THAN_OR_EQUALS) {
-                buf.append("<=");
-            }
-            else if (crit.getOperator() == Operator.NOT_EQUALS) {
-                if (crit.getValues() != null) {
-                    buf.append("<>");
-                }
-                else {
-                    buf.append("IS NOT NULL");
-                }
-            }
-            else if (crit.getOperator() == Operator.BETWEEN) {
-                buf.append("BETWEEN ");
-            }
-            else if (crit.getOperator() == Operator.NOT_BETWEEN) {
-                buf.append("NOT BETWEEN ");
-            }
-            else if (crit.getOperator() == Operator.IN) {
-                buf.append("IN (");
-            }
-            else if (crit.getOperator() == Operator.NOT_IN) {
-                buf.append("NOT IN (");
-            }
-            else if (crit.getOperator() == Operator.LIKE) {
-                buf.append("LIKE ");
-            }
-
-            if (crit.getOperator() == Operator.BETWEEN
-                    || crit.getOperator() == Operator.NOT_BETWEEN) {
-                buf.append(valueToString(crit.getAttributePath(), crit
-                        .getValues()[0]));
-                buf.append(" AND ");
-                buf.append(valueToString(crit.getAttributePath(), crit
-                        .getValues()[1]));
-            }
-            else if (crit.getOperator() == Operator.IN
-                    || crit.getOperator() == Operator.NOT_IN) {
-                for (int i = 0; i < crit.getValues().length; i++) {
-                    if (i > 0) {
-                        buf.append(',');
-                    }
-                    buf.append(valueToString(crit.getAttributePath(), crit
-                            .getValues()[i]));
-                }
-            }
-            else {
-                buf.append(valueToString(crit.getAttributePath(), crit
-                        .getValues()[0]));
-            }
-
-            if (crit.getOperator() == Operator.IN
-                    || crit.getOperator() == Operator.NOT_IN) {
-                buf.append(')');
-            }
-
-        }
-
+        buf.append(new WhereClauseBuilder().buildWhereClause(query));
         // if any of the columns had the LOCALE aggregate function then we need
         // to select only the valid locales for the locale in the query
         appendLocaleWhereClause(query, buf);
@@ -589,7 +443,7 @@ public class QueryServiceImpl implements QueryService {
                     buf.append("AND (");
                 }
 
-                String qualifiedAttributeIdentifier = getQualifiedLocaleIdentifier(getQualifiedAttributeIdentifier(col
+                String qualifiedAttributeIdentifier = getQualifiedLocaleIdentifier(QueryUtil.getQualifiedAttributeIdentifier(col
                         .getAttributePath()));
 
                 buf.append(qualifiedAttributeIdentifier);
@@ -625,22 +479,6 @@ public class QueryServiceImpl implements QueryService {
                 + "locale";
     }
 
-    private StringBuffer valueToString(String attributePath, Object object) {
-        StringBuffer ret = new StringBuffer();
-
-        if (object instanceof String
-                && !("id"
-                        .equals(getUnQualifiedAttributeIdentifier(attributePath))) // the id is always numeric
-        ) {
-            ret.append("'" + object.toString() + "'");
-        }
-        else {
-            ret.append(object.toString());
-        }
-
-        return ret;
-    }
-
     private void appendGroupByClause(Query query, StringBuffer buf) {
         buf.append(' ');
         /*
@@ -661,9 +499,9 @@ public class QueryServiceImpl implements QueryService {
                 if (col.getAggregateFunction() == null) {
 
                     buf.append(", ");
-                    buf.append(getClassAlias(col.getAttributePath()));
+                    buf.append(QueryUtil.getClassAlias(col.getAttributePath()));
                     buf.append("."
-                            + getFinalAttributeName(col.getAttributePath()));
+                            + QueryUtil.getFinalAttributeName(col.getAttributePath()));
 
                 }
             }
