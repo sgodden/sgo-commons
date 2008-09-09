@@ -40,7 +40,12 @@ import org.sgodden.ui.models.SortData;
 public class Query 
 	implements Serializable, Cloneable {
 	
-	private String objectClass;
+	/**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 20080909L;
+    
+    private String objectClass;
 	private List<QueryColumn> queryColumns = new ArrayList<QueryColumn>(); 
 	private List<FilterCriterion> filterCriteria = new ArrayList<FilterCriterion>();
 	private Locale locale;
@@ -197,11 +202,11 @@ public class Query
 	 * @param value the value by which to filter.
 	 * @return the modified query object (<code>this</code>).
 	 * @see #addFilterCriterion(String, Operator, Object[])
-	 * @see #addFilterCriterion(FilterCriterion)
+	 * @see #addFilterCriterion(SimpleFilterCriterion)
 	 * @see #setFilterCriteria(List)
 	 */
 	public Query addFilterCriterion(String attributePath, Operator operator, Object value){
-		filterCriteria.add(new FilterCriterion(attributePath, operator, new Object[]{value}));
+		filterCriteria.add(new SimpleFilterCriterion(attributePath, operator, new Object[]{value}));
 		return this;
 	}
 	
@@ -213,11 +218,11 @@ public class Query
 	 * @param values the values by which to filter.
 	 * @return the modified query object (<code>this</code>).
 	 * @see #addFilterCriterion(String, Operator, Object)
-	 * @see #addFilterCriterion(FilterCriterion)
+	 * @see #addFilterCriterion(SimpleFilterCriterion)
 	 * @see #setFilterCriteria(List)
 	 */
 	public Query addFilterCriterion(String attributePath, Operator operator, Object[] values){
-		filterCriteria.add(new FilterCriterion(attributePath, operator, values));
+		filterCriteria.add(new SimpleFilterCriterion(attributePath, operator, values));
 		return this;
 	}
 	
@@ -249,7 +254,7 @@ public class Query
 	 * @return the modified query object (<code>this</code>).
 	 * @see #addFilterCriterion(String, Operator, Object)
 	 * @see #addFilterCriterion(String, Operator, Object[])
-	 * @see #addFilterCriterion(FilterCriterion)
+	 * @see #addFilterCriterion(SimpleFilterCriterion)
 	 */
 	public Query setFilterCriteria(List<FilterCriterion> filterCriteria){
 		this.filterCriteria = filterCriteria;
