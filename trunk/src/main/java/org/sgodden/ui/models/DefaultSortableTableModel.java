@@ -4,47 +4,44 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
 
-import javax.swing.table.DefaultTableModel;
+import nextapp.echo.app.table.DefaultTableModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * An extension of 
+ * An extension of
  * @author sgodden
  */
 @SuppressWarnings("serial")
-public class DefaultSortableTableModel 
-        extends DefaultTableModel 
-        implements SortableTableModel, BackingObjectDataModel {
-    
-    private static final transient Log LOG = LogFactory.getLog(
-            DefaultSortableTableModel.class);
+public class DefaultSortableTableModel extends DefaultTableModel implements
+        SortableTableModel, BackingObjectDataModel {
+
+    private static final transient Log LOG = LogFactory
+            .getLog(DefaultSortableTableModel.class);
 
     /**
-     * In the case that the user needs to track selections, this allows
-     * them to track what was selected.
+     * In the case that the user needs to track selections, this allows them to
+     * track what was selected.
      */
-    private Map<Vector, Object> rowsToBackingObjects;
-    
+    private Map < Integer, Object > rowsToBackingObjects;
+
     /**
-     * Constructs a new sortable table model using the passed data.  Note
-     * that using this constructor, you may not be able to effectively
-     * track selection unless the key element is contained in the data itself.
-     * <p/>
-     * This is because the data could get sorted, so the original positions
-     * of data rows may change.  If you attempt to use the selection indices
-     * of the table to retrieve data from some original inputs to this
-     * data model, they may be wrong.
+     * Constructs a new sortable table model using the passed data. Note that
+     * using this constructor, you may not be able to effectively track
+     * selection unless the key element is contained in the data itself. <p/>
+     * This is because the data could get sorted, so the original positions of
+     * data rows may change. If you attempt to use the selection indices of the
+     * table to retrieve data from some original inputs to this data model, they
+     * may be wrong.
      * @param data the table data.
      * @param columnNames the column names.
      */
     public DefaultSortableTableModel(Object[][] data, Object[] columnNames) {
         super(data, columnNames);
     }
-    
+
     /**
      * Constructs a new sortable table model using the passed data, and the
      * passed backing objects for each row.
@@ -54,14 +51,29 @@ public class DefaultSortableTableModel
      * @param columnNames the column names.
      * @param backingObjects an array of backing object per row.
      */
-    public DefaultSortableTableModel(
-            Object[][] data, 
-            Object[] columnNames, 
+    public DefaultSortableTableModel(Object[][] data, Object[] columnNames,
             Object[] backingObjects) {
         super(data, columnNames);
         setBackingObjects(backingObjects);
     }
-    
+
+    /**
+     * Returns a hashcode for the specified row.
+     * <p>
+     * FIXME - this will break if two rows have the same data in them.
+     * </p>
+     * @param rowIndex
+     * @return
+     */
+    private int getHashCodeForRow(int rowIndex) {
+        int ret = 0;
+        Object[] row = new Object[getColumnCount()];
+        for (int i = 0; i < getColumnCount(); i++) {
+            ret += getValueAt(i, rowIndex).hashCode();
+        }
+        return ret;
+    }
+
     /**
      * See {@link BackingObjectDataModel#getBackingObjectForRow(int)}.
      * @param rowIndex the row index.
@@ -69,23 +81,24 @@ public class DefaultSortableTableModel
      */
     public Object getBackingObjectForRow(int rowIndex) {
         if (rowsToBackingObjects == null) {
-            throw new IllegalStateException("Cannot request backing" +
-                    " objects when none were set at construction time");
+            throw new IllegalStateException("Cannot request backing"
+                    + " objects when none were set at construction time");
         }
-        Vector row =(Vector) getDataVector().elementAt(rowIndex);
-        return rowsToBackingObjects.get(row);
+        int rowHash = getHashCodeForRow(rowIndex);
+        LOG.info("Row " + rowIndex + " has hashCode " + rowHash);
+        return rowsToBackingObjects.get(rowHash);
     }
-    
+
     /**
      * See {@link BackingObjectDataModel#setBackingObjects(java.lang.Object[])}.
      * @param backingObjects the backing objects.
      */
     public void setBackingObjects(Object[] backingObjects) {
-        rowsToBackingObjects = new HashMap<Vector, Object>();
-        Vector data = getDataVector();
+        rowsToBackingObjects = new HashMap < Integer, Object >();
         for (int i = 0; i < backingObjects.length; i++) {
-            Vector row = (Vector) data.elementAt(i);
-            rowsToBackingObjects.put(row, backingObjects[i]);
+            int rowHash = getHashCodeForRow(i);
+            LOG.info("Row " + i + " has hashCode " + rowHash);
+            rowsToBackingObjects.put(rowHash, backingObjects[i]);
         }
     }
 
@@ -95,35 +108,36 @@ public class DefaultSortableTableModel
      * @param ascending whether to sort ascending (true) or descending (false).
      */
     public void sort(int columnIndex, boolean ascending) {
-        
-        Object[] columnData = new Object[getColumnCount()];
-        for (int i = 0; i < columnData.length; i++) {
-            columnData[i] = getColumnName(i);
+
+        Object[] columnNames = new Object[getColumnCount()];
+        for (int i = 0; i < columnNames.length; i++) {
+            columnNames[i] = getColumnName(i);
         }
-        
+
         Object[][] rowData = new Object[getRowCount()][getColumnCount()];
         for (int row = 0; row < getRowCount(); row++) {
             for (int col = 0; col < getColumnCount(); col++) {
-                rowData[row][col] = getValueAt(row, col);
+                rowData[row][col] = getValueAt(col, row);
             }
         }
-        
+
         /*
          * Remember columnIndex has been passed to us one-indexed.
          */
-        Arrays.sort(rowData, new ArrayColumnComparator(
-                columnIndex, ascending));
-        
-        setDataVector(rowData, columnData);
+        Arrays.sort(rowData, new ArrayColumnComparator(columnIndex, ascending));
+
+        for (int i = 0; i < rowData.length; i++) {
+            addRow(rowData[i]);
+        }
     }
-    
+
     /**
      * Compares the specified column of an array.
      * @author sgodden
      */
-    private static class ArrayColumnComparator 
-            implements Comparator < Object[] > {
-        
+    private static class ArrayColumnComparator implements
+            Comparator < Object[] > {
+
         /**
          * The column index to compare.
          */
@@ -132,10 +146,10 @@ public class DefaultSortableTableModel
          * The order in which to perform the sort.
          */
         private boolean ascending;
-                
+
         /**
-         * Creates a new comparator, comparing the
-         * object arrays on the specified index.
+         * Creates a new comparator, comparing the object arrays on the
+         * specified index.
          * @param columnIndex the column index to compare.
          */
         private ArrayColumnComparator(int columnIndex, boolean ascending) {
@@ -159,11 +173,12 @@ public class DefaultSortableTableModel
                 return c2.compareTo(c1);
             }
         }
-        
+
     }
 
     /**
-     * Not implemented - See {@link BackingObjectDataModel#getValueForBackingObject(Object)}.
+     * Not implemented - See
+     * {@link BackingObjectDataModel#getValueForBackingObject(Object)}.
      */
     public Object getValueForBackingObject(Object backingObject) {
         // FIXME - shows that the API is wrong
