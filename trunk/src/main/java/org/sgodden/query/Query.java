@@ -47,7 +47,7 @@ public class Query
     
     private String objectClass;
 	private List<QueryColumn> queryColumns = new ArrayList<QueryColumn>(); 
-	private List<FilterCriterion> filterCriteria = new ArrayList<FilterCriterion>();
+	private FilterCriterion filterCriterion;
 	private Locale locale;
 	private int fetchSize = 0;
 	private int maxRows = 0;
@@ -194,70 +194,22 @@ public class Query
 		this.queryColumns = columns;
 		return this;
 	}
-	
-	/**
-	 * Convenience method to add a filter criterion to this query.
-	 * @param attributePath the (potentially nested) path of the attribute by which to filter.
-	 * @param operator the operator to apply.
-	 * @param value the value by which to filter.
-	 * @return the modified query object (<code>this</code>).
-	 * @see #addFilterCriterion(String, Operator, Object[])
-	 * @see #addFilterCriterion(SimpleFilterCriterion)
-	 * @see #setFilterCriteria(List)
-	 */
-	public Query addFilterCriterion(String attributePath, Operator operator, Object value){
-		filterCriteria.add(new SimpleFilterCriterion(attributePath, operator, new Object[]{value}));
-		return this;
-	}
-	
-	/**
-	 * Convenience method to add a multi-valued filter criterion to this query (that is, where the selected
-	 * attribute matches any one of the supplied values).
-	 * @param attributePath the (potentially nested) path of the attribute by which to filter.
-	 * @param operator the operator to apply.
-	 * @param values the values by which to filter.
-	 * @return the modified query object (<code>this</code>).
-	 * @see #addFilterCriterion(String, Operator, Object)
-	 * @see #addFilterCriterion(SimpleFilterCriterion)
-	 * @see #setFilterCriteria(List)
-	 */
-	public Query addFilterCriterion(String attributePath, Operator operator, Object[] values){
-		filterCriteria.add(new SimpleFilterCriterion(attributePath, operator, values));
-		return this;
-	}
-	
-	/**
-	 * Adds a filter criterion to the query by passing a previously constructed
-	 * <code>FilterCriterion</code> object.
-	 * @param crit the filter criterion.
-	 * @return the modified query object (<code>this</code>).
-	 * @see #addFilterCriterion(String, Operator, Object)
-	 * @see #addFilterCriterion(String, Operator, Object[])
-	 * @see #setFilterCriteria(List)
-	 */
-	public Query addFilterCriterion(FilterCriterion crit){
-		filterCriteria.add(crit);
-		return this;
-	}
 
 	/**
-	 * Returns all the filter criteria applied to the query.
-	 * @return the list of filter criteria.
+	 * Returns the filter criterion applied to the query.
+	 * @return the filter criterion.
 	 */
-	public List<FilterCriterion> getFilterCriteria(){
-		return filterCriteria;
+	public FilterCriterion getFilterCriterion(){
+		return filterCriterion;
 	}
 	
 	/**
-	 * Sets the filter criteria to apply to this query.
+	 * Sets the filter criterion to apply to this query.
 	 * @param filterCriteria the filter criteria to apply.
 	 * @return the modified query object (<code>this</code>).
-	 * @see #addFilterCriterion(String, Operator, Object)
-	 * @see #addFilterCriterion(String, Operator, Object[])
-	 * @see #addFilterCriterion(SimpleFilterCriterion)
 	 */
-	public Query setFilterCriteria(List<FilterCriterion> filterCriteria){
-		this.filterCriteria = filterCriteria;
+	public Query setFilterCriterion(FilterCriterion filterCriterion){
+		this.filterCriterion = filterCriterion;
 		return this;
 	}
 	

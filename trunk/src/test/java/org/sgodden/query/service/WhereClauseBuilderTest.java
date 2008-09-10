@@ -10,9 +10,12 @@ import org.testng.annotations.Test;
 @Test
 public class WhereClauseBuilderTest {
     
+    /**
+     * Basic test of building a where clause containing an or and a couple of ands.
+     */
     public void testWhereClase() {
         Query query = new Query();
-        query.addFilterCriterion(
+        query.setFilterCriterion(
             new OrFilterCriterion()
                 .or(new AndFilterCriterion()
                     .and(new SimpleFilterCriterion("code", Operator.EQUALS, new Object[]{"ASDASD"}))
@@ -23,8 +26,10 @@ public class WhereClauseBuilderTest {
                     .and(new SimpleFilterCriterion("code", Operator.EQUALS, new Object[]{"ASDASD"}))
                 )
             );
+
         StringBuffer sb = new WhereClauseBuilder().buildWhereClause(query);
-        System.out.println(sb);
+        
+        assert(sb.toString().equals("WHERE ( (obj.code = 'ASDASD' AND contact.code = 'ASDASD' ) OR  (obj.code = 'ASDASD' AND obj.code = 'ASDASD' ) )"));
     }
 
 }

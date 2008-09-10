@@ -16,12 +16,11 @@ package org.sgodden.query.ui;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import nextapp.echo.app.table.AbstractTableModel;
 import nextapp.echo.app.table.TableModel;
 
-import org.sgodden.query.Operator;
+import org.sgodden.query.FilterCriterion;
 import org.sgodden.query.Query;
 import org.sgodden.query.ResultSet;
 import org.sgodden.query.ResultSetRow;
@@ -43,9 +42,9 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
     private QueryService service;
 
     /**
-     * The filter criteria used on the last query refresh.
+     * The filter criterion used on the last query refresh.
      */
-    private Map < String, Object > filterCriteria;
+    private FilterCriterion criterion;
 
     /**
      * Sets the query service to be used to run the queries.
@@ -153,7 +152,7 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      */
     public int getRowCount() {
         if (rs == null) {
-            refresh(null);
+            refresh((FilterCriterion)null);
         }
         if (!rs.getQueryBailedOut()) {
             return rs.getRowCount();
@@ -189,39 +188,23 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
     }
 
     /**
-     * Refreshes the model based on the specified filter criteria, which may be
+     * Refreshes the model based on the specified filter criterion, which may be
      * null to retrieve all rows.
-     * <p>
-     * This implementation just uses the LIKE operator for all string criteria
-     * and EQUALS for all other types - override this method if you need to
-     * change that.
-     * </p>
      * <p>
      * XXX - changing filter criteria really means the model is changing, so
      * this method should be removed?
      * </p>
-     * @param filterCriteria the filter criteria to put in the query, or
+     * @param criterion the filter criteria to put in the query, or
      *            <code>null</code> to perform no filtering.
      * @param sortData the primary sort data to use, or <code>null</code> to
      *            specify no primary sort.
      */
-    private void refresh(Map < String, Object > filterCriteria,
+    private void refresh(FilterCriterion criterion,
             SortData sortData) {
         Query query = makeQuery();
 
-        if (filterCriteria != null) {
-            for (String s : filterCriteria.keySet()) {
-                Object o = filterCriteria.get(s);
-                if (o != null) {
-                    if (o instanceof String) {
-                        query.addFilterCriterion(s, Operator.LIKE,
-                                (String) o + '%');
-                    }
-                    else {
-                        query.addFilterCriterion(s, Operator.EQUALS, o);
-                    }
-                }
-            }
+        if (criterion != null) {
+            query.setFilterCriterion(criterion);
         }
 
         if (sortData != null) {
@@ -234,16 +217,11 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
     /**
      * Refreshes the model based on the specified filter criteria, which may be
      * null to retrieve all rows.
-     * <p>
-     * This implementation just uses the LIKE operator for all string criteria
-     * and EQUALS for all other types - override this method if you need to
-     * change that.
-     * </p>
      * @param filterCriteria the filter criteria to put in the query, or
      *            <code>null</code> to perform no filtering.
      */
-    public void refresh(Map < String, Object > filterCriteria) {
-        refresh(filterCriteria, null);
+    public void refresh(FilterCriterion criterion) {
+        refresh(criterion, null);
     }
 
     /**
@@ -260,7 +238,7 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      *      org.sgodden.ui.mvc.models.SortOrder)
      */
     public void sort(int columnIndex, boolean ascending) {
-        refresh(filterCriteria, new SortData(columnIndex, ascending));
+        refresh(criterion, new SortData(columnIndex, ascending));
     }
 
 }

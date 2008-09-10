@@ -16,25 +16,11 @@ class WhereClauseBuilder {
     
     public StringBuffer buildWhereClause(Query query) {
         StringBuffer buf = new StringBuffer();
-
-        if (query.getFilterCriteria().size() > 0) {
-            buf.append("WHERE ");
+        if (query.getFilterCriterion() != null) {
+            buf.append("WHERE");
+            append(query.getFilterCriterion(), buf);
         }
-        
-        boolean first = true;
-        
-        for (FilterCriterion crit : query.getFilterCriteria()) {
-            if (!first) {
-                buf.append(" AND ");
-            }
-            else {
-                first = false;
-            }
-            append(crit, buf);
-        }
-        
         return buf;
-        
     }
     
     private void append(FilterCriterion crit, StringBuffer buf) {
@@ -88,51 +74,51 @@ class WhereClauseBuilder {
     private void appendSimple(SimpleFilterCriterion crit, StringBuffer buf) {
 
         buf.append(QueryUtil.getQualifiedAttributeIdentifier(crit
-                .getAttributePath() + ' '));
+                .getAttributePath()));
 
         switch (crit.getOperator()) {
         case EQUALS:
             if (crit.getValues() != null) {
-                buf.append("= ");
+                buf.append(" = ");
             }
             else {
-                buf.append("IS NULL");
+                buf.append(" IS NULL");
             }
             break;
         case GREATER_THAN:
-            buf.append("> ");
+            buf.append(" > ");
             break;
         case GREATER_THAN_OR_EQUALS:
-            buf.append(">= ");
+            buf.append(" >= ");
             break;
         case LESS_THAN:
-            buf.append("< ");
+            buf.append(" < ");
             break;
         case LESS_THAN_OR_EQUALS:
-            buf.append("<= ");
+            buf.append(" <= ");
             break;
         case NOT_EQUALS:
             if (crit.getValues() != null) {
-                buf.append("<> ");
+                buf.append(" <> ");
             }
             else {
-                buf.append("IS NOT NULL ");
+                buf.append(" IS NOT NULL ");
             }
             break;
         case BETWEEN:
-            buf.append("BETWEEN ");
+            buf.append(" BETWEEN ");
             break;
         case NOT_BETWEEN:
-            buf.append("NOT BETWEEN ");
+            buf.append(" NOT BETWEEN ");
             break;
         case IN:
-            buf.append("IN (");
+            buf.append(" IN (");
             break;
         case NOT_IN:
-            buf.append("NOT IN (");
+            buf.append(" NOT IN (");
             break;
         case LIKE:
-            buf.append("LIKE ");
+            buf.append(" LIKE ");
             break;
         }
 
