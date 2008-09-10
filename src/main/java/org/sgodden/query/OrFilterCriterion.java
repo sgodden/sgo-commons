@@ -25,7 +25,7 @@ import java.util.List;
  * @author sgodden
  *
  */
-public class OrFilterCriterion implements FilterCriterion {
+public class OrFilterCriterion implements CompositeFilterCriterion {
     
     private List < FilterCriterion > criteria = new ArrayList < FilterCriterion >();
     

@@ -14,9 +14,9 @@
  */
 package org.sgodden.ui.models;
 
-import java.util.Map;
-
 import nextapp.echo.app.table.TableModel;
+
+import org.sgodden.query.FilterCriterion;
 
 /**
  * A table model that may be filtered.
@@ -25,10 +25,9 @@ import nextapp.echo.app.table.TableModel;
 public interface FilterableTableModel extends TableModel {
 
     /**
-     * Refreshes the model based on the passed filter model. <p/> FIXME - a
-     * simple map paradigm is insufficient for all but the simplest cases.
-     * @param filterMap
+     * Refreshes the model based on the passed filter criterion.
+     * @param filterCriterion the criterion to filter by.
      */
-    public void refresh(Map < String, Object > filterModel);
+    public void refresh(FilterCriterion filterCriterion);
 
 }

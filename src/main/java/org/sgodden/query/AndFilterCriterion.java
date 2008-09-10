@@ -25,7 +25,7 @@ import java.util.List;
  * @author sgodden
  *
  */
-public class AndFilterCriterion implements FilterCriterion {
+public class AndFilterCriterion implements CompositeFilterCriterion {
 
     /**
      * The the list of criteria to be executed in an
