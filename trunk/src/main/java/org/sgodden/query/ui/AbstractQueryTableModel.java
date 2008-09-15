@@ -20,8 +20,8 @@ import java.util.List;
 import nextapp.echo.app.table.AbstractTableModel;
 import nextapp.echo.app.table.TableModel;
 
-import org.sgodden.query.FilterCriterion;
 import org.sgodden.query.Query;
+import org.sgodden.query.Restriction;
 import org.sgodden.query.ResultSet;
 import org.sgodden.query.ResultSetRow;
 import org.sgodden.query.service.QueryService;
@@ -44,7 +44,7 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
     /**
      * The filter criterion used on the last query refresh.
      */
-    private FilterCriterion criterion;
+    private Restriction criterion;
 
     /**
      * Sets the query service to be used to run the queries.
@@ -102,7 +102,7 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * @param query the query to (re)execute.
      */
     protected void doRefresh(Query query) {
-        rs = service.executeQuery(query);
+        rs = getQueryService().executeQuery(query);
         fireTableDataChanged();
     }
 
@@ -126,6 +126,9 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * @return the result set.
      */
     protected ResultSet getResultSet() {
+        if (rs == null) {
+            rs = getQueryService().executeQuery(getQuery());
+        }
         return rs;
     }
 
@@ -134,7 +137,7 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * @see TableModel#getValueAt(int, int)
      */
     public Object getValueAt(int colIndex, int rowIndex) {
-        ResultSetRow row = rs.getRow(rowIndex);
+        ResultSetRow row = getResultSet().getRow(rowIndex);
         return row.getColumns()[colIndex].getValue();
     }
 
@@ -143,7 +146,7 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * @see org.sgodden.query.ui.QueryTableModel#getIdForRow(int)
      */
     public String getIdForRow(int row) {
-        return rs.getRow(row).getId();
+        return getResultSet().getRow(row).getId();
     }
 
     /**
@@ -151,11 +154,8 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * @see TableModel#getRowCount()
      */
     public int getRowCount() {
-        if (rs == null) {
-            refresh((FilterCriterion)null);
-        }
-        if (!rs.getQueryBailedOut()) {
-            return rs.getRowCount();
+        if (!getResultSet().getQueryBailedOut()) {
+            return getResultSet().getRowCount();
         }
         else {
             return 0;
@@ -175,7 +175,7 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * @return the total number of matches for the query.
      */
     public int getQueryMatchCount() {
-        return rs.getCachedRowCount();
+        return getResultSet().getCachedRowCount();
     }
 
     /**
@@ -184,7 +184,14 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * @return whether the query bailed out.
      */
     public boolean getQueryBailedOut() {
-        return rs.getQueryBailedOut();
+        return getResultSet().getQueryBailedOut();
+    }
+    
+    private QueryService getQueryService() {
+        if (service == null) {
+            throw new NullPointerException("QueryService is null - did you forget to set it?");
+        }
+        return service;
     }
 
     /**
@@ -199,9 +206,9 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * @param sortData the primary sort data to use, or <code>null</code> to
      *            specify no primary sort.
      */
-    private void refresh(FilterCriterion criterion,
+    private void refresh(Restriction criterion,
             SortData sortData) {
-        Query query = makeQuery();
+        Query query = getQuery();
 
         if (criterion != null) {
             query.setFilterCriterion(criterion);
@@ -220,15 +227,15 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * @param filterCriteria the filter criteria to put in the query, or
      *            <code>null</code> to perform no filtering.
      */
-    public void refresh(FilterCriterion criterion) {
+    public void refresh(Restriction criterion) {
         refresh(criterion, null);
     }
 
     /**
-     * Creates the query.
+     * Returns the query.
      * @return the query to run.
      */
-    protected abstract Query makeQuery();
+    protected abstract Query getQuery();
 
     /**
      * See
