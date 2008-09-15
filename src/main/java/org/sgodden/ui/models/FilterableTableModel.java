@@ -16,7 +16,7 @@ package org.sgodden.ui.models;
 
 import nextapp.echo.app.table.TableModel;
 
-import org.sgodden.query.FilterCriterion;
+import org.sgodden.query.Restriction;
 
 /**
  * A table model that may be filtered.
@@ -28,6 +28,6 @@ public interface FilterableTableModel extends TableModel {
      * Refreshes the model based on the passed filter criterion.
      * @param filterCriterion the criterion to filter by.
      */
-    public void refresh(FilterCriterion filterCriterion);
+    public void refresh(Restriction filterCriterion);
 
 }
