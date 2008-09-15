@@ -17,11 +17,4 @@ public interface QueryTableModel extends FilterableTableModel,
      */
     public String getIdForRow(int row);
 
-    /**
-     * Returns the class of the entity being queried.
-     * @return the entity class.
-     */
-    @SuppressWarnings("unchecked")
-    public Class getEntityClass();
-
 }

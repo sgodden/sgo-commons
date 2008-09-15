@@ -11,8 +11,8 @@ public class FilterCriteria {
         return new SimpleFilterCriterion(attributePath, operator, values);
     }
     
-    public OrFilterCriterion or() {
-        return new OrFilterCriterion();
+    public OrRestriction or() {
+        return new OrRestriction();
     }
 
 }

@@ -170,7 +170,7 @@ public class QueryServiceImpl implements QueryService {
                 }
 
                 Type propertyType = ObjectUtils.getPropertyClass(query
-                        .getObjectClass(), queryCol.getAttributePath(),
+                        .getObjectClassName(), queryCol.getAttributePath(),
                         sessionFactory);
 
                 if (propertyType instanceof StringType) {
