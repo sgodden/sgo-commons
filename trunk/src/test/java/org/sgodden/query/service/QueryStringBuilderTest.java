@@ -1,26 +1,28 @@
 package org.sgodden.query.service;
 
-import org.sgodden.query.AndFilterCriterion;
+import static org.testng.Assert.assertEquals;
+
+import org.sgodden.query.AndRestriction;
 import org.sgodden.query.Operator;
-import org.sgodden.query.OrFilterCriterion;
+import org.sgodden.query.OrRestriction;
 import org.sgodden.query.Query;
 import org.sgodden.query.SimpleFilterCriterion;
 import org.testng.annotations.Test;
 
 @Test
 public class QueryStringBuilderTest {
-    
+
     /**
      * Basic test of building a query string.
      */
-    public void testWhereClase() {
-        Query query = new Query().setObjectClass(String.class.getName())
+    public void testBasic() {
+        Query query = new Query().setObjectClassName(String.class.getName())
                 // just silly example
                 .addColumn("code")
                 .setFilterCriterion(
-                        new OrFilterCriterion()
+                        new OrRestriction()
                                 .or(
-                                        new AndFilterCriterion()
+                                        new AndRestriction()
                                                 .and(
                                                         new SimpleFilterCriterion(
                                                                 "code",
@@ -32,7 +34,7 @@ public class QueryStringBuilderTest {
                                                                 Operator.EQUALS,
                                                                 new Object[] { "ASDASD" })))
                                 .or(
-                                        new AndFilterCriterion()
+                                        new AndRestriction()
                                                 .and(
                                                         new SimpleFilterCriterion(
                                                                 "code",
@@ -45,11 +47,39 @@ public class QueryStringBuilderTest {
                                                                 new Object[] { "ASDASD" }))));
 
         String queryString = new QueryStringBuilder().buildQuery(query);
-        assert (queryString
-                .equals("SELECT obj.id, obj.code FROM java.lang.String AS obj LEFT OUTER JOIN obj.contact AS contact WHERE ( (obj.code = 'ASDASD' AND contact.code = 'ASDASD' ) OR  (obj.code = 'ASDASD' AND obj.code = 'ASDASD' ) )  ORDER BY 2, 1"));
-        
+        assertEquals(
+                queryString,
+                "SELECT obj.id, obj.code FROM java.lang.String AS obj LEFT OUTER JOIN obj.contact AS contact WHERE ( ( obj.code = 'ASDASD' AND contact.code = 'ASDASD' ) OR ( obj.code = 'ASDASD' AND obj.code = 'ASDASD' ) ) ORDER BY 2, 1");
+
         queryString = new QueryStringBuilder().buildCountQuery(query);
-        assert(queryString.equals("SELECT COUNT(distinct obj.id)  FROM java.lang.String AS obj LEFT OUTER JOIN obj.contact AS contact WHERE ( (obj.code = 'ASDASD' AND contact.code = 'ASDASD' ) OR  (obj.code = 'ASDASD' AND obj.code = 'ASDASD' ) )"));
+        assertEquals(
+                queryString,
+                "SELECT COUNT(distinct obj.id)  FROM java.lang.String AS obj LEFT OUTER JOIN obj.contact AS contact WHERE ( ( obj.code = 'ASDASD' AND contact.code = 'ASDASD' ) OR ( obj.code = 'ASDASD' AND obj.code = 'ASDASD' ) )");
+    }
+
+    public void testStartsWithIgnoreCase() {
+        Query query = new Query().setObjectClassName(String.class.getName())
+                .addColumn("code").setFilterCriterion(
+                        new SimpleFilterCriterion("code",
+                                Operator.STARTS_WITH_IGNORE_CASE, "AsdAsd"));
+
+        String queryString = new QueryStringBuilder().buildQuery(query);
+        assertEquals(
+                queryString,
+                "SELECT obj.id, obj.code FROM java.lang.String AS obj WHERE UPPER(obj.code) LIKE 'ASDASD%' ORDER BY 2, 1");
+
+    }
+
+    /**
+     * Ensures that a null pointer does not occur when a null filter criterion
+     * is passed.
+     */
+    public void testNullFilterCriterion() {
+        Query query = new Query().setObjectClassName(String.class.getName())
+                .addColumn("code");
+        String queryString = new QueryStringBuilder().buildQuery(query);
+        assertEquals(queryString,
+                "SELECT obj.id, obj.code FROM java.lang.String AS obj ORDER BY 2, 1");
     }
 
 }

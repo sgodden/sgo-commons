@@ -23,6 +23,8 @@ package org.sgodden.query;
  *
  */
 public enum Operator {
+    CONTAINS,
+    ENDS_WITH,
 	EQUALS,
 	NOT_EQUALS,
 	LESS_THAN,
@@ -33,5 +35,6 @@ public enum Operator {
 	NOT_BETWEEN,
 	IN,
 	NOT_IN,
-	LIKE
+	STARTS_WITH,
+	STARTS_WITH_IGNORE_CASE
 }

@@ -1,5 +1,9 @@
 package org.sgodden.query.service;
 
+import java.util.Locale;
+
+import org.sgodden.query.Operator;
+
 /**
  * Utility package for the query service.
  * @author sgodden
@@ -55,14 +59,27 @@ class QueryUtil {
                 + getFinalAttributeName(attributePath);
     }
 
-    static StringBuffer valueToString(String attributePath, Object object) {
+    static StringBuffer valueToString(String attributePath, Object object, Operator operator, Locale locale) {
         StringBuffer ret = new StringBuffer();
-
+        
         if (object instanceof String
                 && !("id"
                         .equals(getUnQualifiedAttributeIdentifier(attributePath))) // the id is always numeric
         ) {
-            ret.append("'" + object.toString() + "'");
+            ret.append("'");
+            if (operator == Operator.CONTAINS || operator == Operator.ENDS_WITH) {
+                ret.append('%');
+            }
+            String value = object.toString();
+            if (operator == Operator.STARTS_WITH_IGNORE_CASE) {
+                value = value.toUpperCase(locale);
+            }
+            ret.append(value);
+            if (operator == Operator.CONTAINS || operator == Operator.STARTS_WITH
+                    || operator == Operator.STARTS_WITH_IGNORE_CASE) {
+                ret.append('%');
+            }
+            ret.append("'");
         }
         else {
             ret.append(object.toString());
