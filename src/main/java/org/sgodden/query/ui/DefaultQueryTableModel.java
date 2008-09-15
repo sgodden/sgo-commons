@@ -14,11 +14,11 @@
  */
 package org.sgodden.query.ui;
 
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.sgodden.query.AggregateFunction;
 import org.sgodden.query.Query;
-import org.sgodden.query.service.QueryService;
+import org.sgodden.query.QueryColumn;
 
 /**
  * A default implementation of a query table model, which allows simple queries
@@ -30,16 +30,9 @@ import org.sgodden.query.service.QueryService;
 @SuppressWarnings("serial")
 public class DefaultQueryTableModel extends AbstractQueryTableModel {
 
-    private int fetchSize = 50;
-    private int bailOutSize = 10000;
-    private int maxRows = 0;
-
+    private Query query;
     private Object[] columnIdentifiers;
-    private String[] attributePaths;
-    @SuppressWarnings("unchecked")
-    private Class entityClass;
-    private Locale locale;
-
+    
     /**
      * Creates a new DefaultQueryTableModel instance with the specified
      * parameters.
@@ -49,84 +42,28 @@ public class DefaultQueryTableModel extends AbstractQueryTableModel {
      * @param attributePaths the attribute paths for each column.
      */
     @SuppressWarnings("unchecked")
-    public DefaultQueryTableModel(Locale locale, Class entityClass,
-            Object[] columnIdentifiers, String[] attributePaths,
-            QueryService queryService) {
-
-        super(queryService);
-
-        this.entityClass = entityClass;
-        this.columnIdentifiers = columnIdentifiers;
-        this.attributePaths = attributePaths;
+    public DefaultQueryTableModel(Query query) {
+        this.query = query;
     }
 
-    protected final Query makeQuery() {
-        Query query = new Query();
-
-        for (String attributePath : attributePaths) {
-            if (attributePath.endsWith("localeData.description")) { // FIXME -
-                // this kind
-                // of
-                // assumption
-                // reduces
-                // the
-                // flexibility
-                // of this
-                // framework
-                query.addColumn(attributePath, AggregateFunction.LOCALE);
-            }
-            else {
-                query.addColumn(attributePath);
-            }
-        }
-
-        query.setLocale(locale);
-        query.setObjectClass(entityClass.getName());
-        query.setFetchSize(fetchSize);
-        query.setBailOutSize(bailOutSize);
-
+    protected final Query getQuery() {
         return query;
     }
 
+    /**
+     * This default implementation uses the query column
+     * attribute paths as the column identifiers.
+     */
     @Override
     public Object[] getColumnIdentifiers() {
+        if (columnIdentifiers == null) {
+            List < Object > list = new ArrayList < Object >();
+            for (QueryColumn col : query.getColumns()) {
+                list.add(col.getAttributePath());
+            }
+            columnIdentifiers = list.toArray();
+        }
         return columnIdentifiers;
-    }
-
-    /**
-     * Sets the number of rows that should be fetched in one call to the query
-     * service (default is 50).
-     * @param fetchSize
-     */
-    public void setFetchSize(int fetchSize) {
-        this.fetchSize = fetchSize;
-    }
-
-    /**
-     * Sets the row count at which the query service will bail out (that is, not
-     * retrieve any rows at all).
-     * @param bailOutSize
-     */
-    public void setBailOutSize(int bailOutSize) {
-        this.bailOutSize = bailOutSize;
-    }
-
-    /**
-     * Sets the maximum number of rows to retrieve.
-     * @param maxRows the maximum number of rows to retrieve.
-     */
-    public void setMaxRows(int maxRows) {
-        this.maxRows = maxRows;
-        this.fetchSize = -1;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.sgodden.query.ui.QueryTableModel#getEntityClass()
-     */
-    @SuppressWarnings("unchecked")
-    public Class getEntityClass() {
-        return entityClass;
     }
 
 }

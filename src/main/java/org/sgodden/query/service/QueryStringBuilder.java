@@ -4,9 +4,10 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.sgodden.query.AggregateFunction;
-import org.sgodden.query.CompositeFilterCriterion;
-import org.sgodden.query.FilterCriterion;
+import org.sgodden.query.CompositeRestriction;
+import org.sgodden.query.Restriction;
 import org.sgodden.query.LocaleUtils;
 import org.sgodden.query.Query;
 import org.sgodden.query.QueryColumn;
@@ -18,6 +19,8 @@ import org.sgodden.query.SimpleFilterCriterion;
  */
 public class QueryStringBuilder {
     
+    private static Logger LOG = Logger.getLogger(QueryStringBuilder.class);
+    
     /**
      * Builds a HQL query string to determine the number of matching rows of
      * the passed query.
@@ -27,12 +30,17 @@ public class QueryStringBuilder {
     public String buildCountQuery(Query query) {
         StringBuffer buf = new StringBuffer("SELECT COUNT(distinct obj.id) ");
 
-        buf.append(" FROM " + query.getObjectClass() + " AS obj");
+        buf.append(" FROM " + query.getObjectClassName() + " AS obj");
         Set < String > aliases = new HashSet < String >();
         aliases.add("obj");
 
         appendFromClause(query, buf);
-        appendFromClauseForFilterCriterion(query.getFilterCriterion(), buf, aliases);
+        if (query.getFilterCriterion() != null) {
+            appendFromClauseForFilterCriterion(query.getFilterCriterion(), buf, aliases);
+        }
+        else {
+            LOG.debug("No filter criteria specified for the query");
+        }
 
         appendWhereClause(query, buf);
         
@@ -43,11 +51,16 @@ public class QueryStringBuilder {
 
         StringBuffer buf = getSelectClause(query);
 
-        buf.append(" FROM " + query.getObjectClass() + " AS obj");
+        buf.append(" FROM " + query.getObjectClassName() + " AS obj");
 
         Set < String > aliases = appendFromClause(query, buf);
 
-        appendFromClauseForFilterCriterion(query.getFilterCriterion(), buf, aliases);
+        if (query.getFilterCriterion() != null) {
+            appendFromClauseForFilterCriterion(query.getFilterCriterion(), buf, aliases);
+        }
+        else {
+            LOG.debug("No filter criteria specified for the query");
+        }
 
         appendWhereClause(query, buf);
 
@@ -94,14 +107,14 @@ public class QueryStringBuilder {
      * @param query
      * @return
      */
-    private void appendFromClauseForFilterCriterion(FilterCriterion crit,
+    private void appendFromClauseForFilterCriterion(Restriction crit,
             StringBuffer buf, Set < String > aliases) {
         if (crit instanceof SimpleFilterCriterion) {
             appendFromClauseForSimpleFilterCriterion((SimpleFilterCriterion)crit, buf, aliases);
         }
         else {
-            CompositeFilterCriterion comp = (CompositeFilterCriterion) crit;
-            for (FilterCriterion subcrit : comp.getCriteria()) {
+            CompositeRestriction comp = (CompositeRestriction) crit;
+            for (Restriction subcrit : comp.getRestrictions()) {
                 appendFromClauseForFilterCriterion(subcrit, buf, aliases);
             }
         }
@@ -121,7 +134,6 @@ public class QueryStringBuilder {
     }
 
     private void appendGroupByClause(Query query, StringBuffer buf) {
-        buf.append(' ');
         /*
          * If there are any aggregate functions, then we need to group 
          * by all non-aggregated selected attributes
@@ -135,7 +147,7 @@ public class QueryStringBuilder {
         }
 
         if (anyAggregateFunctions) {
-            buf.append("GROUP BY obj.id ");
+            buf.append(" GROUP BY obj.id ");
             for (QueryColumn col : query.getColumns()) {
                 if (col.getAggregateFunction() == null) {
 
@@ -162,11 +174,11 @@ public class QueryStringBuilder {
             if (col.getAggregateFunction() == AggregateFunction.LOCALE) {
 
                 if (!whereAppended) {
-                    buf.append("WHERE (");
+                    buf.append(" WHERE (");
                     whereAppended = true;
                 }
                 else {
-                    buf.append("AND (");
+                    buf.append(" AND (");
                 }
 
                 String qualifiedAttributeIdentifier = getQualifiedLocaleIdentifier(QueryUtil.getQualifiedAttributeIdentifier(col
@@ -225,8 +237,8 @@ public class QueryStringBuilder {
              * to whatever the incoming query selected.
              */
             primarySortColumn = query.getSortData().getColumnIndex() + 2;
-            buf.append(primarySortColumn);
-            buf.append(" " + (query.getSortData().getAscending() ? "ASC" : "DESC") );
+            buf.append(' ' + primarySortColumn);
+            buf.append(' ' + (query.getSortData().getAscending() ? "ASC" : "DESC") );
             first = false;
         }
         
@@ -259,7 +271,6 @@ public class QueryStringBuilder {
     }
 
     private void appendWhereClause(Query query, StringBuffer buf) {
-        buf.append(' ');
         buf.append(new WhereClauseBuilder().buildWhereClause(query));
         // if any of the columns had the LOCALE aggregate function then we need
         // to select only the valid locales for the locale in the query

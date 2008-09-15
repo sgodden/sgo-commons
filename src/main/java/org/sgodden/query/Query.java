@@ -47,7 +47,7 @@ public class Query
     
     private String objectClass;
 	private List<QueryColumn> queryColumns = new ArrayList<QueryColumn>(); 
-	private FilterCriterion filterCriterion;
+	private Restriction filterCriterion;
 	private Locale locale;
 	private int fetchSize = 0;
 	private int maxRows = 0;
@@ -59,7 +59,9 @@ public class Query
 	/**
 	 * Constructs a new query.
 	 */
-	public Query(){}
+	public Query(){
+	    setLocale(Locale.getDefault());
+	}
 
 	/**
 	 * Returns the maximum rows to retrieve.
@@ -140,18 +142,18 @@ public class Query
 	}
 	
 	/**
-	 * @see #setObjectClass(String)
+	 * @see #setObjectClassName(String)
 	 * @return the class.
 	 */
-	public String getObjectClass() {
+	public String getObjectClassName() {
 		return objectClass;
 	}
 	/**
-	 * Sets the class against which the query should be run.
-	 * @param objectClass the class.
+	 * Sets the name of the class against which the query should be run.
+	 * @param className the class name.
 	 */
-	public Query setObjectClass(String objectClass) {
-		this.objectClass = objectClass;
+	public Query setObjectClassName(String className) {
+		this.objectClass = className;
 		return this;
 	}
 	
@@ -199,7 +201,7 @@ public class Query
 	 * Returns the filter criterion applied to the query.
 	 * @return the filter criterion.
 	 */
-	public FilterCriterion getFilterCriterion(){
+	public Restriction getFilterCriterion(){
 		return filterCriterion;
 	}
 	
@@ -208,7 +210,7 @@ public class Query
 	 * @param filterCriteria the filter criteria to apply.
 	 * @return the modified query object (<code>this</code>).
 	 */
-	public Query setFilterCriterion(FilterCriterion filterCriterion){
+	public Query setFilterCriterion(Restriction filterCriterion){
 		this.filterCriterion = filterCriterion;
 		return this;
 	}
