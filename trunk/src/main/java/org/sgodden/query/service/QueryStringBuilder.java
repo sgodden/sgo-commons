@@ -237,8 +237,9 @@ public class QueryStringBuilder {
              * to whatever the incoming query selected.
              */
             primarySortColumn = query.getSortData().getColumnIndex() + 2;
-            buf.append(' ' + primarySortColumn);
-            buf.append(' ' + (query.getSortData().getAscending() ? "ASC" : "DESC") );
+            LOG.debug("Primary sort column is: " + primarySortColumn);
+            buf.append(" " + primarySortColumn);
+            buf.append(" " + (query.getSortData().getAscending() ? "ASC" : "DESC") );
             first = false;
         }
         
