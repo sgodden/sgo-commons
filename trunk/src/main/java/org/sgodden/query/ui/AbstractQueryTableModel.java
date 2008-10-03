@@ -213,6 +213,9 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
         if (criterion != null) {
             query.setFilterCriterion(criterion);
         }
+        else{
+        	query.setFilterCriterion(null);
+        }
 
         if (sortData != null) {
             query.setSortData(sortData);
