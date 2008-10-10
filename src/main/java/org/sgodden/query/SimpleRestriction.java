@@ -27,9 +27,22 @@ public class SimpleRestriction implements Serializable, Restriction {
      */
     private static final long serialVersionUID = 20080909L;
 
+    /**
+     * The path of the attribute whose value is to be checked.
+     */
     private String attributePath;
+    /**
+     * The operator to apply in the test.
+     */
     private Operator operator;
+    /**
+     * The value(s) to compare against.
+     */
     private Object[] values;
+    /**
+     * Whether to ignore case when comparing values.
+     */
+    private boolean ignoreCase = false;
 
     /**
      * Constructs a new empty filter criterion.
@@ -119,5 +132,23 @@ public class SimpleRestriction implements Serializable, Restriction {
     public void setValue(Object value) {
         setValues(new Object[] { value });
     }
+
+    /**
+     * Returns whether case is to be ignored when comparing values.
+     * @return whether case is to be ignored.
+     */
+	public boolean getIgnoreCase() {
+		return ignoreCase;
+	}
+
+    /**
+     * Sets whether case is to be ignored when comparing values.
+     * @param ignoreCase whether case is to be ignored.
+     * @return this object.
+     */
+	public SimpleRestriction setIgnoreCase(boolean ignoreCase) {
+		this.ignoreCase = ignoreCase;
+		return this;
+	}
 
 }

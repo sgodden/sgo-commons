@@ -61,7 +61,7 @@ public class QueryStringBuilderTest {
         Query query = new Query().setObjectClassName(String.class.getName())
                 .addColumn("code").setFilterCriterion(
                         new SimpleRestriction("code",
-                                Operator.STARTS_WITH_IGNORE_CASE, "AsdAsd"));
+                                Operator.STARTS_WITH, "AsdAsd").setIgnoreCase(true));
 
         String queryString = new QueryStringBuilder().buildQuery(query);
         assertEquals(
