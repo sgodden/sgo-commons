@@ -20,7 +20,7 @@ import java.io.Serializable;
  * A single criterion in the filter of a query.
  * @author sgodden
  */
-public class SimpleFilterCriterion implements Serializable, Restriction {
+public class SimpleRestriction implements Serializable, Restriction {
 
     /**
      * Serial version UID.
@@ -34,7 +34,7 @@ public class SimpleFilterCriterion implements Serializable, Restriction {
     /**
      * Constructs a new empty filter criterion.
      */
-    public SimpleFilterCriterion() {
+    public SimpleRestriction() {
     }
 
     /**
@@ -44,7 +44,7 @@ public class SimpleFilterCriterion implements Serializable, Restriction {
      * @param operator the operator to apply.
      * @param values the value(s) by which to filter.
      */
-    public SimpleFilterCriterion(String attributePath, Operator operator,
+    public SimpleRestriction(String attributePath, Operator operator,
             Object[] values) {
         this.attributePath = attributePath;
         this.operator = operator;
@@ -58,7 +58,7 @@ public class SimpleFilterCriterion implements Serializable, Restriction {
      * @param operator the operator to apply.
      * @param value the single value.
      */
-    public SimpleFilterCriterion(String attributePath, Operator operator,
+    public SimpleRestriction(String attributePath, Operator operator,
             Object value) {
         this(attributePath, operator, new Object[]{value});
     }

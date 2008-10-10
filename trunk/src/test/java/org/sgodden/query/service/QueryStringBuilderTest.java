@@ -6,7 +6,7 @@ import org.sgodden.query.AndRestriction;
 import org.sgodden.query.Operator;
 import org.sgodden.query.OrRestriction;
 import org.sgodden.query.Query;
-import org.sgodden.query.SimpleFilterCriterion;
+import org.sgodden.query.SimpleRestriction;
 import org.testng.annotations.Test;
 
 @Test
@@ -24,24 +24,24 @@ public class QueryStringBuilderTest {
                                 .or(
                                         new AndRestriction()
                                                 .and(
-                                                        new SimpleFilterCriterion(
+                                                        new SimpleRestriction(
                                                                 "code",
                                                                 Operator.EQUALS,
                                                                 new Object[] { "ASDASD" }))
                                                 .and(
-                                                        new SimpleFilterCriterion(
+                                                        new SimpleRestriction(
                                                                 "contact.code",
                                                                 Operator.EQUALS,
                                                                 new Object[] { "ASDASD" })))
                                 .or(
                                         new AndRestriction()
                                                 .and(
-                                                        new SimpleFilterCriterion(
+                                                        new SimpleRestriction(
                                                                 "code",
                                                                 Operator.EQUALS,
                                                                 new Object[] { "ASDASD" }))
                                                 .and(
-                                                        new SimpleFilterCriterion(
+                                                        new SimpleRestriction(
                                                                 "code",
                                                                 Operator.EQUALS,
                                                                 new Object[] { "ASDASD" }))));
@@ -60,7 +60,7 @@ public class QueryStringBuilderTest {
     public void testStartsWithIgnoreCase() {
         Query query = new Query().setObjectClassName(String.class.getName())
                 .addColumn("code").setFilterCriterion(
-                        new SimpleFilterCriterion("code",
+                        new SimpleRestriction("code",
                                 Operator.STARTS_WITH_IGNORE_CASE, "AsdAsd"));
 
         String queryString = new QueryStringBuilder().buildQuery(query);

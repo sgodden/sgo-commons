@@ -6,9 +6,9 @@ package org.sgodden.query;
  */
 public class FilterCriteria {
     
-    public SimpleFilterCriterion criterion(String attributePath, Operator operator,
+    public SimpleRestriction criterion(String attributePath, Operator operator,
             Object[] values) {
-        return new SimpleFilterCriterion(attributePath, operator, values);
+        return new SimpleRestriction(attributePath, operator, values);
     }
     
     public OrRestriction or() {

@@ -5,7 +5,7 @@ import org.sgodden.query.Restriction;
 import org.sgodden.query.Operator;
 import org.sgodden.query.OrRestriction;
 import org.sgodden.query.Query;
-import org.sgodden.query.SimpleFilterCriterion;
+import org.sgodden.query.SimpleRestriction;
 
 /**
  * Builds the where clause for the query.
@@ -30,8 +30,8 @@ class WhereClauseBuilder {
     }
     
     private void append(Restriction crit, StringBuffer buf) {
-        if (crit instanceof SimpleFilterCriterion) {
-            appendSimple((SimpleFilterCriterion)crit, buf);
+        if (crit instanceof SimpleRestriction) {
+            appendSimple((SimpleRestriction)crit, buf);
         }
         else if (crit instanceof OrRestriction) {
             appendOr((OrRestriction)crit, buf);
@@ -77,7 +77,7 @@ class WhereClauseBuilder {
         buf.append(" )");
     }
     
-    private void appendSimple(SimpleFilterCriterion crit, StringBuffer buf) {
+    private void appendSimple(SimpleRestriction crit, StringBuffer buf) {
         
         if (crit.getOperator() == Operator.STARTS_WITH_IGNORE_CASE) {
             buf.append("UPPER(");
