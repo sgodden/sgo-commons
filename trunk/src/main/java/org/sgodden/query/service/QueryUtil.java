@@ -59,7 +59,12 @@ class QueryUtil {
                 + getFinalAttributeName(attributePath);
     }
 
-    static StringBuffer valueToString(String attributePath, Object object, Operator operator, Locale locale) {
+    static StringBuffer valueToString(
+    		String attributePath, 
+    		Object object, 
+    		Operator operator, 
+    		Locale locale,
+    		boolean ignoreCase) {
         StringBuffer ret = new StringBuffer();
         
         if (object instanceof String
@@ -71,12 +76,11 @@ class QueryUtil {
                 ret.append('%');
             }
             String value = object.toString();
-            if (operator == Operator.STARTS_WITH_IGNORE_CASE) {
+            if (ignoreCase) {
                 value = value.toUpperCase(locale);
             }
             ret.append(value);
-            if (operator == Operator.CONTAINS || operator == Operator.STARTS_WITH
-                    || operator == Operator.STARTS_WITH_IGNORE_CASE) {
+            if (operator == Operator.CONTAINS || operator == Operator.STARTS_WITH) {
                 ret.append('%');
             }
             ret.append("'");

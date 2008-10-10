@@ -79,14 +79,14 @@ class WhereClauseBuilder {
     
     private void appendSimple(SimpleRestriction crit, StringBuffer buf) {
         
-        if (crit.getOperator() == Operator.STARTS_WITH_IGNORE_CASE) {
+        if (crit.getIgnoreCase()) {
             buf.append("UPPER(");
         }
 
         buf.append(QueryUtil.getQualifiedAttributeIdentifier(crit
                 .getAttributePath()));
         
-        if (crit.getOperator() == Operator.STARTS_WITH_IGNORE_CASE) {
+        if (crit.getIgnoreCase()) {
             buf.append(")");
         }
 
@@ -140,9 +140,6 @@ class WhereClauseBuilder {
         case STARTS_WITH:
             buf.append(" LIKE ");
             break;
-        case STARTS_WITH_IGNORE_CASE:
-            buf.append(" LIKE ");
-            break;
         default:
             throw new IllegalArgumentException("Unsupported operator: " + crit.getOperator());
         }
@@ -150,10 +147,10 @@ class WhereClauseBuilder {
         if (crit.getOperator() == Operator.BETWEEN
                 || crit.getOperator() == Operator.NOT_BETWEEN) {
             buf.append(QueryUtil.valueToString(crit.getAttributePath(), crit
-                    .getValues()[0], crit.getOperator(), query.getLocale()));
+                    .getValues()[0], crit.getOperator(), query.getLocale(), crit.getIgnoreCase()));
             buf.append(" AND ");
             buf.append(QueryUtil.valueToString(crit.getAttributePath(), crit
-                    .getValues()[1], crit.getOperator(), query.getLocale()));
+                    .getValues()[1], crit.getOperator(), query.getLocale(), crit.getIgnoreCase()));
         }
         else if (crit.getOperator() == Operator.IN
                 || crit.getOperator() == Operator.NOT_IN) {
@@ -162,12 +159,12 @@ class WhereClauseBuilder {
                     buf.append(',');
                 }
                 buf.append(QueryUtil.valueToString(crit.getAttributePath(),
-                        crit.getValues()[i], crit.getOperator(), query.getLocale()));
+                        crit.getValues()[i], crit.getOperator(), query.getLocale(), crit.getIgnoreCase()));
             }
         }
         else {
             buf.append(QueryUtil.valueToString(crit.getAttributePath(), crit
-                    .getValues()[0], crit.getOperator(), query.getLocale()).toString());
+                    .getValues()[0], crit.getOperator(), query.getLocale(), crit.getIgnoreCase()).toString());
         }
 
         if (crit.getOperator() == Operator.IN

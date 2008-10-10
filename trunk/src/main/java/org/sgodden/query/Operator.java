@@ -35,6 +35,5 @@ public enum Operator {
 	NOT_BETWEEN,
 	IN,
 	NOT_IN,
-	STARTS_WITH,
-	STARTS_WITH_IGNORE_CASE
+	STARTS_WITH
 }
