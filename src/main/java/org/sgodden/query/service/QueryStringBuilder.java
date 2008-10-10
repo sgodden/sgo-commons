@@ -11,7 +11,7 @@ import org.sgodden.query.Restriction;
 import org.sgodden.query.LocaleUtils;
 import org.sgodden.query.Query;
 import org.sgodden.query.QueryColumn;
-import org.sgodden.query.SimpleFilterCriterion;
+import org.sgodden.query.SimpleRestriction;
 
 /**
  * Builds the HQL query string for a query.
@@ -109,8 +109,8 @@ public class QueryStringBuilder {
      */
     private void appendFromClauseForFilterCriterion(Restriction crit,
             StringBuffer buf, Set < String > aliases) {
-        if (crit instanceof SimpleFilterCriterion) {
-            appendFromClauseForSimpleFilterCriterion((SimpleFilterCriterion)crit, buf, aliases);
+        if (crit instanceof SimpleRestriction) {
+            appendFromClauseForSimpleFilterCriterion((SimpleRestriction)crit, buf, aliases);
         }
         else {
             CompositeRestriction comp = (CompositeRestriction) crit;
@@ -120,7 +120,7 @@ public class QueryStringBuilder {
         }
     }
     
-    private void appendFromClauseForSimpleFilterCriterion(SimpleFilterCriterion crit, StringBuffer buf, Set < String > aliases) {
+    private void appendFromClauseForSimpleFilterCriterion(SimpleRestriction crit, StringBuffer buf, Set < String > aliases) {
         if (QueryUtil.isRelatedColumn(crit.getAttributePath())) {
             if (!aliases.contains(QueryUtil.getClassAlias(crit.getAttributePath()))) {
                 buf.append(" LEFT OUTER JOIN");

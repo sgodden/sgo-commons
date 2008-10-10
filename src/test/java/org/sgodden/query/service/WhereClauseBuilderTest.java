@@ -6,7 +6,7 @@ import org.sgodden.query.AndRestriction;
 import org.sgodden.query.Operator;
 import org.sgodden.query.OrRestriction;
 import org.sgodden.query.Query;
-import org.sgodden.query.SimpleFilterCriterion;
+import org.sgodden.query.SimpleRestriction;
 import org.testng.annotations.Test;
 
 @Test
@@ -20,16 +20,16 @@ public class WhereClauseBuilderTest {
         Query query = new Query();
         query.setFilterCriterion(new OrRestriction().or(
                 new AndRestriction().and(
-                        new SimpleFilterCriterion("code", Operator.EQUALS,
+                        new SimpleRestriction("code", Operator.EQUALS,
                                 new Object[] { "ASDASD" })).and(
-                        new SimpleFilterCriterion("contact.code",
+                        new SimpleRestriction("contact.code",
                                 Operator.EQUALS, new Object[] { "ASDASD" })))
                 .or(
                         new AndRestriction().and(
-                                new SimpleFilterCriterion("code",
+                                new SimpleRestriction("code",
                                         Operator.EQUALS,
                                         new Object[] { "ASDASD" })).and(
-                                new SimpleFilterCriterion("code",
+                                new SimpleRestriction("code",
                                         Operator.EQUALS,
                                         new Object[] { "ASDASD" }))));
 
