@@ -98,7 +98,7 @@ class WhereClauseBuilder {
             buf.append(" LIKE ");
             break;
         case EQUALS:
-            if (crit.getValues() != null) {
+            if (crit.getValues()[0] != null) {
                 buf.append(" = ");
             }
             else {
@@ -118,7 +118,7 @@ class WhereClauseBuilder {
             buf.append(" <= ");
             break;
         case NOT_EQUALS:
-            if (crit.getValues() != null) {
+            if (crit.getValues()[0] != null) {
                 buf.append(" <> ");
             }
             else {
