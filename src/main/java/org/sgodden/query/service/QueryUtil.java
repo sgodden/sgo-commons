@@ -86,7 +86,9 @@ class QueryUtil {
             ret.append("'");
         }
         else {
-            ret.append(object.toString());
+        	if(object!=null){
+        		ret.append(object.toString());
+        	}
         }
 
         return ret;
