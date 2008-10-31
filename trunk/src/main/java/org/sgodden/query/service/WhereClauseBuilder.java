@@ -1,5 +1,7 @@
 package org.sgodden.query.service;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sgodden.query.AndRestriction;
 import org.sgodden.query.Restriction;
 import org.sgodden.query.Operator;
@@ -17,6 +19,8 @@ import org.sgodden.query.SimpleRestriction;
  */
 class WhereClauseBuilder {
     
+	private final transient static Log log = LogFactory.getLog(WhereClauseBuilder.class);
+	
     private Query query;
     
     public StringBuffer buildWhereClause(Query query) {
@@ -78,15 +82,16 @@ class WhereClauseBuilder {
     }
     
     private void appendSimple(SimpleRestriction crit, StringBuffer buf) {
-        
-        if (crit.getIgnoreCase()) {
+
+    	//We would never attempt to upper case a search for a null value
+        if (crit.getValues()[0] !=null && crit.getIgnoreCase()) {
             buf.append("UPPER(");
         }
 
         buf.append(QueryUtil.getQualifiedAttributeIdentifier(crit
                 .getAttributePath()));
         
-        if (crit.getIgnoreCase()) {
+        if (crit.getValues()[0] !=null &&  crit.getIgnoreCase()) {
             buf.append(")");
         }
 
