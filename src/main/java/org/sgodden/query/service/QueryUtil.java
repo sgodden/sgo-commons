@@ -77,10 +77,7 @@ class QueryUtil {
             }
             String value = object.toString();
             if (ignoreCase) {
-            	/**If we querying a null value then don't attempt to ignore case**/
-            	if (object != null) {
                 value = value.toUpperCase(locale);
-            	}
             }
             ret.append(value);
             if (operator == Operator.CONTAINS || operator == Operator.STARTS_WITH) {
