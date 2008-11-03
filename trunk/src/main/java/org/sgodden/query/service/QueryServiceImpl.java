@@ -24,7 +24,7 @@ import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.SessionFactory;
+import org.hibernate.Session;
 import org.hibernate.type.CalendarType;
 import org.hibernate.type.IntegerType;
 import org.hibernate.type.LongType;
@@ -39,6 +39,8 @@ import org.sgodden.query.ResultSet;
 import org.sgodden.query.ResultSetColumn;
 import org.sgodden.query.ResultSetRow;
 
+import com.google.inject.Provider;
+
 /**
  * An implementation of the query service which uses hibernate.
  * @author goddens
@@ -52,9 +54,9 @@ public class QueryServiceImpl implements QueryService {
             .getLog(QueryServiceImpl.class);
 
     /**
-     * The hibernate session factory.
+     * The provider of hibenrate sessions.
      */
-    private transient SessionFactory sessionFactory;
+    private Provider < Session > sessionProvider;
 
     /**
      * See
@@ -63,6 +65,10 @@ public class QueryServiceImpl implements QueryService {
      */
     @SuppressWarnings("unchecked")
     public ResultSet executeQuery(Query query) {
+    	
+    	if (sessionProvider == null) {
+    		throw new NullPointerException("The session provider is null - did you forget to set it?");
+    	}
 
         Date startTime = null;
 
@@ -113,7 +119,7 @@ public class QueryServiceImpl implements QueryService {
                     "Setting fetch size and max rows is contradictory");
         }
 
-        org.hibernate.Query hq = sessionFactory.getCurrentSession()
+        org.hibernate.Query hq = sessionProvider.get()
                 .createQuery(queryString);
 
         if (query.getRowOffset() > 0) {
@@ -171,7 +177,7 @@ public class QueryServiceImpl implements QueryService {
 
                 Type propertyType = ObjectUtils.getPropertyClass(query
                         .getObjectClassName(), queryCol.getAttributePath(),
-                        sessionFactory);
+                        sessionProvider.get().getSessionFactory());
 
                 if (propertyType instanceof StringType) {
                     col.setDataType(DataType.STRING);
@@ -240,7 +246,7 @@ public class QueryServiceImpl implements QueryService {
         String queryString = new QueryStringBuilder().buildCountQuery(query);
 
         log.debug("Calculating total rows with query: " + queryString);
-        org.hibernate.Query hq = sessionFactory.getCurrentSession()
+        org.hibernate.Query hq = sessionProvider.get()
                 .createQuery(queryString);
 
         Date start = null;
@@ -259,12 +265,8 @@ public class QueryServiceImpl implements QueryService {
         return ret;
     }
 
-    /**
-     * Sets the hibernate session factory.
-     * @param sessionFactory the session factory.
-     */
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    public void setSessionProvider(Provider < Session > sessionProvider) {
+        this.sessionProvider = sessionProvider;
     }
 
 }
