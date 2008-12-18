@@ -53,6 +53,11 @@ public enum AggregateFunction {
 	 * If on the other hand, the user's locale is 'de_AT', then the description on the instance having the <code>null</code>
 	 * locale will be returned, as there are no instances for either 'de_AT' or 'de'. 
 	 */
-	LOCALE
+	LOCALE,
+	
+	/**
+	 * Selects the count of the value
+	 */
+	COUNT
 
 }

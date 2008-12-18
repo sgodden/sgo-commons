@@ -7,58 +7,62 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.sgodden.query.AggregateFunction;
 import org.sgodden.query.CompositeRestriction;
-import org.sgodden.query.Restriction;
 import org.sgodden.query.LocaleUtils;
 import org.sgodden.query.Query;
 import org.sgodden.query.QueryColumn;
+import org.sgodden.query.Restriction;
 import org.sgodden.query.SimpleRestriction;
+import org.sgodden.ui.models.SortData;
 
 /**
  * Builds the HQL query string for a query.
+ * 
  * @author sgodden
  */
 public class QueryStringBuilder {
-    
+
     private static Logger LOG = Logger.getLogger(QueryStringBuilder.class);
-    
+
     /**
-     * Builds a HQL query string to determine the number of matching rows of
-     * the passed query.
-     * @param query the query.
+     * Builds a HQL query string to determine the number of matching rows of the
+     * passed query.
+     * 
+     * @param query
+     *            the query.
      * @return An HQL query string to determine the number of matching rows.
      */
     public String buildCountQuery(Query query) {
         StringBuffer buf = new StringBuffer("SELECT COUNT(distinct obj.id) ");
 
         buf.append(" FROM " + query.getObjectClassName() + " AS obj");
-        Set < String > aliases = new HashSet < String >();
+        Set<String> aliases = new HashSet<String>();
         aliases.add("obj");
 
         appendFromClause(query, buf);
         if (query.getFilterCriterion() != null) {
-            appendFromClauseForFilterCriterion(query.getFilterCriterion(), buf, aliases);
-        }
-        else {
+            appendFromClauseForFilterCriterion(query.getFilterCriterion(), buf,
+                    aliases);
+        } else {
             LOG.debug("No filter criteria specified for the query");
         }
 
         appendWhereClause(query, buf);
-        
+
         return buf.toString();
     }
-    
+
     public String buildQuery(Query query) {
 
         StringBuffer buf = getSelectClause(query);
 
         buf.append(" FROM " + query.getObjectClassName() + " AS obj");
 
-        Set < String > aliases = appendFromClause(query, buf);
+        Set<String> aliases = appendFromClause(query, buf);
 
         if (query.getFilterCriterion() != null) {
-            appendFromClauseForFilterCriterion(query.getFilterCriterion(), buf, aliases);
-        }
-        else {
+            appendFromClauseForFilterCriterion(query.getFilterCriterion(), buf,
+                    aliases);
+        } else {
             LOG.debug("No filter criteria specified for the query");
         }
 
@@ -73,16 +77,17 @@ public class QueryStringBuilder {
 
     /**
      * Returns the FROM clause for the passed query.
+     * 
      * @param query
      * @return the set of aliases that have already been placed into the left
      *         outer join clauses.
      */
-    private Set < String > appendFromClause(Query query, StringBuffer buf) {
+    private Set<String> appendFromClause(Query query, StringBuffer buf) {
 
         /*
          * Go through all the columns and left outer joins as necessary.
          */
-        Set < String > aliases = new HashSet < String >();
+        Set<String> aliases = new HashSet<String>();
         aliases.add("obj");
 
         for (QueryColumn col : query.getColumns()) {
@@ -90,9 +95,12 @@ public class QueryStringBuilder {
                 String alias = QueryUtil.getClassAlias(col.getAttributePath());
                 if (!aliases.contains(alias)) {
                     buf.append(" LEFT OUTER JOIN");
-                    buf.append(" obj."
-                            + QueryUtil.getRelationName(col.getAttributePath()));
-                    buf.append(" AS " + QueryUtil.getClassAlias(col.getAttributePath()));
+                    buf
+                            .append(" obj."
+                                    + QueryUtil.getRelationName(col
+                                            .getAttributePath()));
+                    buf.append(" AS "
+                            + QueryUtil.getClassAlias(col.getAttributePath()));
                     aliases.add(alias);
                 }
             }
@@ -104,29 +112,33 @@ public class QueryStringBuilder {
     /**
      * Returns the FROM clause for the passed query, but only looking at the
      * where clause.
+     * 
      * @param query
      * @return
      */
     private void appendFromClauseForFilterCriterion(Restriction crit,
-            StringBuffer buf, Set < String > aliases) {
+            StringBuffer buf, Set<String> aliases) {
         if (crit instanceof SimpleRestriction) {
-            appendFromClauseForSimpleFilterCriterion((SimpleRestriction)crit, buf, aliases);
-        }
-        else {
+            appendFromClauseForSimpleFilterCriterion((SimpleRestriction) crit,
+                    buf, aliases);
+        } else {
             CompositeRestriction comp = (CompositeRestriction) crit;
             for (Restriction subcrit : comp.getRestrictions()) {
                 appendFromClauseForFilterCriterion(subcrit, buf, aliases);
             }
         }
     }
-    
-    private void appendFromClauseForSimpleFilterCriterion(SimpleRestriction crit, StringBuffer buf, Set < String > aliases) {
+
+    private void appendFromClauseForSimpleFilterCriterion(
+            SimpleRestriction crit, StringBuffer buf, Set<String> aliases) {
         if (QueryUtil.isRelatedColumn(crit.getAttributePath())) {
-            if (!aliases.contains(QueryUtil.getClassAlias(crit.getAttributePath()))) {
+            if (!aliases.contains(QueryUtil.getClassAlias(crit
+                    .getAttributePath()))) {
                 buf.append(" LEFT OUTER JOIN");
                 buf.append(" obj."
                         + QueryUtil.getRelationName(crit.getAttributePath()));
-                buf.append(" AS " + QueryUtil.getClassAlias(crit.getAttributePath()));
+                buf.append(" AS "
+                        + QueryUtil.getClassAlias(crit.getAttributePath()));
                 // ensure we don't put this one in again
                 aliases.add(QueryUtil.getClassAlias(crit.getAttributePath()));
             }
@@ -135,8 +147,8 @@ public class QueryStringBuilder {
 
     private void appendGroupByClause(Query query, StringBuffer buf) {
         /*
-         * If there are any aggregate functions, then we need to group 
-         * by all non-aggregated selected attributes
+         * If there are any aggregate functions, then we need to group by all
+         * non-aggregated selected attributes
          */
         boolean anyAggregateFunctions = false;
         for (QueryColumn col : query.getColumns()) {
@@ -154,7 +166,8 @@ public class QueryStringBuilder {
                     buf.append(", ");
                     buf.append(QueryUtil.getClassAlias(col.getAttributePath()));
                     buf.append("."
-                            + QueryUtil.getFinalAttributeName(col.getAttributePath()));
+                            + QueryUtil.getFinalAttributeName(col
+                                    .getAttributePath()));
 
                 }
             }
@@ -176,13 +189,12 @@ public class QueryStringBuilder {
                 if (!whereAppended) {
                     buf.append(" WHERE (");
                     whereAppended = true;
-                }
-                else {
+                } else {
                     buf.append(" AND (");
                 }
 
-                String qualifiedAttributeIdentifier = getQualifiedLocaleIdentifier(QueryUtil.getQualifiedAttributeIdentifier(col
-                        .getAttributePath()));
+                String qualifiedAttributeIdentifier = getQualifiedLocaleIdentifier(QueryUtil
+                        .getQualifiedAttributeIdentifier(col.getAttributePath()));
 
                 buf.append(qualifiedAttributeIdentifier);
                 buf.append(" IN(");
@@ -212,63 +224,107 @@ public class QueryStringBuilder {
 
     /**
      * Appends the order by clause to the query string.
-     * @param query the query.
-     * @param buf the buffer containing the query string.
+     * 
+     * @param query
+     *            the query.
+     * @param buf
+     *            the buffer containing the query string.
      */
-    private void appendOrderByClause(Query query, StringBuffer buf){
+    private void appendOrderByClause(Query query, StringBuffer buf) {
         /*
          * We'll just order by the selection columns for the moment
          */
         buf.append(" ORDER BY ");
-        
-        /*
-         * FIXME - if the query has order by specified, use it.
-         */
-        boolean first = true;
-        
-        Integer primarySortColumn = null;
-        
-        if (query.getSortData() != null) {
-            /*
-             * Record the index used as primary sort so that we don't include it again
-             * later.
-             * We have to add 2, since the sort column is zero-indexed, whereas
-             * queries are 1-indexed, and we always select the id as an extra column
-             * to whatever the incoming query selected.
-             */
-            primarySortColumn = query.getSortData().getColumnIndex() + 2;
-            LOG.debug("Primary sort column is: " + primarySortColumn);
-            buf.append(" " + primarySortColumn);
-            buf.append(" " + (query.getSortData().getAscending() ? "ASC" : "DESC") );
-            first = false;
-        }
-        
-        for (int i = 0; i < query.getColumns().size(); i++) {
-            
-            int orderColumnIndex = i +2;
 
-            /*
-             * Ensure that we don't include the primary sort column again.
-             */
-            if (primarySortColumn == null || !(primarySortColumn == orderColumnIndex)) {
-                
-                if (!first){
+        if (query.getSortData() != null) {
+            if (query.getSortData().length == 1) {
+
+                Integer primarySortColumn = null;
+
+                /*
+                 * FIXME - if the query has order by specified, use it.
+                 */
+                boolean first = true;
+
+                /*
+                 * Record the index used as primary sort so that we don't
+                 * include it again later. We have to add 2, since the sort
+                 * column is zero-indexed, whereas queries are 1-indexed, and we
+                 * always select the id as an extra column to whatever the
+                 * incoming query selected.
+                 */
+                primarySortColumn = query.getSortData()[0].getColumnIndex() + 2;
+                LOG.debug("Primary sort column is: " + primarySortColumn);
+                buf.append(" " + primarySortColumn);
+                buf.append(" "
+                        + (query.getSortData()[0].getAscending() ? "ASC"
+                                : "DESC"));
+                first = false;
+
+                for (int i = 0; i < query.getColumns().size(); i++) {
+
+                    int orderColumnIndex = i + 2;
+
+                    /*
+                     * Ensure that we don't include the primary sort column
+                     * again.
+                     */
+                    if (primarySortColumn == null
+                            || !(primarySortColumn == orderColumnIndex)) {
+
+                        if (!first) {
+                            buf.append(", ");
+                        } else {
+                            first = false;
+                        }
+
+                        buf.append(orderColumnIndex);
+
+                    }
+
+                }
+            } else {
+                for (int i = 0; i < query.getSortData().length; i++) {
+                    SortData thisSort = query.getSortData()[i];
+                    Integer sortColumn = thisSort.getColumnIndex() + 2;
+
+                    LOG.debug("Adding sort column " + sortColumn);
+                    buf.append(" " + sortColumn);
+                    buf
+                            .append(" "
+                                    + (thisSort.getAscending() ? "ASC" : "DESC"));
+
+                    if (i != query.getSortData().length - 1)
+                        buf.append(", ");
+                }
+            }
+        } else {
+
+            boolean first = true;
+            for (int i = 0; i < query.getColumns().size(); i++) {
+
+                int orderColumnIndex = i + 2;
+
+                /*
+                 * Ensure that we don't include the primary sort column again.
+                 */
+
+                if (!first) {
                     buf.append(", ");
                 } else {
                     first = false;
                 }
-                
+
                 buf.append(orderColumnIndex);
-                
+
             }
-            
         }
-        
+
         /*
          * And we always have the id as the last sort column.
          */
         buf.append(", 1");
-        
+
     }
 
     private void appendWhereClause(Query query, StringBuffer buf) {
@@ -287,7 +343,9 @@ public class QueryStringBuilder {
 
     /**
      * Constructs the select clause for the query.
-     * @param query the query.
+     * 
+     * @param query
+     *            the query.
      * @return the select clause.
      */
     private StringBuffer getSelectClause(Query query) {
@@ -300,25 +358,20 @@ public class QueryStringBuilder {
             AggregateFunction func = col.getAggregateFunction();
 
             if (AggregateFunction.LOCALE == func) { // LOCALE is a really
-                                                    // special case
+                // special case
                 ret.append(makeLocaleAggregateSelect(query, col));
-            }
-            else {
+            } else {
 
                 if (func != null) {
                     if (func == AggregateFunction.MAXIMUM) {
                         ret.append("MAX(");
-                    }
-                    else if (func == AggregateFunction.MINIMUM) {
+                    } else if (func == AggregateFunction.MINIMUM) {
                         ret.append("MIN(");
-                    }
-                    else if (func == AggregateFunction.AVERAGE) {
+                    } else if (func == AggregateFunction.AVERAGE) {
                         ret.append("AVG(");
-                    }
-                    else if (func == AggregateFunction.SUM) {
+                    } else if (func == AggregateFunction.SUM) {
                         ret.append("SUM(");
-                    }
-                    else {
+                    } else {
                         throw new UnsupportedOperationException("" + func);
                     }
                 }
@@ -339,8 +392,11 @@ public class QueryStringBuilder {
 
     /**
      * Constructs a locale select fragemnt for the specified query column.
-     * @param query the query.
-     * @param col the locale-dependent column.
+     * 
+     * @param query
+     *            the query.
+     * @param col
+     *            the locale-dependent column.
      * @return the locale select fragment.
      */
     private StringBuffer makeLocaleAggregateSelect(Query query, QueryColumn col) {
@@ -348,8 +404,8 @@ public class QueryStringBuilder {
                 + "substring (concat(coalesce("
                 + QueryUtil.getClassAlias(col.getAttributePath())
                 + ".locale, ''), '          '),1,10),"
-                + QueryUtil.getQualifiedAttributeIdentifier(col.getAttributePath())
-                + ") )");
+                + QueryUtil.getQualifiedAttributeIdentifier(col
+                        .getAttributePath()) + ") )");
         return ret;
     }
 

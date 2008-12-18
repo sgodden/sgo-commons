@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * An extension of
+ * 
  * @author sgodden
  */
 @SuppressWarnings("serial")
@@ -25,18 +26,22 @@ public class DefaultSortableTableModel extends DefaultTableModel implements
      * In the case that the user needs to track selections, this allows them to
      * track what was selected.
      */
-    private Map < Integer, Object > rowsToBackingObjects;
+    private Map<Integer, Object> rowsToBackingObjects;
 
     /**
      * Constructs a new sortable table model using the passed data. Note that
      * using this constructor, you may not be able to effectively track
-     * selection unless the key element is contained in the data itself. <p/>
+     * selection unless the key element is contained in the data itself.
+     * <p/>
      * This is because the data could get sorted, so the original positions of
      * data rows may change. If you attempt to use the selection indices of the
      * table to retrieve data from some original inputs to this data model, they
      * may be wrong.
-     * @param data the table data.
-     * @param columnNames the column names.
+     * 
+     * @param data
+     *            the table data.
+     * @param columnNames
+     *            the column names.
      */
     public DefaultSortableTableModel(Object[][] data, Object[] columnNames) {
         super(data, columnNames);
@@ -47,9 +52,13 @@ public class DefaultSortableTableModel extends DefaultTableModel implements
      * passed backing objects for each row.
      * <p>
      * See {@link BackingObjectDataModel} for further explanation.
-     * @param data the model data.
-     * @param columnNames the column names.
-     * @param backingObjects an array of backing object per row.
+     * 
+     * @param data
+     *            the model data.
+     * @param columnNames
+     *            the column names.
+     * @param backingObjects
+     *            an array of backing object per row.
      */
     public DefaultSortableTableModel(Object[][] data, Object[] columnNames,
             Object[] backingObjects) {
@@ -62,6 +71,7 @@ public class DefaultSortableTableModel extends DefaultTableModel implements
      * <p>
      * FIXME - this will break if two rows have the same data in them.
      * </p>
+     * 
      * @param rowIndex
      * @return
      */
@@ -76,7 +86,9 @@ public class DefaultSortableTableModel extends DefaultTableModel implements
 
     /**
      * See {@link BackingObjectDataModel#getBackingObjectForRow(int)}.
-     * @param rowIndex the row index.
+     * 
+     * @param rowIndex
+     *            the row index.
      * @return the backing object for that row index.
      */
     public Object getBackingObjectForRow(int rowIndex) {
@@ -91,10 +103,12 @@ public class DefaultSortableTableModel extends DefaultTableModel implements
 
     /**
      * See {@link BackingObjectDataModel#setBackingObjects(java.lang.Object[])}.
-     * @param backingObjects the backing objects.
+     * 
+     * @param backingObjects
+     *            the backing objects.
      */
     public void setBackingObjects(Object[] backingObjects) {
-        rowsToBackingObjects = new HashMap < Integer, Object >();
+        rowsToBackingObjects = new HashMap<Integer, Object>();
         for (int i = 0; i < backingObjects.length; i++) {
             int rowHash = getHashCodeForRow(i);
             LOG.info("Row " + i + " has hashCode " + rowHash);
@@ -104,8 +118,11 @@ public class DefaultSortableTableModel extends DefaultTableModel implements
 
     /**
      * See {@link SortableTableModel#sort(int, boolean)}.
-     * @param columnIndex the column index.
-     * @param ascending whether to sort ascending (true) or descending (false).
+     * 
+     * @param columnIndex
+     *            the column index.
+     * @param ascending
+     *            whether to sort ascending (true) or descending (false).
      */
     public void sort(int columnIndex, boolean ascending) {
 
@@ -132,11 +149,24 @@ public class DefaultSortableTableModel extends DefaultTableModel implements
     }
 
     /**
+     * See {@link SortableTableModel#sort(int[], boolean[])}
+     * 
+     * @param columnIndices
+     * @param ascending
+     */
+    public void sort(int[] columnIndices, boolean[] ascending) {
+        // FIXME - this is a vary lazy way to do it
+        for (int i = columnIndices.length - 1; i >= 0; i--) {
+            sort(columnIndices[i], ascending[i]);
+        }
+    }
+
+    /**
      * Compares the specified column of an array.
+     * 
      * @author sgodden
      */
-    private static class ArrayColumnComparator implements
-            Comparator < Object[] > {
+    private static class ArrayColumnComparator implements Comparator<Object[]> {
 
         /**
          * The column index to compare.
@@ -150,7 +180,9 @@ public class DefaultSortableTableModel extends DefaultTableModel implements
         /**
          * Creates a new comparator, comparing the object arrays on the
          * specified index.
-         * @param columnIndex the column index to compare.
+         * 
+         * @param columnIndex
+         *            the column index to compare.
          */
         private ArrayColumnComparator(int columnIndex, boolean ascending) {
             this.colIndex = columnIndex;
@@ -159,8 +191,11 @@ public class DefaultSortableTableModel extends DefaultTableModel implements
 
         /**
          * See {@link Comparator#compare(Object, Object)}.
-         * @param oa1 the first object array.
-         * @param oa2 the second object array.
+         * 
+         * @param oa1
+         *            the first object array.
+         * @param oa2
+         *            the second object array.
          */
         @SuppressWarnings("unchecked")
         public int compare(Object[] oa1, Object[] oa2) {
@@ -168,8 +203,7 @@ public class DefaultSortableTableModel extends DefaultTableModel implements
             Comparable c2 = (Comparable) oa2[colIndex];
             if (ascending) {
                 return c1.compareTo(c2);
-            }
-            else {
+            } else {
                 return c2.compareTo(c1);
             }
         }
