@@ -54,7 +54,7 @@ public class Query
 	private int rowOffset = 0;
 	private int bailOutSize = 0;
 	private boolean calculateRowCount = false;
-	private SortData sortData;
+	private SortData[] sortData;
 	
 	/**
 	 * Constructs a new query.
@@ -290,16 +290,29 @@ public class Query
 	 * @return this query.
 	 */
 	public Query setSortData(SortData sortData) {
-	    this.sortData = sortData;
+	    this.sortData = new SortData[] {sortData};
 	    return this;
 	}
+    
+    /**
+     * Sets the sort data for all sorting.
+     * <p>
+     * When set, the query will be sorted by the specified columns only.
+     * </p>
+     * @param sortData the sort data.
+     * @return this query.
+     */
+    public Query setSortDatas(SortData[] sortData) {
+        this.sortData = sortData;
+        return this;
+    }
 
 	/**
 	 * Returns the sort data specified for the query, 
 	 * or <code>null</code> if none was specified.
 	 * @return the sort data, or <code>null</code> if none was specified.
 	 */
-	public SortData getSortData() {
+	public SortData[] getSortData() {
 	    return sortData;
 	}
 

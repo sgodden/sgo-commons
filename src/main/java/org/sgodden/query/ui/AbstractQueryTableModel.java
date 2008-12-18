@@ -26,6 +26,7 @@ import org.sgodden.query.ResultSet;
 import org.sgodden.query.ResultSetRow;
 import org.sgodden.query.service.QueryService;
 import org.sgodden.ui.models.SortData;
+import org.sgodden.ui.models.SortableTableModel;
 import org.sgodden.ui.mvc.ModelListener;
 
 /**
@@ -225,13 +226,43 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
     }
 
     /**
+     * Refreshes the model based on the specified filter criterion, which may be
+     * null to retrieve all rows.
+     * <p>
+     * XXX - changing filter criteria really means the model is changing, so
+     * this method should be removed?
+     * </p>
+     * @param criterion the filter criteria to put in the query, or
+     *            <code>null</code> to perform no filtering.
+     * @param sortData the sort data to use, or <code>null</code> to
+     *            specify no sort.
+     */
+    private void refresh(Restriction criterion,
+            SortData[] sortData) {
+        Query query = getQuery();
+
+        if (criterion != null) {
+            query.setFilterCriterion(criterion);
+        }
+        else{
+            query.setFilterCriterion(null);
+        }
+
+        if (sortData != null) {
+            query.setSortDatas(sortData);
+        }
+
+        doRefresh(query);
+    }
+
+    /**
      * Refreshes the model based on the specified filter criteria, which may be
      * null to retrieve all rows.
      * @param filterCriteria the filter criteria to put in the query, or
      *            <code>null</code> to perform no filtering.
      */
     public void refresh(Restriction criterion) {
-        refresh(criterion, null);
+        refresh(criterion, (SortData)null);
     }
 
     /**
@@ -249,6 +280,20 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      */
     public void sort(int columnIndex, boolean ascending) {
         refresh(criterion, new SortData(columnIndex, ascending));
+    }
+
+    /**
+     * See
+     * {@link org.sgodden.ui.mvc.models.SortableTableModel#sort(int[], boolean[])}
+     * .
+     * @see org.sgodden.ui.mvc.models.SortableTableModel#sort(int[], boolean[])
+     */
+    public void sort(int[] columnIndices, boolean[] ascending) {
+        SortData[] sDatas = new SortData[columnIndices.length];
+        for (int i = 0; i < sDatas.length; i++) {
+            sDatas[i] = new SortData(columnIndices[i], ascending[i]);
+        }
+        refresh(criterion, sDatas);
     }
 
 }

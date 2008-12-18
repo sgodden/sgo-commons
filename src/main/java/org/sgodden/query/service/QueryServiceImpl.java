@@ -54,7 +54,7 @@ public class QueryServiceImpl implements QueryService {
             .getLog(QueryServiceImpl.class);
 
     /**
-     * The provider of hibenrate sessions.
+     * The provider of hibernate sessions.
      */
     private Provider < Session > sessionProvider;
 
