@@ -14,10 +14,10 @@
 		<exec executable="mvn">
 			<arg value="install"/>
 			<arg value="-DgroupId=org.sgodden"/>
-			<arg value="-DartifactId=echo3ext20"/>
+			<arg value="-DartifactId=sgo-commons"/>
 			<arg value="-Dversion=1.0-SNAPSHOT"/>
 			<arg value="-Dpackaging=jar"/>
-			<arg value="-Dfile=build${file.separator}echo3ext20.jar"/>
+			<arg value="-Dfile=build${file.separator}sgo-commons.jar"/>
 		</exec>
 	</target>
 	

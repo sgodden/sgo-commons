@@ -162,6 +162,24 @@ public class DefaultSortableTableModel extends DefaultTableModel implements
     }
 
     /**
+     * See {@link SortableTableModel#sort(int[], boolean[])}
+     * 
+     * @param columnIndices
+     * @param ascending
+     */
+    public void sort(String[] columnNames, boolean[] ascending) {
+        int[] columnIndices = new int[columnNames.length];
+        for (int i = 0; i < columnIndices.length; i++) {
+            for (int j = 0; j < getColumnCount(); j++) {
+                if (columnNames[i].equals(getColumnName(j))) {
+                    columnIndices[i] = j;
+                }
+            }
+        }
+        sort(columnIndices, ascending);
+    }
+
+    /**
      * Compares the specified column of an array.
      * 
      * @author sgodden
