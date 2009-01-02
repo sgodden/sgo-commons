@@ -296,4 +296,27 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
         refresh(criterion, sDatas);
     }
 
+    /**
+     * See
+     * {@link org.sgodden.ui.mvc.models.SortableTableModel#sort(String[], boolean[])}
+     * .
+     * @see org.sgodden.ui.mvc.models.SortableTableModel#sort(String[], boolean[])
+     */
+    public void sort(String[] columnNames, boolean[] ascending) {
+        SortData[] sDatas = new SortData[columnNames.length];
+        Object[] colIds = getColumnIdentifiers();
+        for (int i = 0; i < sDatas.length; i++) {
+            int columnIndex = -1;
+            for (int j = 0; j < colIds.length && columnIndex == -1; j++) {
+                if (colIds[j].equals(columnNames[i]))
+                    columnIndex = j;
+            }
+            if (columnIndex >= 0)
+                sDatas[i] = new SortData(columnIndex, ascending[i]);
+            else
+                throw new IllegalArgumentException("Unknown column " + columnNames[i]);
+        }
+        refresh(criterion, sDatas);
+    }
+
 }

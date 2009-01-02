@@ -46,5 +46,7 @@ public interface SortableTableModel {
 	 *            (false).
 	 */
 	public void sort(int[] columnIndices, boolean[] ascending);
+	
+	public void sort(String[] columnNames, boolean[] ascending);
 
 }
