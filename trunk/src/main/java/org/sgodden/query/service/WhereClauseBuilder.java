@@ -49,36 +49,32 @@ class WhereClauseBuilder {
         if (crit.getRestrictions().size() < 2) {
             throw new IllegalArgumentException("An or filter criterion must have at least two sub-criteria");
         }
-        buf.append("( ");
-        boolean first = true;
+        StringBuffer clauseBuf = new StringBuffer();
+        clauseBuf.append("( ");
         for (Restriction subcrit : crit.getRestrictions()) {
-            if (!first) {
-                buf.append(" OR ");
+            if (!"( ".equals(clauseBuf.toString())) {
+                clauseBuf.append(" OR ");
             }
-            else {
-                first = false;
-            }
-            append(subcrit, buf);
+            append(subcrit, clauseBuf);
         }
-        buf.append(" )");
+        clauseBuf.append(" )");
+        buf.append(clauseBuf);
     }
     
     private void appendAnd(AndRestriction crit, StringBuffer buf) {
         if (crit.getRestrictions().size() < 2) {
             throw new IllegalArgumentException("An and filter criterion must have at least two sub-criteria");
         }
-        buf.append("( ");
-        boolean first = true;
+        StringBuffer clauseBuf = new StringBuffer();
+        clauseBuf.append("( ");
         for (Restriction subcrit : crit.getRestrictions()) {
-            if (!first) {
-                buf.append(" AND ");
+            if (!"( ".equals(clauseBuf.toString())) {
+                clauseBuf.append(" AND ");
             }
-            else {
-                first = false;
-            }
-            append(subcrit, buf);
+            append(subcrit, clauseBuf);
         }
-        buf.append(" )");
+        clauseBuf.append(" )");
+        buf.append(clauseBuf);
     }
     
     private void appendSimple(SimpleRestriction crit, StringBuffer buf) {
