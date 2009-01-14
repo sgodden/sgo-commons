@@ -124,7 +124,10 @@ public class QueryStringBuilder {
         } else {
             CompositeRestriction comp = (CompositeRestriction) crit;
             for (Restriction subcrit : comp.getRestrictions()) {
-                appendFromClauseForFilterCriterion(subcrit, buf, aliases);
+                if (subcrit != null)
+                    appendFromClauseForFilterCriterion(subcrit, buf, aliases);
+                else
+                    LOG.warn("Composite Restriction where one sub-restriction is null");
             }
         }
     }
