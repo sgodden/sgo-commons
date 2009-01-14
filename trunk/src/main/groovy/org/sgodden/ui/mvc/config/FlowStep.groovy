@@ -22,7 +22,7 @@ package org.sgodden.ui.mvc.config
  */
 class FlowStep {
      
-     Set < String > availableResolutions
+     Set < String > availableResolutions = new HashSet < String >()
      String controllerMethod
      String controllerName
      String description
@@ -40,7 +40,6 @@ class FlowStep {
      public void setTransitions(Transition[] transitions) {
          this.transitions = transitions
          transitionsByName = new HashMap < String, Set < Transition > >()
-         availableResolutions = new HashSet < String >()
          for (t in transitions) {
              if ( t.on == null ) {
                  throw new IllegalArgumentException("The 'on' attribute of a transition must be specified")
