@@ -29,6 +29,14 @@ public class OrRestriction implements CompositeRestriction {
     
     private List < Restriction > criteria = new ArrayList < Restriction >();
     
+    public OrRestriction() {}
+    
+    public OrRestriction(Restriction... restrictions) {
+        for (int i = 0; i < restrictions.length; i++) {
+            criteria.add(restrictions[i]);
+        }
+    }
+    
     /**
      * Adds a criterion to the list that will be executed in
      * an or relationship.

@@ -34,6 +34,22 @@ public class AndRestriction implements CompositeRestriction {
     private List < Restriction > criteria = new ArrayList < Restriction >();
     
     /**
+     * Create an AndRestriction with the specified criterions
+     * @param criterion the criterion to add.
+     */
+    public AndRestriction() {
+    }
+    
+    /**
+     * Create an AndRestriction with the specified criterions
+     * @param criterion the criterion to add.
+     */
+    public AndRestriction(Restriction... criterions) {
+        for (Restriction r : criterions)
+            criteria.add(r);
+    }
+    
+    /**
      * Adds a criterion to the list that will be executed in
      * an 'and' relationship.
      * @param criterion the criterion to add.
