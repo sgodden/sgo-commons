@@ -207,7 +207,7 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * @param sortData the primary sort data to use, or <code>null</code> to
      *            specify no primary sort.
      */
-    private void refresh(Restriction criterion,
+    protected void refresh(Restriction criterion,
             SortData sortData) {
         Query query = getQuery();
 
@@ -237,7 +237,7 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * @param sortData the sort data to use, or <code>null</code> to
      *            specify no sort.
      */
-    private void refresh(Restriction criterion,
+    protected void refresh(Restriction criterion,
             SortData[] sortData) {
         Query query = getQuery();
 
