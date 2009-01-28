@@ -92,16 +92,26 @@ public class QueryStringBuilder {
 
         for (QueryColumn col : query.getColumns()) {
             if (QueryUtil.isRelatedColumn(col.getAttributePath())) {
-                String alias = QueryUtil.getClassAlias(col.getAttributePath());
-                if (!aliases.contains(alias)) {
-                    buf.append(" LEFT OUTER JOIN");
-                    buf
-                            .append(" obj."
-                                    + QueryUtil.getRelationName(col
-                                            .getAttributePath()));
-                    buf.append(" AS "
-                            + QueryUtil.getClassAlias(col.getAttributePath()));
-                    aliases.add(alias);
+                for (int i = 0; i < QueryUtil.getRelationDepth(col.getAttributePath()) ;i++) {
+                    
+                    String[] pathElements = col.getAttributePath().split("\\.");
+                    String currentPath = "";
+                    for (int j = 0; j <=i;j++) {
+                        if (j != 0)
+                            currentPath += ".";
+                        currentPath += pathElements[j];
+                    }
+                    
+                    String alias = QueryUtil.getClassAlias(currentPath);
+                    if (!aliases.contains(alias)) {
+                        buf.append(" LEFT OUTER JOIN");
+                        buf
+                                .append(" obj."
+                                        + QueryUtil.getRelationName(currentPath));
+                        buf.append(" AS "
+                                + QueryUtil.getClassAlias(currentPath));
+                        aliases.add(alias);
+                    }
                 }
             }
         }
@@ -238,8 +248,10 @@ public class QueryStringBuilder {
          * We'll just order by the selection columns for the moment
          */
         buf.append(" ORDER BY ");
+        
+        StringBuffer orderByBuf = new StringBuffer();
 
-        if (query.getSortData() != null) {
+        if (query.getSortData() != null && query.getSortData().length > 0) {
             if (query.getSortData().length == 1) {
 
                 Integer primarySortColumn = null;
@@ -247,7 +259,6 @@ public class QueryStringBuilder {
                 /*
                  * FIXME - if the query has order by specified, use it.
                  */
-                boolean first = true;
 
                 /*
                  * Record the index used as primary sort so that we don't
@@ -256,13 +267,15 @@ public class QueryStringBuilder {
                  * always select the id as an extra column to whatever the
                  * incoming query selected.
                  */
+                if (query.getSortData()[0] == null)
+                    throw new IllegalStateException("Sort Datas may not be null!");
+                
                 primarySortColumn = query.getSortData()[0].getColumnIndex() + 2;
                 LOG.debug("Primary sort column is: " + primarySortColumn);
-                buf.append(" " + primarySortColumn);
-                buf.append(" "
+                orderByBuf.append(" " + primarySortColumn);
+                orderByBuf.append(" "
                         + (query.getSortData()[0].getAscending() ? "ASC"
                                 : "DESC"));
-                first = false;
 
                 for (int i = 0; i < query.getColumns().size(); i++) {
 
@@ -275,13 +288,10 @@ public class QueryStringBuilder {
                     if (primarySortColumn == null
                             || !(primarySortColumn == orderColumnIndex)) {
 
-                        if (!first) {
-                            buf.append(", ");
-                        } else {
-                            first = false;
-                        }
+                        if (orderByBuf.toString().trim().length() > 0)
+                            orderByBuf.append(", ");
 
-                        buf.append(orderColumnIndex);
+                        orderByBuf.append(orderColumnIndex);
 
                     }
 
@@ -292,18 +302,17 @@ public class QueryStringBuilder {
                     Integer sortColumn = thisSort.getColumnIndex() + 2;
 
                     LOG.debug("Adding sort column " + sortColumn);
-                    buf.append(" " + sortColumn);
-                    buf
+                    orderByBuf.append(" " + sortColumn);
+                    orderByBuf
                             .append(" "
                                     + (thisSort.getAscending() ? "ASC" : "DESC"));
 
                     if (i != query.getSortData().length - 1)
-                        buf.append(", ");
+                        orderByBuf.append(", ");
                 }
             }
         } else {
 
-            boolean first = true;
             for (int i = 0; i < query.getColumns().size(); i++) {
 
                 int orderColumnIndex = i + 2;
@@ -312,13 +321,10 @@ public class QueryStringBuilder {
                  * Ensure that we don't include the primary sort column again.
                  */
 
-                if (!first) {
-                    buf.append(", ");
-                } else {
-                    first = false;
-                }
+                if (orderByBuf.toString().trim().length() > 0)
+                    orderByBuf.append(", ");
 
-                buf.append(orderColumnIndex);
+                orderByBuf.append(orderColumnIndex);
 
             }
         }
@@ -326,7 +332,11 @@ public class QueryStringBuilder {
         /*
          * And we always have the id as the last sort column.
          */
-        buf.append(", 1");
+        if (orderByBuf.toString().trim().length() > 0)
+            orderByBuf.append(", 1");
+        else
+            orderByBuf.append("1");
+        buf.append(orderByBuf.toString());
 
     }
 

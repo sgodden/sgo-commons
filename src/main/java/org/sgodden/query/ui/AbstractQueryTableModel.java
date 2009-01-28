@@ -26,7 +26,6 @@ import org.sgodden.query.ResultSet;
 import org.sgodden.query.ResultSetRow;
 import org.sgodden.query.service.QueryService;
 import org.sgodden.ui.models.SortData;
-import org.sgodden.ui.models.SortableTableModel;
 import org.sgodden.ui.mvc.ModelListener;
 
 /**
@@ -35,7 +34,7 @@ import org.sgodden.ui.mvc.ModelListener;
  */
 @SuppressWarnings("serial")
 public abstract class AbstractQueryTableModel extends AbstractTableModel
-        implements QueryTableModel {
+        implements RefreshableQueryTableModel {
 
     /**
      * The query service which will actually execute the queries.
@@ -209,20 +208,10 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      */
     protected void refresh(Restriction criterion,
             SortData sortData) {
-        Query query = getQuery();
-
-        if (criterion != null) {
-            query.setFilterCriterion(criterion);
-        }
-        else{
-        	query.setFilterCriterion(null);
-        }
-
-        if (sortData != null) {
-            query.setSortData(sortData);
-        }
-
-        doRefresh(query);
+        if (sortData != null)
+            this.refresh(criterion, new SortData[] {sortData});
+        else
+            this.refresh(criterion, new SortData[0]);
     }
 
     /**
@@ -237,7 +226,7 @@ public abstract class AbstractQueryTableModel extends AbstractTableModel
      * @param sortData the sort data to use, or <code>null</code> to
      *            specify no sort.
      */
-    protected void refresh(Restriction criterion,
+    public void refresh(Restriction criterion,
             SortData[] sortData) {
         Query query = getQuery();
 

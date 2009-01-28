@@ -290,7 +290,10 @@ public class Query
 	 * @return this query.
 	 */
 	public Query setSortData(SortData sortData) {
-	    this.sortData = new SortData[] {sortData};
+	    if (sortData != null)
+	        this.sortData = new SortData[] {sortData};
+	    else
+	        this.sortData = null;
 	    return this;
 	}
     
