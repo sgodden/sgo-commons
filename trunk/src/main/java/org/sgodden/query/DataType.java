@@ -26,6 +26,7 @@ public enum DataType {
 	INTEGER,
 	TIMESTAMP,
 	LONG,
-	BOOLEAN
+	BOOLEAN,
+	UNKNOWN
 
 }

@@ -1,5 +1,7 @@
 package org.sgodden.query.service;
 
+import java.util.Locale;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sgodden.query.AndRestriction;
@@ -17,7 +19,7 @@ import org.sgodden.query.SimpleRestriction;
  * @author sgodden
  *
  */
-class WhereClauseBuilder {
+public class WhereClauseBuilder {
     
 	private final transient static Log log = LogFactory.getLog(WhereClauseBuilder.class);
 	
@@ -77,20 +79,12 @@ class WhereClauseBuilder {
         buf.append(clauseBuf);
     }
     
-    private void appendSimple(SimpleRestriction crit, StringBuffer buf) {
-
-    	//We would never attempt to upper case a search for a null value
-        if (crit.getValues()[0] !=null && crit.getIgnoreCase()) {
-            buf.append("UPPER(");
-        }
-
-        buf.append(QueryUtil.getQualifiedAttributeIdentifier(crit
-                .getAttributePath()));
-        
-        if (crit.getValues()[0] !=null &&  crit.getIgnoreCase()) {
-            buf.append(")");
-        }
-
+    /**
+     * Renders an operator into a stringbuffer
+     * @param crit
+     * @param buf
+     */
+    public static void renderOperator(SimpleRestriction crit, StringBuffer buf) {
         switch (crit.getOperator()) {
         case CONTAINS:
             buf.append(" LIKE ");
@@ -144,14 +138,21 @@ class WhereClauseBuilder {
         default:
             throw new IllegalArgumentException("Unsupported operator: " + crit.getOperator());
         }
-
+    }
+    
+    /**
+     * Renders a simple restriction's values into the buffer
+     * @param crit
+     * @param buf
+     */
+    public static void renderValues(SimpleRestriction crit, StringBuffer buf, Locale locale) {
         if (crit.getOperator() == Operator.BETWEEN
                 || crit.getOperator() == Operator.NOT_BETWEEN) {
             buf.append(QueryUtil.valueToString(crit.getAttributePath(), crit
-                    .getValues()[0], crit.getOperator(), query.getLocale(), crit.getIgnoreCase()));
+                    .getValues()[0], crit.getOperator(), locale, crit.getIgnoreCase()));
             buf.append(" AND ");
             buf.append(QueryUtil.valueToString(crit.getAttributePath(), crit
-                    .getValues()[1], crit.getOperator(), query.getLocale(), crit.getIgnoreCase()));
+                    .getValues()[1], crit.getOperator(), locale, crit.getIgnoreCase()));
         }
         else if (crit.getOperator() == Operator.IN
                 || crit.getOperator() == Operator.NOT_IN) {
@@ -160,18 +161,36 @@ class WhereClauseBuilder {
                     buf.append(',');
                 }
                 buf.append(QueryUtil.valueToString(crit.getAttributePath(),
-                        crit.getValues()[i], crit.getOperator(), query.getLocale(), crit.getIgnoreCase()));
+                        crit.getValues()[i], crit.getOperator(), locale, crit.getIgnoreCase()));
             }
         }
         else {
             buf.append(QueryUtil.valueToString(crit.getAttributePath(), crit
-                    .getValues()[0], crit.getOperator(), query.getLocale(), crit.getIgnoreCase()).toString());
+                    .getValues()[0], crit.getOperator(), locale, crit.getIgnoreCase()).toString());
         }
 
         if (crit.getOperator() == Operator.IN
                 || crit.getOperator() == Operator.NOT_IN) {
             buf.append(')');
         }
+    }
+    
+    private void appendSimple(SimpleRestriction crit, StringBuffer buf) {
+
+    	//We would never attempt to upper case a search for a null value
+        if (crit.getValues()[0] !=null && crit.getIgnoreCase()) {
+            buf.append("UPPER(");
+        }
+
+        buf.append(QueryUtil.getQualifiedAttributeIdentifier(crit
+                .getAttributePath()));
+        
+        if (crit.getValues()[0] !=null &&  crit.getIgnoreCase()) {
+            buf.append(")");
+        }
+
+        renderOperator(crit, buf);
+        renderValues(crit, buf, query.getLocale());
     }
 
 }

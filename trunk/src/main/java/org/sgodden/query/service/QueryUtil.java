@@ -102,5 +102,12 @@ class QueryUtil {
         return attributePath.indexOf('.') != -1;
     }
 
-
+    /**
+     * Returns how many related tables the attribute path goes through
+     * @param attributePath
+     * @return
+     */
+    public static int getRelationDepth(String attributePath) {
+        return attributePath.split("\\.").length;
+    }
 }

@@ -14,6 +14,7 @@
  */
 package org.sgodden.query.service;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -213,8 +214,12 @@ public class QueryServiceImpl implements QueryService {
                     }
                 }
                 else {
-                    throw new IllegalArgumentException("Cannot handle type: "
-                            + value.getClass().getName());
+                    log.warn("Unknown type: " + propertyType.getClass().getName());
+                    col.setDataType(DataType.UNKNOWN);
+                    if (value != null) {
+                        Serializable s = (Serializable)value;
+                        col.setValue(s);
+                    }
                 }
 
                 remainingColumns[i - 1] = col;
