@@ -124,4 +124,9 @@ public class EditPanel
         return ret;
     }
 
+    public String getTitle() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

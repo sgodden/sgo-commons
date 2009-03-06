@@ -34,5 +34,11 @@ public interface View {
      * Indicates that the view has been (re)placed into a container.
      */
     public void activate();
+    
+    /**
+     * Returns the title that should be displayed for a view
+     * @return
+     */
+    public String getTitle();
 
 }
