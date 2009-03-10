@@ -28,6 +28,12 @@ package org.sgodden.ui.mvc;
  *
  */
 public interface Container {
+    
+    /**
+     * Returns the view being displayed in this container
+     * @return
+     */
+    public View getCurrentView();
 	
 	/**
 	 * Fills the container with the specified view.
